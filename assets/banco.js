@@ -4,7 +4,7 @@
   const { D, $, esc, smorfia, api, avatarHTML } = T;
   let animating = false;
   let pin = sessionStorage.getItem("tmb_pin") || "";
-  let st = null, seenSeq = null, lastLen = -1, auto = false, busy = false, lastDrawLocal = 0, voice = true, story = true, roster = [];
+  let st = null, seenSeq = null, lastLen = -1, auto = false, busy = false, lastDrawLocal = 0, voice = true, story = localStorage.getItem("tmb_story") || "storiella", roster = [];
   const seenReacts = new Set(); const loadTime = Date.now();
   let overlayUntil = 0;
 
@@ -102,7 +102,7 @@
       const n = d[d.length - 1];
       if (n && isNew) {
         animating = true;
-        if (voice) T.prepareNumber(n, story);
+        if (voice) T.prepareNumber(n, story !== "niente");
         T.panariello(n, { big: true }).then(() => { showNumber(n, d); animating = false; if (voice) { speechSynthesis.cancel(); T.callNumber(n, story); } });
       } else showNumber(n, d);
     }
@@ -122,7 +122,7 @@
       $("#bb").textContent = n; $("#bb").classList.remove("anim"); void $("#bb").offsetWidth; $("#bb").classList.add("anim");
       $("#fig").innerHTML = T.fig(sm.e); $("#nap").textContent = sm.nap; $("#it").textContent = sm.it;
       $("#napnum").textContent = "« " + D.numNap(n) + " »";
-      $("#story").innerHTML = `<span class="rima">${esc(D.RIME[n - 1])}</span>${esc(sm.story)}`;
+      $("#story").innerHTML = `<b style="display:block;margin-bottom:4px">${esc(sm.story)}</b><span class="rima" style="margin:0">${esc(D.RIME[n - 1])}</span>`;
     } else {
       $("#napnum").textContent = "";
       $("#bb").textContent = "–"; $("#fig").textContent = "🧺"; $("#nap").textContent = st && st.phase === "lobby" ? "Si comincia tra poco" : "Pronti?"; $("#it").textContent = "";
@@ -167,13 +167,16 @@
   $("#autoBtn").onclick = () => { auto = !auto; if (auto) lastDrawLocal = 0; renderAuto(); };
   $("#startBtn").onclick = async () => { await host("start"); T.confetti(120); T.announce("k=start", "Si comincia! Buona fortuna a tutti quanti!"); await refresh(); };
   $("#voiceBtn").onclick = () => { voice = !voice; $("#voiceBtn").textContent = "🔊 Voce: " + (voice ? "sì" : "no"); if (!voice) speechSynthesis.cancel(); };
-  $("#storyBtn").onclick = () => { story = !story; $("#storyBtn").textContent = "📜 Filastrocca: " + (story ? "sì" : "no"); };
+  const STORY_LABEL = { storiella: "la storiella", filastrocca: "la filastrocca", tutte: "storiella + filastrocca", niente: "solo il numero" };
+  const paintStory = () => { $("#storyBtn").textContent = "📜 Dopo il numero: " + STORY_LABEL[story]; };
+  $("#storyBtn").onclick = () => { const k = Object.keys(STORY_LABEL); story = k[(k.indexOf(story) + 1) % k.length]; try { localStorage.setItem("tmb_story", story); } catch {} paintStory(); T.toast("📜 Dopo il numero il banco legge: " + STORY_LABEL[story]); };
+  paintStory();
   $("#bancoBtn").onclick = async () => { await host("config", { config: { bancoPlays: !st.bancoPlays } }); await refresh(); };
   $("#modeSel").onchange = async () => { await host("config", { config: { mode: $("#modeSel").value } }); T.toast($("#modeSel").value === "chiamata" ? "📣 Vincite da chiamare: ognuno deve accorgersene da solo!" : "🤖 Vincite automatiche"); await refresh(); };
   $("#tieSel").onchange = async () => { await host("config", { config: { tie: $("#tieSel").value } }); await refresh(); };
   $("#bancoCall").onclick = async () => { const level = $("#bancoCall").dataset.level; if (!level) return; const r = await host("call", { level }); T.toast((r.result === "won" ? "🏆 " : r.result === "false" ? "🙈 " : "⏳ ") + r.message, 3500); await refresh(); };
   $("#voiceSel").onchange = () => T.setVoice($("#voiceSel").value);
-  $("#voiceTest").onclick = () => { speechSynthesis.cancel(); T.callNumber(33, false); };
+  $("#voiceTest").onclick = () => { speechSynthesis.cancel(); T.callNumber(33, story); };
   $("#interval").oninput = () => { $("#intervalV").textContent = $("#interval").value + " s"; };
   $("#interval").onchange = () => host("config", { config: { interval: +$("#interval").value } }).catch(() => {});
   $("#newBtn").onclick = async () => {

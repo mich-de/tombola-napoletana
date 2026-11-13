@@ -257,14 +257,21 @@
     }
   }
   // il numero chiamato come lo chiamerebbe il banco: prima il numero, una pausa, poi la smorfia
-  async function callNumber(n, withStory) {
-    try { const u = await recURL(n); if (u) return await playURL(u); } catch {}
-    try { return await playHuman(`n=${n}&s=${withStory ? 1 : 0}`); } catch {}
+  // dopo il numero si legge: "storiella" (default), "filastrocca", "tutte" o "niente" (true = storiella, false = niente)
+  async function callNumber(n, extra) {
+    const mode = extra === true ? "storiella" : extra === false ? "niente" : (extra || "niente");
     const sm = smorfia(n);
-    await speak(`${D.numNap(n)}!`, { rate: 0.88, pitch: 1.05 });
-    await new Promise(r => setTimeout(r, 200));
-    await speak(`${n}. ${sm.nap}… ${sm.it}.`, { rate: 0.95 });
-    if (withStory) { await new Promise(r => setTimeout(r, 300)); await speak(D.RIME[n - 1], { rate: 0.98 }); }
+    const pause = ms => new Promise(r => setTimeout(r, ms));
+    let done = false;
+    try { const u = await recURL(n); if (u) { await playURL(u); done = true; } } catch {}
+    if (!done) {
+      try { await playHuman(`n=${n}&s=${mode === "niente" ? 0 : 1}`); return; } catch {}
+      await speak(`${D.numNap(n)}!`, { rate: 0.88, pitch: 1.05 });
+      await pause(200);
+      await speak(`${n}. ${sm.nap}… ${sm.it}.`, { rate: 0.95 });
+    }
+    if (mode === "storiella" || mode === "tutte") { await pause(350); await speak(sm.story, { rate: 0.98 }); }
+    if (mode === "filastrocca" || mode === "tutte") { await pause(300); await speak(D.RIME[n - 1], { rate: 0.98 }); }
   }
   async function announce(qs, fallbackText) {
     try { return await playHuman(qs); } catch {}
