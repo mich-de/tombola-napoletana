@@ -94,6 +94,12 @@
   .recstat{font-weight:900;min-height:22px;margin-top:6px}
   .ptt{user-select:none;-webkit-user-select:none;touch-action:none}
   .ptt.on{background:linear-gradient(180deg,#ff5252,#b71c1c);box-shadow:0 0 0 6px rgba(255,82,82,.35),0 4px 0 #5a0d0d;animation:pulse 1s infinite}
+  .bme{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:999px;padding:4px 14px 4px 4px;color:#fff;font-weight:900}
+  .bme .av{width:40px;height:40px;font-size:22px}
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px;max-height:38vh;overflow:auto;margin-top:8px}
+  .pgrid button{background:var(--cream);border:3px solid transparent;border-radius:12px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:800}
+  .pgrid button.sel{border-color:var(--red);background:#fff}
+  .pgrid button.taken{opacity:.3;pointer-events:none}
 </style>
 </head>
 <body>
@@ -114,6 +120,7 @@
   <div class="bhead">
     <h1 class="title-font" id="tableTitle">🎄 Cartellone</h1>
     <span class="pill" id="phase"></span>
+    <button class="bme" id="bancoMe" title="Il tuo profilo: nome, personaggio e foto"></button>
     <div class="sp"></div>
     <div class="stat"><small>Partita</small><b id="sGame">1</b></div>
     <div class="stat"><small>Giocatori</small><b id="sCount">0</b></div>

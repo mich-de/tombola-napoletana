@@ -38,20 +38,21 @@
   // la tavolata: tutti gli avatar dei partecipanti (chi entra "salta" dentro)
   const crowdSeen = new Set(); let crowdInit = false;
   function crowdHTML(players, myId) {
-    const list = [...players].sort((a, b) => (b.wins || []).length - (a.wins || []).length || a.name.localeCompare(b.name));
+    const list = [...players].sort((a, b) => (b.banco ? 1 : 0) - (a.banco ? 1 : 0) || (b.wins || []).length - (a.wins || []).length || a.name.localeCompare(b.name));
     const html = list.map(p => {
       const isNew = crowdInit && !crowdSeen.has(p.id); crowdSeen.add(p.id);
       const w = (p.wins || []).length;
-      return `<div class="pp ${p.id === myId ? "me" : ""} ${isNew ? "new" : ""}" title="${esc(p.name)}"><div style="position:relative">${avatarHTML(p.av, "sm", p)}${w ? `<span class="tro">🏆${w > 1 ? w : ""}</span>` : ""}</div><span>${esc(p.name)}</span></div>`;
+      return `<div class="pp ${p.id === myId ? "me" : ""} ${isNew ? "new" : ""}" title="${esc(p.name)}${p.banco ? " · il banco" : ""}"><div style="position:relative">${avatarHTML(p.av, "sm", p)}${w ? `<span class="tro">🏆${w > 1 ? w : ""}</span>` : ""}${p.banco ? `<span class="tro" style="left:auto;right:-8px;bottom:auto;top:-8px">🧺</span>` : ""}</div><span>${esc(p.name)}</span></div>`;
     }).join("");
     crowdInit = true;
     return html || `<span class="muted">Ancora nessuno: aspettiamo i colleghi!</span>`;
   }
   function avatarHTML(id, size = "", who = null) {
     const a = D.AVATAR_BY_ID[id] || { e: "❓", color: "#777", name: "?" };
-    const photo = who && who.ph && who.id && who.id !== "banco";
+    const pid = who && (who.pid || (who.id !== "banco" ? who.id : null));
+    const photo = who && who.ph && pid;
     if (photo || (who && who.photoURL)) {
-      const src = who.photoURL || `/api/t?a=photo&id=${encodeURIComponent(who.id)}&v=${who.ph}`;
+      const src = who.photoURL || `/api/t?a=photo&id=${encodeURIComponent(pid)}&v=${who.ph}`;
       return `<div class="av ${size} photo" style="--c:${a.color}" title="${esc(a.name)}"><img src="${src}" alt="" loading="lazy"><span class="badge">${fig(a.e)}</span>${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
     }
     return `<div class="av ${size}" style="--c:${a.color}" title="${esc(a.name)}">${fig(a.e)}${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
@@ -533,7 +534,7 @@
         <h1 class="lvl title-font ${mega ? "mega" : ""}">${esc(lv.label)}!</h1>
         <div class="muted">con il numero <b>${ev.n}</b> · ${esc(smorfia(ev.n)?.nap || "")}</div>
         <div class="wn">${ev.winners.map(w => `<div>${avatarHTML(w.av, "lg", w)}<span>${esc(w.name)}</span>${numsHTML(w.nums, ev.n)}</div>`).join("")}</div>
-        ${ev.banco ? `<div class="muted" style="font-weight:800">🧺 Il banco vince con la cartella ${ev.banco.cartella} del tabellone</div>` : ""}
+        ${ev.banco ? `<div class="muted" style="font-weight:800">🧺 ${esc((ev.winners.find(w => w.banco) || {}).name || "Il banco")} (il banco) vince con la cartella ${ev.banco.cartella} del tabellone</div>` : ""}
         <div class="prize">🎁 ${esc(ev.prize)}</div>
         <div class="verdictbox"></div>
         ${amIn ? `<div class="me">🥳 HAI VINTO TU! Vai a ritirare il premio dal banco!</div>` : ""}

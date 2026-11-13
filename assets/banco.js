@@ -2,7 +2,7 @@
    Un'idea di Michele De Angelis · mdeangelis.me */
 (function () {
   const { D, $, esc, smorfia, api, avatarHTML } = T;
-  let animating = false;
+  let animating = false, profileAsked = false;
   const PINKEY = T.getRoom() === "main" ? "tmb_pin" : "tmb_pin_" + T.getRoom();
   let pin = sessionStorage.getItem(PINKEY) || "";
   let st = null, seenSeq = null, lastLen = -1, auto = false, busy = false, lastDrawLocal = 0, voice = true, story = localStorage.getItem("tmb_story") || "storiella", roster = [];
@@ -81,6 +81,8 @@
 
   function render() {
     const s = st, d = s.drawn || [];
+    paintMe();
+    if (!profileAsked && s.banco && s.banco.name === "Il Banco") { profileAsked = true; setTimeout(openProfile, 600); }
     if (s.table) $("#tableTitle").textContent = s.table.code === "main" ? "🎄 Cartellone" : "🎲 " + s.table.name;
     const ph = { lobby: ["Iscrizioni aperte", ""], playing: ["In gioco", "live"], tombolino: ["Caccia al tombolino", "tl"], over: ["Partita finita", "over"] }[s.phase];
     $("#phase").textContent = ph[0]; $("#phase").className = "pill " + ph[1];
@@ -286,6 +288,53 @@
     $m("#rDemo").onclick = () => { m.remove(); T.prepareRec(cur); T.panariello(cur, { big: true }).then(() => T.callNumber(cur, story)); };
     $m("#rDel").onclick = async () => { const r = await host("recdel", { n: cur }); st.recs = r.recs; T.setRecs(r.recs); $m("#rStat").textContent = "🗑️ Registrazione cancellata"; paint(); };
     paint();
+  }
+
+  // ---- il profilo del banco: anche lui è un giocatore (nome, personaggio, foto) ----
+  function paintMe() {
+    const b = st && st.banco; if (!b) return;
+    $("#bancoMe").innerHTML = `${avatarHTML(b.av, "", b)}<span>${esc(b.name === "Il Banco" ? "Il tuo profilo" : b.name)}</span>`;
+  }
+  $("#bancoMe").onclick = () => openProfile();
+  function openProfile() {
+    const b = (st && st.banco) || {};
+    let sel = b.av && b.av !== "banco" ? b.av : null, cat = sel ? (D.AVATAR_BY_ID[sel].cat) : "smorfia", b64 = undefined;
+    const m = T.modal(`<h2 class="title-font">🧺 Il banco è un giocatore!</h2>
+      <p class="muted" style="margin-top:0">Scegli nome, personaggio e, se vuoi, la tua foto: comparirai così nella tavolata e quando il cartellone vince.</p>
+      <input class="txt" id="pfName" maxlength="24" placeholder="Il tuo nome" value="${esc(b.name && b.name !== "Il Banco" ? b.name : "")}">
+      <div class="photobox" style="margin-top:12px"><div class="prev" id="pfPrev">${b.ph ? `<img src="/api/t?a=photo&id=${encodeURIComponent(b.pid)}&v=${b.ph}">` : "📷"}</div>
+        <div class="btns"><button class="btn" id="pfCam">📸 Webcam</button><label class="btn ghost" style="color:var(--ink);border-color:var(--line);cursor:pointer">🖼️ Scegli foto<input type="file" accept="image/*" id="pfFile" hidden></label><button class="btn ghost" style="color:var(--red2);border-color:var(--line)" id="pfDel">✖ Togli</button></div></div>
+      <div class="tabs" style="margin-top:12px">${[["smorfia", "🔢 Smorfia"], ["presepe", "🌟 Presepe"], ["moderni", "🤳 Moderni"], ["natale", "🎅 Natale"]].map(([k, l]) => `<button class="tab" data-k="${k}">${l}</button>`).join("")}</div>
+      <div class="pgrid" id="pfGrid"></div>
+      <div class="err" id="pfErr"></div>
+      <div class="center"><button class="btn green big" id="pfSave">💾 Salva il mio profilo</button></div>`);
+    const $m = q => m.querySelector(q);
+    const taken = new Set(roster.filter(p => !p.banco).map(p => p.av));
+    const grid = () => {
+      m.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.k === cat));
+      $m("#pfGrid").innerHTML = D.AVATARS.filter(a => a.cat === cat).map(a => `<button data-id="${a.id}" class="${a.id === sel ? "sel" : ""} ${taken.has(a.id) ? "taken" : ""}">${avatarHTML(a.id)}<span>${esc(a.name)}</span></button>`).join("");
+    };
+    m.querySelector(".tabs").onclick = e => { const t = e.target.closest(".tab"); if (t) { cat = t.dataset.k; grid(); } };
+    $m("#pfGrid").onclick = e => { const t = e.target.closest("button"); if (t) { sel = t.dataset.id; grid(); } };
+    const setP = d => { b64 = d ? d.split(",")[1] : ""; $m("#pfPrev").innerHTML = d ? `<img src="${d}">` : "📷"; };
+    const sq = (src, w, h, mirror) => { const c = document.createElement("canvas"); c.width = c.height = 192; const x = c.getContext("2d"), side = Math.min(w, h); if (mirror) { x.translate(192, 0); x.scale(-1, 1); } x.drawImage(src, (w - side) / 2, (h - side) / 2, side, side, 0, 0, 192, 192); return c.toDataURL("image/jpeg", .78); };
+    $m("#pfFile").onchange = e => { const f = e.target.files[0]; if (!f) return; const img = new Image(); img.onload = () => setP(sq(img, img.naturalWidth, img.naturalHeight)); img.src = URL.createObjectURL(f); };
+    $m("#pfDel").onclick = () => setP(null);
+    $m("#pfCam").onclick = async () => {
+      let stream; try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false }); } catch { return T.toast("⚠️ Webcam non disponibile: consenti il permesso"); }
+      const c = T.modal(`<h2 class="title-font center">📸 Sorridi!</h2><div class="cam"><video autoplay playsinline muted></video><div class="cd"></div><div class="fl"></div></div><div class="center"><button class="btn big" id="cs">📸 Scatta</button></div>`);
+      const v = c.querySelector("video"); v.srcObject = stream;
+      const stop = () => stream.getTracks().forEach(t => t.stop());
+      new MutationObserver((_, o) => { if (!document.body.contains(c)) { stop(); o.disconnect(); } }).observe(document.body, { childList: true });
+      document.addEventListener("visibilitychange", () => { if (document.hidden) c.remove(); }, { once: true });
+      c.querySelector("#cs").onclick = async () => { const cd = c.querySelector(".cd"); for (const k of ["3", "2", "1"]) { cd.textContent = k; T.sounds.pop(); await new Promise(r => setTimeout(r, 700)); } cd.textContent = ""; c.querySelector(".fl").classList.add("on"); setP(sq(v, v.videoWidth, v.videoHeight, true)); setTimeout(() => c.remove(), 450); };
+    };
+    $m("#pfSave").onclick = async () => {
+      $m("#pfErr").textContent = "";
+      try { await host("profile", { name: $m("#pfName").value.trim(), av: sel || "", b64 }); T.toast("✅ Profilo del banco salvato"); m.remove(); await refresh(); await loadRoster(); }
+      catch (e) { $m("#pfErr").textContent = "😬 " + e.message; }
+    };
+    grid();
   }
 
   $("#playersBtn").onclick = async () => {
