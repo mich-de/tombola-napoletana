@@ -159,6 +159,30 @@
       curveFinger(ctx, x + 34 * S, y0, x + 34 * S + len * .6, y0 + 6 * S, x + 34 * S + len, y0 - 16 * S - i * 2 * S, (22 - i * 1.2) * S);
     });
   }
+  // ---- mani emoji (disegnate da Apple/Google/Microsoft: molto più belle di quelle fatte a mano) ----
+  function emojiOK(ch) {
+    try {
+      const c = document.createElement("canvas"); c.width = c.height = 40; const x = c.getContext("2d");
+      x.font = "32px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif"; x.textBaseline = "top"; x.fillText(ch, 2, 2);
+      const d = x.getImageData(0, 0, 40, 40).data; let col = 0;
+      for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 100 && (Math.abs(d[i] - d[i + 1]) > 25 || Math.abs(d[i + 1] - d[i + 2]) > 25)) col++;
+      return col > 40;
+    } catch { return false; }
+  }
+  let HANDS = null;
+  function hands() {
+    if (HANDS) return HANDS;
+    const up = emojiOK("🫴"), down = emojiOK("🫳");
+    HANDS = { up: up ? "🫴" : "🤲", upRot: 0, down: down ? "🫳" : "🤚", downRot: down ? 0 : Math.PI };
+    return HANDS;
+  }
+  function emojiHand(ctx, ch, x, y, size, rot = 0, flip = false) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot); if (flip) ctx.scale(-1, 1);
+    ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = size * .12; ctx.shadowOffsetY = size * .05;
+    ctx.font = `${size}px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(ch, 0, 0);
+    ctx.restore();
+  }
   const easeOut = t => 1 - Math.pow(1 - t, 3), easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const back = t => { const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
   const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
@@ -269,7 +293,7 @@
         if (shakeCam > .2) { ctx.translate((Math.random() - .5) * shakeCam, (Math.random() - .5) * shakeCam); shakeCam *= .86; }
         // buio + occhio di bue
         const sp = ctx.createRadialGradient(W / 2, tableY - 120 * S, 40 * S, W / 2, tableY - 120 * S, Math.max(W, H) * .7);
-        sp.addColorStop(0, "rgba(60,10,12,.25)"); sp.addColorStop(.45, "rgba(25,3,6,.78)"); sp.addColorStop(1, "rgba(8,0,2,.93)");
+        sp.addColorStop(0, "rgba(60,10,12,.62)"); sp.addColorStop(.5, "rgba(25,3,6,.86)"); sp.addColorStop(1, "rgba(8,0,2,.95)");
         ctx.fillStyle = sp; ctx.fillRect(-20, -20, W + 40, H + 40);
         // raggi dietro la rivelazione
         if (glow > 0) {
@@ -279,22 +303,24 @@
           const ring = clamp((t - T0.flip) / .7);
           if (ring > 0 && ring < 1) { ctx.save(); ctx.globalAlpha *= 1 - ring; ctx.strokeStyle = "#fff3c4"; ctx.lineWidth = 8 * S * (1 - ring); ctx.beginPath(); ctx.arc(tokX, tokY, tokR * (1 + ring * 3), 0, 7); ctx.stroke(); ctx.restore(); }
         }
-        // cesto + mano che lo regge (+ mano che tappa durante le scosse)
+        // cesto tenuto da una mano sotto (palmo in su) e tappato da una mano sopra (palmo in giù)
         if (basketImg.complete) {
+          const H = hands();
           ctx.save(); ctx.translate(bx, tableY - lift + by); ctx.rotate(ang);
+          if (handsOn > 0) { ctx.save(); ctx.globalAlpha *= handsOn; emojiHand(ctx, H.up, -bw * .02, bh * .02, bw * 1.05, H.upRot); ctx.restore(); }
           ctx.drawImage(basketImg, -bw / 2, -bh, bw, bh);
-          if (handsOn > 0) { ctx.save(); ctx.globalAlpha *= handsOn; bottomHand(ctx, bw, bh, S); ctx.restore(); }
-          if (t < T0.shake) topHand(ctx, bw, bh, S);
+          if (t < T0.shake) emojiHand(ctx, H.down, bw * .04, -bh * 1.0, bw * .82, H.downRot);
           ctx.restore();
         }
         // la mano aperta che riceve il numero
-        if (palm && palmVis > 0 && t >= T0.shake) { ctx.save(); ctx.globalAlpha *= palmVis; openHand(ctx, palm.x, palm.y, S * (big ? 1.1 : 1), clamp((t - T0.shake) / .4)); if (chosen.state !== "palm") openHandFront(ctx, palm.x, palm.y, S * (big ? 1.1 : 1)); ctx.restore(); }
+        if (palm && palmVis > 0 && t >= T0.shake) {
+          const H = hands(), sz = 190 * S * (big ? 1.1 : 1);
+          ctx.save(); ctx.globalAlpha *= palmVis; emojiHand(ctx, H.up, palm.x - sz * .05, palm.y + sz * .12, sz, H.upRot); ctx.restore();
+        }
         // polvere
         for (const p of dust) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 300 * S * dt; p.life -= dt * 1.6; if (p.life > 0) { ctx.fillStyle = `rgba(255,240,210,${p.life * .5})`; ctx.beginPath(); ctx.arc(p.x, p.y, 4 * S * p.life, 0, 7); ctx.fill(); } }
         // il numero scelto
         if (chosen.state !== "hidden") token(ctx, tokX, tokY, tokR, { rot: chosen.rot, sx: tokSx, sy: tokSy, n, glow });
-        // le dita della mano aperta davanti al numero mentre è nel palmo
-        if (palm && palmVis > 0 && chosen.state === "palm") { ctx.save(); ctx.globalAlpha *= palmVis; openHandFront(ctx, palm.x, palm.y, S * (big ? 1.1 : 1)); ctx.restore(); }
         // la figura della smorfia e il cartellino
         if (revealed) {
           const p = clamp((t - T0.flip - .1) / .45), pe = back(p);
