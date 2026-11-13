@@ -156,6 +156,7 @@
         renderCard();
       };
       if (n && isNew) {
+        if (voice) T.prepareNumber(n, false);
         T.panariello(n).then(() => {
           show();
           if (voice) T.callNumber(n, false);

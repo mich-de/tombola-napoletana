@@ -135,13 +135,39 @@
       speechSynthesis.speak(u);
     });
   }
+  // ---- voce umana (AI, generata sul server e messa in cache); se non va, si usa la voce del browser ----
+  let humanOK = true;
+  const audioCache = new Map();
+  function humanAudio(qs) {
+    if (!humanOK) return null;
+    if (!audioCache.has(qs)) { const a = new Audio("/api/voce?" + qs); a.preload = "auto"; audioCache.set(qs, a); }
+    return audioCache.get(qs);
+  }
+  function playHuman(qs) {
+    const a = humanAudio(qs);
+    if (!a) return Promise.reject();
+    return new Promise((res, rej) => {
+      let done = false; const fin = ok => { if (done) return; done = true; audioCache.delete(qs); ok ? res() : rej(); };
+      a.onended = () => fin(true);
+      a.onerror = () => { humanOK = false; setTimeout(() => humanOK = true, 60000); fin(false); };
+      const t = setTimeout(() => fin(false), 9000);
+      a.currentTime = 0;
+      a.play().then(() => clearTimeout(t)).catch(() => { clearTimeout(t); fin(false); });
+    });
+  }
+  const prepareNumber = (n, withStory) => humanAudio(`n=${n}&s=${withStory ? 1 : 0}`);
   // il numero chiamato come lo chiamerebbe il banco: prima il numero, una pausa, poi la smorfia
   async function callNumber(n, withStory) {
+    try { return await playHuman(`n=${n}&s=${withStory ? 1 : 0}`); } catch {}
     const sm = smorfia(n);
     await speak(`${n}!`, { rate: 0.9, pitch: 1.05 });
     await new Promise(r => setTimeout(r, 250));
     await speak(`${sm.nap}… ${sm.it}.`, { rate: 0.95 });
     if (withStory) { await new Promise(r => setTimeout(r, 300)); await speak(sm.story, { rate: 1 }); }
+  }
+  async function announce(qs, fallbackText) {
+    try { return await playHuman(qs); } catch {}
+    if (fallbackText) return speak(fallbackText, { rate: .95, pitch: 1.05 });
   }
 
   // ---- il panariello: si scuote e salta fuori il numero ----
@@ -238,7 +264,7 @@
       confetti(mega ? 260 : 60 + lv.i * 40);
       if (mega) { fireworks(10, 3500); setTimeout(() => confetti(200, .1), 1600); }
       else if (lv.i >= 2) fireworks(3, 1200);
-      if (opts.speak) { speechSynthesis.cancel(); speak(`${lv.label}! ${ev.winners.map(w => w.name).join(", e ")}${ev.winners.length > 1 ? " si spartiscono" : " vince"}: ${ev.prize}`, { rate: .95, pitch: 1.05 }); }
+      if (opts.speak) { speechSynthesis.cancel(); announce(`ev=${ev.id}`, `${lv.label}! ${ev.winners.map(w => w.name).join(", e ")}${ev.winners.length > 1 ? " si spartiscono" : " vince"}: ${ev.prize}`); }
       const vb = ov.querySelector(".verdictbox");
       const showVerdict = () => {
         if (!ev.verdict) return;
@@ -292,5 +318,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();
