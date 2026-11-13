@@ -37,6 +37,7 @@
       <input class="txt" id="search" placeholder="🔎 Cerca un numero o un nome…" style="font-size:15px;padding:10px 14px;margin:8px 0">
       <div class="avgrid" id="avgrid"></div>
     </div>
+    <div class="card-box hidden" id="joinLive" style="background:#fff7e0;border:2px dashed var(--gold)"></div>
     <div class="err" id="joinErr"></div>
     <div class="center"><button class="btn big" id="joinBtn">🎟️ Prendi la cartella</button></div>
   </section>
@@ -62,9 +63,20 @@
       <div class="prev" id="prev"></div>
     </div>
 
-    <div class="card-box">
+    <div class="card-box hidden" id="specBox">
+      <h3>👀 Partita in corso</h3>
+      <p style="margin:0 0 6px">La partita è già cominciata, quindi per adesso la guardi da spettatore. <b>Giocherai dalla prossima partita</b>: la tua cartella arriverà da sola quando il banco ne avvia una nuova.</p>
+      <div class="muted" id="specInfo"></div>
+    </div>
+
+    <div class="card-box" id="cardBox">
       <div class="cartella" id="cartella"><span class="tag">LA TUA CARTELLA</span></div>
       <div class="hint" id="hint"></div>
+    </div>
+
+    <div class="card-box">
+      <h3>Tabellone</h3>
+      <div class="mini90" id="mini90"></div>
     </div>
 
     <div class="card-box">

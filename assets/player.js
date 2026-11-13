@@ -4,6 +4,7 @@
   const { D, $, esc, smorfia, LEVEL, api, avatarHTML } = T;
   const LS = "tmb_me";
   let me = null, st = null, seenSeq = null, lastDrawnLen = -1, roster = [], selAv = null, cat = "smorfia";
+  let shownLen = 0;
   let voice = false, polling = false, lastReact = 0;
   const seenReacts = new Set(); const loadTime = Date.now();
 
@@ -39,6 +40,13 @@
     $("#join").classList.remove("hidden");
     if (me) { $("#name").value = me.name; selAv = me.av; cat = D.AVATAR_BY_ID[me.av]?.cat || "smorfia"; }
     await loadRoster(); renderGrid();
+    try {
+      const s = await api("state");
+      const live = s.phase === "playing" || s.phase === "tombolino";
+      $("#joinLive").innerHTML = live ? `🎲 <b>La partita ${s.game} è in corso</b> (${s.drawn.length} numeri estratti su 90). Iscriviti adesso: guarderai questa partita e giocherai dalla prossima.`
+        : s.phase === "over" ? `🏁 La partita ${s.game} è appena finita. Iscriviti: giocherai dalla prossima.` : "";
+      $("#joinLive").classList.toggle("hidden", !(live || s.phase === "over"));
+    } catch {}
     clearInterval(rosterTimer); rosterTimer = setInterval(async () => { if ($("#join").classList.contains("hidden")) return clearInterval(rosterTimer); await loadRoster(); renderGrid(); }, 5000);
     if (!me) setTimeout(() => $("#name").focus(), 300);
   }
@@ -61,6 +69,7 @@
       const r = await api("join", { name, av: selAv, id: me?.id, tk: me?.tk });
       me = r; localStorage.setItem(LS, JSON.stringify({ id: r.id, tk: r.tk }));
       T.confetti(80, .5); T.sounds.win(0);
+      if (r.spectator) T.toast("👀 Partita in corso: giocherai dalla prossima!", 4000);
       startGame();
     } catch (e) {
       $("#joinErr").textContent = "😬 " + e.message;
@@ -102,7 +111,7 @@
 
   async function onState(s) {
     const prev = st; st = s;
-    if (me && s.game !== me.cardGame) {
+    if (me && ((me.cardGame == null && s.phase === "lobby") || (me.cardGame != null && s.game !== me.cardGame))) {
       try { me = { ...me, ...(await api("me", null, `&id=${encodeURIComponent(me.id)}&tk=${encodeURIComponent(me.tk)}`)) }; lastDrawnLen = -1; }
       catch (e) { if (e.status === 404 || e.status === 403) { localStorage.removeItem(LS); me = null; return openJoin(); } }
     }
@@ -111,7 +120,7 @@
     for (const ev of (s.events || []).filter(e => e.id > seenSeq)) {
       if (ev.type === "win") setTimeout(() => T.showWin(ev, { me: me?.id, speak: voice }), 1800);
       if (ev.type === "start") { T.toast("🎲 Si comincia! Buona fortuna"); T.confetti(60); }
-      if (ev.type === "newgame") T.toast("🔄 Nuova partita: ecco la tua nuova cartella!");
+      if (ev.type === "newgame") T.toast("🔄 Nuova partita: ecco la tua cartella!");
       if (ev.type === "over") T.toast("🏁 Partita finita! Grazie a tutti");
     }
     seenSeq = Math.max(seenSeq, s.seq || 0);
@@ -143,6 +152,7 @@
       const n = d[d.length - 1];
       const ball = $("#bigball");
       const show = () => {
+        shownLen = d.length; if (st) renderMini();
         if (n) {
           const sm = smorfia(n);
           ball.textContent = n; ball.classList.remove("anim"); void ball.offsetWidth; ball.classList.add("anim");
@@ -160,12 +170,31 @@
         T.panariello(n).then(() => {
           show();
           if (voice) T.callNumber(n, false);
-          if (me && me.card.flat().includes(n)) { T.confetti(25, .55); if (navigator.vibrate) navigator.vibrate(80); }
+          if (me && me.card && me.card.flat().includes(n)) { T.confetti(25, .55); if (navigator.vibrate) navigator.vibrate(80); }
         });
       } else show();
       $("#prev").innerHTML = d.slice(-8, -1).reverse().map(x => `<span title="${esc(smorfia(x).nap)}">${x}</span>`).join("");
     }
     renderPrizes();
+    renderSpectator();
+    renderMini();
+  }
+
+  function renderSpectator() {
+    const spec = !!me && !me.card;
+    $("#specBox").classList.toggle("hidden", !spec);
+    $("#cardBox").classList.toggle("hidden", spec);
+    if (spec && st) {
+      const pz = st.prizes || {}, done = D.LEVELS.filter(l => pz[l.key]).map(l => l.label);
+      $("#specInfo").innerHTML = st.phase === "lobby" ? "⏳ Sta per iniziare una nuova partita, la tua cartella sta arrivando…"
+        : `Partita ${st.game} · ${st.drawn.length}/90 estratti · ${st.inGame ?? st.count} giocatori in gara · ` + (done.length ? `già assegnati: ${done.join(", ")}` : "nessun premio ancora assegnato");
+    }
+  }
+  let miniBuilt = false;
+  function renderMini() {
+    if (!miniBuilt) { $("#mini90").innerHTML = Array.from({ length: 90 }, (_, i) => `<span data-n="${i + 1}">${i + 1}</span>`).join(""); miniBuilt = true; }
+    const d = (st.drawn || []).slice(0, shownLen), last = d[d.length - 1], set = new Set(d);
+    document.querySelectorAll("#mini90 span").forEach(el => { const k = +el.dataset.n; el.className = set.has(k) ? (k === last ? "last" : "on") : ""; });
   }
 
   function renderCard() {

@@ -186,3 +186,11 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:75}
 .pan-label small{color:var(--muted);font-weight:800}
 .pan-stage.small .pan-label{top:calc(58% + 30px)}.pan-stage.small .pan-label b{font-size:18px}
 .pan-stage.small .pan-rays{width:380px;height:380px}
+
+/* mini tabellone (giocatori) */
+.mini90{display:grid;grid-template-columns:repeat(10,1fr);gap:2px}
+.mini90 span{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;border-radius:5px;background:var(--cream);color:#c9b48c}
+.mini90 span.on{background:var(--red);color:#fff}
+.mini90 span.last{background:var(--gold2);color:var(--wine)}
+.mini90 span:nth-child(10n+5){margin-right:4px}
+.mini90 span:nth-child(n+21):nth-child(-n+30),.mini90 span:nth-child(n+51):nth-child(-n+60){margin-bottom:4px}
