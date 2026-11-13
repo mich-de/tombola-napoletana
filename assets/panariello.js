@@ -99,43 +99,63 @@
     ctx.fillStyle = "#e3ad80"; for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(16 * S, (-22 + i * 14) * S, 13 * S, 7 * S, 0, 0, 7); ctx.fill(); }
     ctx.restore();
   }
-  function finger(ctx, x, y, len, w, ang) {
-    ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
-    const g = ctx.createLinearGradient(0, -w / 2, 0, w / 2); g.addColorStop(0, "#f6cfaa"); g.addColorStop(.6, "#eab78e"); g.addColorStop(1, "#c98e66");
-    ctx.fillStyle = g; ctx.beginPath(); ctx.roundRect(0, -w / 2, len, w, w / 2); ctx.fill();
-    ctx.strokeStyle = "rgba(140,80,50,.35)"; ctx.lineWidth = 1; ctx.stroke();
-    ctx.fillStyle = "rgba(255,235,225,.85)"; ctx.beginPath(); ctx.roundRect(len - w * .95, -w * .32, w * .75, w * .64, w * .3); ctx.fill();   // unghia
-    ctx.strokeStyle = "rgba(150,90,60,.25)"; ctx.beginPath(); ctx.moveTo(len * .45, -w * .4); ctx.lineTo(len * .45, w * .4); ctx.stroke();      // nocca
+  // ---- mani disegnate con dita curve che seguono la forma del panariello ----
+  const SKIN = "#efc39c", SKIN_D = "#c98d63", SKIN_L = "#f9dcc0";
+  function curveFinger(ctx, x0, y0, cx, cy, x1, y1, w) {
+    ctx.save(); ctx.lineCap = "round";
+    ctx.strokeStyle = SKIN_D; ctx.lineWidth = w + 2.5; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(cx, cy, x1, y1); ctx.stroke();
+    ctx.strokeStyle = SKIN; ctx.lineWidth = w; ctx.stroke();
+    ctx.strokeStyle = SKIN_L; ctx.lineWidth = w * .35; ctx.globalAlpha *= .6; ctx.beginPath(); ctx.moveTo(x0, y0 - w * .18); ctx.quadraticCurveTo(cx, cy - w * .18, x1, y1 - w * .18); ctx.stroke();
     ctx.restore();
+    // unghia orientata come la punta del dito
+    const a = Math.atan2(y1 - cy, x1 - cx);
+    ctx.save(); ctx.translate(x1 - Math.cos(a) * w * .12, y1 - Math.sin(a) * w * .12); ctx.rotate(a);
+    ctx.fillStyle = "rgba(255,236,228,.95)"; ctx.strokeStyle = "rgba(170,110,85,.5)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(-w * .1, 0, w * .32, w * .27, 0, 0, 7); ctx.fill(); ctx.stroke(); ctx.restore();
+  }
+  function blob(ctx, x, y, rx, ry, rot) {
+    const g = ctx.createRadialGradient(x - rx * .3, y - ry * .3, 2, x, y, Math.max(rx, ry));
+    g.addColorStop(0, SKIN_L); g.addColorStop(.6, SKIN); g.addColorStop(1, SKIN_D);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, rot, 0, 7); ctx.fill();
   }
   function sleeve(ctx, x1, y1, x2, y2, w) {
-    ctx.save(); ctx.lineCap = "round"; ctx.strokeStyle = "#ececec"; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    ctx.strokeStyle = "rgba(0,0,0,.08)"; ctx.lineWidth = w * .3; ctx.beginPath(); ctx.moveTo(x1, y1 + w * .2); ctx.lineTo(x2, y2 + w * .2); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.lineCap = "round"; ctx.strokeStyle = "#d9d9d9"; ctx.lineWidth = w + 3; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.strokeStyle = "#f4f4f4"; ctx.lineWidth = w; ctx.stroke();
+    ctx.strokeStyle = "rgba(0,0,0,.07)"; ctx.lineWidth = w * .25; ctx.beginPath(); ctx.moveTo(x1 + w * .2, y1 + w * .2); ctx.lineTo(x2 + w * .2, y2 + w * .2); ctx.stroke(); ctx.restore();
   }
-  // mano di sotto: regge la base, le dita avvolgono il davanti del cesto
+  // mano sinistra: regge il panariello dal fondo, le dita lo avvolgono davanti
   function bottomHand(ctx, bw, bh, S) {
-    sleeve(ctx, -bw * 1.1, bh * .05, -bw * .38, -bh * .05, 70 * S);
-    ctx.fillStyle = "#eab78e"; ctx.beginPath(); ctx.ellipse(-bw * .22, -bh * .06, 46 * S, 34 * S, -.2, 0, 7); ctx.fill();               // palmo
-    for (let i = 0; i < 4; i++) finger(ctx, -bw * .3, -bh * (.1 + i * .085), (118 - i * 8) * S, 23 * S, -.08 - i * .03);
-    finger(ctx, -bw * .33, -bh * .02, 64 * S, 25 * S, -.9);                                                                              // pollice
+    sleeve(ctx, -bw * 1.15, bh * .32, -bw * .55, -bh * .12, 64 * S);
+    blob(ctx, -bw * .47, -bh * .2, 40 * S, 52 * S, .5);                                                   // dorso della mano
+    const ys = [-.4, -.31, -.22, -.13];
+    ys.forEach((y, i) => { const x0 = -bw * (.42 - i * .015), x1 = bw * (.06 + i * .03) - i * 4 * S; curveFinger(ctx, x0, bh * y, (x0 + x1) / 2, bh * (y + .055), x1, bh * (y + .015), (21 - i * 1.5) * S); });
+    curveFinger(ctx, -bw * .4, -bh * .44, -bw * .38, -bh * .58, -bw * .28, -bh * .64, 22 * S);                // pollice lungo il fianco
   }
-  // mano di sopra: tappa la bocca del panariello, le dita scendono sul davanti
+  // mano destra: a coppa sopra la bocca, le dita scendono sul davanti
   function topHand(ctx, bw, bh, S) {
-    sleeve(ctx, bw * 1.2, -bh * 1.35, bw * .3, -bh * 1.02, 66 * S);
-    ctx.fillStyle = "#eab78e"; ctx.beginPath(); ctx.ellipse(bw * .02, -bh * .97, 52 * S, 30 * S, .15, 0, 7); ctx.fill();                // palmo sul bordo
-    for (let i = 0; i < 4; i++) finger(ctx, bw * (.08 - i * .07), -bh * .98, (112 - Math.abs(i - 1.2) * 14) * S, 22 * S, 1.75 + i * .12);
-    finger(ctx, bw * .22, -bh * .9, 58 * S, 24 * S, 2.6);
+    sleeve(ctx, bw * 1.05, -bh * 1.55, bw * .25, -bh * 1.07, 60 * S);
+    blob(ctx, bw * .04, -bh * 1.0, bw * .26, bh * .085, .12);                                            // dorso a coppa sulla bocca
+    [-.13, -.05, .04, .12].forEach((x, i) => {
+      const x0 = bw * x, y0 = -bh * .96, x1 = bw * (x * 1.45 + .02), y1 = -bh * (.66 + Math.abs(i - 1.5) * .035);
+      curveFinger(ctx, x0, y0, x0 + (x1 - x0) * .2 + bw * .03, (y0 + y1) / 2, x1, y1, (20 - Math.abs(i - 1.5) * 1.5) * S);
+    });
+    curveFinger(ctx, -bw * .2, -bh * .98, -bw * .3, -bh * .9, -bw * .29, -bh * .76, 21 * S);                 // pollice
   }
+  // mano aperta, palmo in su, dita leggermente piegate (riceve il numero)
   function openHand(ctx, x, y, S, open) {
-    sleeve(ctx, x - 230 * S, y + 190 * S, x - 70 * S, y + 40 * S, 74 * S);
-    ctx.fillStyle = "#fff"; ctx.save(); ctx.translate(x - 74 * S, y + 44 * S); ctx.rotate(-.85); ctx.fillRect(-40 * S, -8 * S, 80 * S, 16 * S); ctx.restore();   // polsino
-    const g = ctx.createRadialGradient(x - 10 * S, y - 6 * S, 5 * S, x, y, 80 * S); g.addColorStop(0, "#f7d2b0"); g.addColorStop(1, "#d99a70");
-    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x - 20 * S, y + 6 * S, 78 * S, 36 * S, -.12, 0, 7); ctx.fill();                                              // palmo
-    ctx.strokeStyle = "rgba(150,90,60,.35)"; ctx.lineWidth = 2 * S; ctx.beginPath(); ctx.arc(x - 30 * S, y - 20 * S, 40 * S, .5, 1.6); ctx.stroke();                   // linee della mano
-    finger(ctx, x - 70 * S, y - 10 * S, 70 * S, 28 * S, -1.2 - (1 - open) * .6);                                                                                    // pollice
+    sleeve(ctx, x - 220 * S, y + 170 * S, x - 80 * S, y + 36 * S, 66 * S);
+    blob(ctx, x - 22 * S, y + 6 * S, 74 * S, 34 * S, -.08);                                             // palmo
+    ctx.strokeStyle = "rgba(160,95,65,.35)"; ctx.lineWidth = 2 * S;
+    ctx.beginPath(); ctx.moveTo(x - 70 * S, y + 6 * S); ctx.quadraticCurveTo(x - 30 * S, y - 12 * S, x + 20 * S, y + 2 * S); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x - 60 * S, y + 18 * S); ctx.quadraticCurveTo(x - 20 * S, y + 6 * S, x + 26 * S, y + 14 * S); ctx.stroke();
+    const up = (1 - open) * 30;
+    curveFinger(ctx, x - 62 * S, y - 6 * S, x - 66 * S, y - (40 + up) * S, x - 40 * S, y - (58 + up) * S, 23 * S);  // pollice alzato
   }
   function openHandFront(ctx, x, y, S) {
-    for (let i = 0; i < 4; i++) finger(ctx, x + 30 * S, y + (8 - i * 9) * S, (96 - Math.abs(i - 1.3) * 12) * S, 24 * S, -.05 - i * .13);
+    [0, 1, 2, 3].forEach(i => {
+      const y0 = y + (10 - i * 8) * S, len = (92 - Math.abs(i - 1.3) * 12) * S;
+      curveFinger(ctx, x + 34 * S, y0, x + 34 * S + len * .6, y0 + 6 * S, x + 34 * S + len, y0 - 16 * S - i * 2 * S, (22 - i * 1.2) * S);
+    });
   }
   const easeOut = t => 1 - Math.pow(1 - t, 3), easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const back = t => { const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
