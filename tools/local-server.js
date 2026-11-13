@@ -12,6 +12,7 @@ http.createServer(async (req, res) => {
     let body = {}; try { body = raw ? JSON.parse(raw) : {}; } catch {}
     try {
       const r = await handle({ method: req.method, query: Object.fromEntries(u.searchParams), body });
+      if (r.binary) { res.writeHead(200, { "Content-Type": r.type, "Cache-Control": "max-age=86400" }); return res.end(r.binary); }
       res.writeHead(r.status || 200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
       res.end(JSON.stringify(r.json));
     } catch (e) { res.writeHead(500); res.end(JSON.stringify({ error: String(e) })); }

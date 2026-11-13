@@ -110,7 +110,7 @@
     $("#prizes").innerHTML = D.LEVELS.map(l => {
       const p = pz[l.key];
       if (!p) return `<div class="prz ${next && next.key === l.key && playing ? "next" : ""}"><span class="lv">${l.label}</span><span class="who muted">${next && next.key === l.key && playing ? "in palio adesso…" : "in palio"}</span></div>`;
-      return `<div class="prz done"><span class="lv">${l.label}</span><span class="avs">${p.winners.slice(0, 4).map(w => avatarHTML(w.av, "sm")).join("")}</span>
+      return `<div class="prz done"><span class="lv">${l.label}</span><span class="avs">${p.winners.slice(0, 4).map(w => avatarHTML(w.av, "sm", w)).join("")}</span>
         <span class="who"><b>${esc(p.winners.map(w => w.name).join(", "))}</b><br><span class="muted">${esc(p.prize)} · al ${p.draw}° numero</span>${p.winners.slice(0, 3).map(w => T.numsHTML(w.nums, p.n)).join("")}</span></div>`;
     }).join("");
   }
@@ -145,7 +145,7 @@
 
   function renderBoard() {
     const w = roster.filter(p => p.wins.length).sort((a, b) => b.wins.length - a.wins.length).slice(0, 15);
-    $("#board").innerHTML = w.length ? w.map((p, i) => `<div class="r">${i < 3 ? ["🥇", "🥈", "🥉"][i] : `<span style="width:22px;text-align:center">${i + 1}</span>`}${avatarHTML(p.av, "sm")}<b>${esc(p.name)}</b><span>${p.wins.map(x => T.LEVEL[x.k]?.label[0] || "").join("")} · ${p.wins.length}</span></div>`).join("") : `<span class="muted">Ancora nessun vincitore</span>`;
+    $("#board").innerHTML = w.length ? w.map((p, i) => `<div class="r">${i < 3 ? ["🥇", "🥈", "🥉"][i] : `<span style="width:22px;text-align:center">${i + 1}</span>`}${avatarHTML(p.av, "sm", p)}<b>${esc(p.name)}</b><span>${p.wins.map(x => T.LEVEL[x.k]?.label[0] || "").join("")} · ${p.wins.length}</span></div>`).join("") : `<span class="muted">Ancora nessun vincitore</span>`;
   }
 
   // ---------- comandi ----------
@@ -280,7 +280,7 @@
 
   $("#playersBtn").onclick = async () => {
     await loadRoster();
-    const m = T.modal(`<h2 class="title-font">👥 Giocatori (${roster.length})</h2><div class="plist">${roster.sort((a, b) => a.name.localeCompare(b.name)).map(p => `<div class="r">${avatarHTML(p.av, "sm")}<span>${esc(p.name)}</span><button data-id="${p.id}" title="Rimuovi">🗑️</button></div>`).join("") || '<p class="muted">Ancora nessuno</p>'}</div>`);
+    const m = T.modal(`<h2 class="title-font">👥 Giocatori (${roster.length})</h2><div class="plist">${roster.sort((a, b) => a.name.localeCompare(b.name)).map(p => `<div class="r">${avatarHTML(p.av, "sm", p)}<span>${esc(p.name)}</span><button data-id="${p.id}" title="Rimuovi">🗑️</button></div>`).join("") || '<p class="muted">Ancora nessuno</p>'}</div>`);
     m.querySelector(".plist").onclick = async e => {
       const b = e.target.closest("button[data-id]"); if (!b) return;
       if (!confirm("Rimuovere questo giocatore?")) return;

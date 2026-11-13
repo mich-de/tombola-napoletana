@@ -246,3 +246,20 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:75}
 
 .ptt{user-select:none;-webkit-user-select:none;touch-action:none}
 .ptt.on{background:linear-gradient(180deg,#ff5252,#b71c1c)!important;color:#fff!important;box-shadow:0 0 0 6px rgba(255,82,82,.35)}
+
+/* avatar con foto */
+.av.photo{padding:0;overflow:visible}
+.av.photo img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.av.photo .badge{position:absolute;top:-6px;left:-8px;width:46%;height:46%;border-radius:50%;background:var(--c);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:.5em;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+/* foto dalla webcam */
+.photobox{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.photobox .prev{width:96px;height:96px;border-radius:50%;background:var(--cream);border:4px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;flex:none}
+.photobox .prev img{width:100%;height:100%;object-fit:cover}
+.photobox .btns{display:flex;gap:8px;flex-wrap:wrap}
+.photobox .btn{padding:10px 14px;font-size:14px}
+.cam{position:relative;width:min(320px,80vw);aspect-ratio:1;margin:8px auto;border-radius:50%;overflow:hidden;border:6px solid var(--gold);background:#000}
+.cam video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.cam .cd{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:110px;font-weight:900;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.6)}
+.cam .fl{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.cam .fl.on{animation:camflash .5s}
+@keyframes camflash{from{opacity:1}to{opacity:0}}

@@ -39,7 +39,10 @@
   async function openJoin() {
     $("#game").classList.add("hidden"); $("#reactbar").classList.add("hidden");
     $("#join").classList.remove("hidden");
-    if (me) { $("#name").value = me.name; selAv = me.av; cat = D.AVATAR_BY_ID[me.av]?.cat || "smorfia"; }
+    if (me) {
+      $("#name").value = me.name; selAv = me.av; cat = D.AVATAR_BY_ID[me.av]?.cat || "smorfia";
+      if (me.ph && !photoChanged) { $("#phPrev").innerHTML = `<img src="/api/t?a=photo&id=${me.id}&v=${me.ph}" alt="">`; $("#phDel").classList.remove("hidden"); }
+    }
     await loadRoster(); renderGrid();
     try {
       const s = await api("state");
@@ -63,6 +66,44 @@
       ${avatarHTML(a.id)}<span>${esc(a.name)}</span><small>${esc(a.sub)}</small></button>`).join("") || `<p class="muted">Nessun personaggio trovato</p>`;
   }
   $("#avgrid").onclick = e => { const b = e.target.closest(".avopt"); if (!b) return; selAv = b.dataset.id; T.sounds.pop(); renderGrid(); };
+  // ---- foto dalla webcam o dalla galleria: ritaglio quadrato 192×192, JPEG leggero ----
+  let photoB64 = null, photoChanged = false;
+  function setPhoto(dataURL) {
+    photoB64 = dataURL ? dataURL.split(",")[1] : ""; photoChanged = true;
+    $("#phPrev").innerHTML = dataURL ? `<img src="${dataURL}" alt="">` : "📷";
+    $("#phDel").classList.toggle("hidden", !dataURL);
+  }
+  function squareJPEG(src, w, h, mirror) {
+    const c = document.createElement("canvas"); c.width = c.height = 192;
+    const x = c.getContext("2d"), side = Math.min(w, h);
+    if (mirror) { x.translate(192, 0); x.scale(-1, 1); }
+    x.drawImage(src, (w - side) / 2, (h - side) / 2, side, side, 0, 0, 192, 192);
+    return c.toDataURL("image/jpeg", .78);
+  }
+  $("#phFile").onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const img = new Image(); img.onload = () => { setPhoto(squareJPEG(img, img.naturalWidth, img.naturalHeight, false)); URL.revokeObjectURL(img.src); };
+    img.src = URL.createObjectURL(f);
+  };
+  $("#phDel").onclick = () => setPhoto(null);
+  $("#phCam").onclick = async () => {
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 640 } }, audio: false }); }
+    catch { return T.toast("⚠️ Non riesco ad aprire la webcam: consenti il permesso o usa «Scegli foto»", 4000); }
+    const m = T.modal(`<h2 class="title-font center">📸 Sorridi!</h2><div class="cam"><video autoplay playsinline muted></video><div class="cd"></div><div class="fl"></div></div>
+      <div class="center"><button class="btn big" id="camShot">📸 Scatta</button></div>`);
+    const v = m.querySelector("video"); v.srcObject = stream;
+    const stop = () => stream.getTracks().forEach(t => t.stop());
+    new MutationObserver((_, o) => { if (!document.body.contains(m)) { stop(); o.disconnect(); } }).observe(document.body, { childList: true });
+    m.querySelector("#camShot").onclick = async () => {
+      const cd = m.querySelector(".cd");
+      for (const k of ["3", "2", "1"]) { cd.textContent = k; T.sounds.pop(); await new Promise(r => setTimeout(r, 700)); }
+      cd.textContent = ""; m.querySelector(".fl").classList.add("on"); T.sounds.draw();
+      setPhoto(squareJPEG(v, v.videoWidth, v.videoHeight, true));
+      setTimeout(() => m.remove(), 450);
+    };
+  };
+
   $("#joinBtn").onclick = async () => {
     const name = $("#name").value.trim();
     $("#joinErr").textContent = "";
@@ -72,6 +113,7 @@
     try {
       const r = await api("join", { name, av: selAv, id: me?.id, tk: me?.tk });
       me = r; localStorage.setItem(LS, JSON.stringify({ id: r.id, tk: r.tk }));
+      if (photoChanged) { try { const ph = await api("photo", { id: r.id, tk: r.tk, b64: photoB64 || "" }); me.ph = ph.ph; photoChanged = false; } catch (e) { T.toast("⚠️ Foto non salvata: " + e.message); } }
       T.confetti(80, .5); T.sounds.win(0);
       if (r.spectator) T.toast("👀 Partita in corso: giocherai dalla prossima!", 4000);
       if (r.late) { T.toast("⏰ Sei in ritardo! I premi già usciti non li prendi… e il banco ha un messaggio per te 🎙️", 6000); setTimeout(async () => { try { const u = await T.recURL("late"); if (u) T.playURL(u); } catch {} }, 1500); }
@@ -90,7 +132,7 @@
   }
   function renderMe() {
     const a = D.AVATAR_BY_ID[me.av];
-    $("#meAv").innerHTML = avatarHTML(me.av);
+    $("#meAv").innerHTML = avatarHTML(me.av, "", me);
     $("#meName").textContent = me.name;
     $("#meSub").textContent = a ? (a.num ? `${a.num} · ${a.name}` : a.name) : "";
   }
@@ -279,7 +321,7 @@
       const p = pz[l.key];
       if (!p) return `<div class="prz ${next && next.key === l.key && st.phase !== "lobby" ? "next" : ""}"><span class="lv">${l.label}</span><span class="who muted">${next && next.key === l.key ? "in palio adesso…" : "in palio"}</span></div>`;
       const mine = me && p.winners.some(w => w.id === me.id);
-      return `<div class="prz done"><span class="lv">${l.label}</span><span class="avs">${p.winners.slice(0, 4).map(w => avatarHTML(w.av, "sm")).join("")}</span>
+      return `<div class="prz done"><span class="lv">${l.label}</span><span class="avs">${p.winners.slice(0, 4).map(w => avatarHTML(w.av, "sm", w)).join("")}</span>
         <span class="who"><b>${esc(p.winners.map(w => w.name).join(", "))}</b>${mine ? " 🥳" : ""}<br><span class="muted">${esc(p.prize)}</span>${p.winners.slice(0, 3).map(w => T.numsHTML(w.nums, p.n)).join("")}</span></div>`;
     }).join("");
   }

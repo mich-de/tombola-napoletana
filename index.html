@@ -38,6 +38,20 @@
       <input class="txt" id="search" placeholder="🔎 Cerca un numero o un nome…" style="font-size:15px;padding:10px 14px;margin:8px 0">
       <div class="avgrid" id="avgrid"></div>
     </div>
+    <div class="card-box">
+      <h3>3 · La tua foto <span class="muted" style="text-transform:none;letter-spacing:0">(facoltativa)</span></h3>
+      <div class="photobox">
+        <div class="prev" id="phPrev">📷</div>
+        <div>
+          <div class="btns">
+            <button class="btn" id="phCam">📸 Webcam</button>
+            <label class="btn ghost" style="color:var(--ink);border-color:var(--line);cursor:pointer">🖼️ Scegli foto<input type="file" accept="image/*" capture="user" id="phFile" hidden></label>
+            <button class="btn ghost hidden" style="color:var(--red2);border-color:var(--line)" id="phDel">✖ Togli</button>
+          </div>
+          <div class="muted" style="font-size:12.5px;margin-top:6px">La tua faccia diventa l'avatar, con il personaggio della smorfia come spilla. La vedono solo i colleghi in gioco e si cancella quando il banco azzera la serata.</div>
+        </div>
+      </div>
+    </div>
     <div class="err" id="joinErr"></div>
     <div class="center"><button class="btn big" id="joinBtn">🎟️ Prendi la cartella</button></div>
   </section>

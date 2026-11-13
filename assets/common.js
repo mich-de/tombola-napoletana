@@ -25,8 +25,14 @@
     if (!list) return `<div class="wnums"><span class="k">${key} <small>${fig(smorfia(key).e)}</small></span><span>cartella completa ✔</span></div>`;
     return `<div class="wnums">${list.map(n => `<span class="${n === key ? "k" : ""}" title="${esc(smorfia(n).nap)}">${n} <small>${fig(smorfia(n).e)}</small></span>`).join("")}</div>`;
   }
-  function avatarHTML(id, size = "") {
+  // avatar: la foto del giocatore (se l'ha scattata) con il personaggio della smorfia come spilla
+  function avatarHTML(id, size = "", who = null) {
     const a = D.AVATAR_BY_ID[id] || { e: "❓", color: "#777", name: "?" };
+    const photo = who && who.ph && who.id && who.id !== "banco";
+    if (photo || (who && who.photoURL)) {
+      const src = who.photoURL || `/api/t?a=photo&id=${encodeURIComponent(who.id)}&v=${who.ph}`;
+      return `<div class="av ${size} photo" style="--c:${a.color}" title="${esc(a.name)}"><img src="${src}" alt="" loading="lazy"><span class="badge">${fig(a.e)}</span>${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
+    }
     return `<div class="av ${size}" style="--c:${a.color}" title="${esc(a.name)}">${fig(a.e)}${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
   }
 
@@ -129,7 +135,7 @@
     const ov = document.createElement("div"); ov.className = "overlay";
     ov.innerHTML = `<div class="winbox"><div style="font-size:54px">⏰🎙️</div>
       <h1 class="lvl title-font" style="font-size:clamp(34px,9vw,64px)">Ritardatario!</h1>
-      <div class="wn"><div>${avatarHTML(ev.av, "lg")}<span>${esc(ev.name)}</span></div></div>
+      <div class="wn"><div>${avatarHTML(ev.av, "lg", ev)}<span>${esc(ev.name)}</span></div></div>
       <div class="prize">Entra a partita in corso, dopo ${ev.drawn} numeri estratti.</div>
       <div class="verdict"><h4>⚖️ Il Tribunale della Smorfia</h4>
         <p>${ev.missed.length ? `I premi già usciti (<b>${esc(ev.missed.join(", "))}</b>) non li prende: gioca solo per quelli che restano.` : "Nessun premio è ancora uscito: gli è andata bene!"}</p>
@@ -457,7 +463,7 @@
       ov.innerHTML = `<div class="winbox checkbox"><div style="font-size:40px">🔎</div>
         <h2 class="title-font" style="color:var(--red);margin:4px 0">Un momento… controlliamo ${ev.level === "tombolino" ? "il tombolino" : "la tombola"}!</h2>
         <div class="muted" style="font-weight:800">${esc(QUIPS[Math.floor(Math.random() * QUIPS.length)])}</div>
-        <div class="wn" style="margin:12px 0 6px"><div>${avatarHTML(w.av, "lg")}<span>${esc(w.name)}</span></div></div>
+        <div class="wn" style="margin:12px 0 6px"><div>${avatarHTML(w.av, "lg", w)}<span>${esc(w.name)}</span></div></div>
         <div class="chkgrid">${nums.map(n => `<span data-n="${n}">${n}<small>${fig(smorfia(n).e)}</small></span>`).join("")}</div>
         <div class="chkmsg"></div><div class="stamp">✅ TUTTO REGOLARE!</div></div>`;
       document.body.appendChild(ov);
@@ -493,7 +499,7 @@
         <div style="font-size:${mega ? 46 : 30}px">${mega ? "🎆🎄🎆" : "✨🎉✨"}</div>
         <h1 class="lvl title-font ${mega ? "mega" : ""}">${esc(lv.label)}!</h1>
         <div class="muted">con il numero <b>${ev.n}</b> · ${esc(smorfia(ev.n)?.nap || "")}</div>
-        <div class="wn">${ev.winners.map(w => `<div>${avatarHTML(w.av, "lg")}<span>${esc(w.name)}</span>${numsHTML(w.nums, ev.n)}</div>`).join("")}</div>
+        <div class="wn">${ev.winners.map(w => `<div>${avatarHTML(w.av, "lg", w)}<span>${esc(w.name)}</span>${numsHTML(w.nums, ev.n)}</div>`).join("")}</div>
         ${ev.banco ? `<div class="muted" style="font-weight:800">🧺 Il banco vince con la cartella ${ev.banco.cartella} del tabellone</div>` : ""}
         <div class="prize">🎁 ${esc(ev.prize)}</div>
         <div class="verdictbox"></div>
