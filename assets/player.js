@@ -110,7 +110,7 @@
   }
 
   async function onState(s) {
-    const prev = st; st = s;
+    const prev = st; st = s; T.setRecs(s.recs);
     if (me && ((me.cardGame == null && s.phase === "lobby") || (me.cardGame != null && s.game !== me.cardGame))) {
       try { me = { ...me, ...(await api("me", null, `&id=${encodeURIComponent(me.id)}&tk=${encodeURIComponent(me.tk)}`)) }; lastDrawnLen = -1; }
       catch (e) { if (e.status === 404 || e.status === 403) { localStorage.removeItem(LS); me = null; return openJoin(); } }

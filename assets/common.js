@@ -165,9 +165,24 @@
       a.play().then(() => clearTimeout(t)).catch(() => { clearTimeout(t); fin(false); });
     });
   }
-  const prepareNumber = (n, withStory) => humanAudio(`n=${n}&s=${withStory ? 1 : 0}`);
+  const prepareNumber = (n, withStory) => { recURL(n); return humanAudio(`n=${n}&s=${withStory ? 1 : 0}`); };
+  // ---- voci registrate dal banco (la voce vera!) ----
+  let recs = {};
+  const recCache = new Map();
+  const setRecs = r => { recs = r || {}; };
+  async function recURL(n) {
+    const v = recs[n]; if (!v) return null;
+    const k = n + ":" + v;
+    if (!recCache.has(k)) recCache.set(k, fetch(`/api/t?a=rec&n=${n}&v=${v}`).then(r => r.ok ? r.json() : null).then(j => j && `data:${j.mime};base64,${j.b64}`).catch(() => null));
+    return recCache.get(k);
+  }
+  function playURL(url) {
+    return new Promise((res, rej) => { const a = new Audio(url); a.onended = res; a.onerror = rej; a.play().catch(rej); });
+  }
+  const prepareRec = n => { recURL(n); };
   // il numero chiamato come lo chiamerebbe il banco: prima il numero, una pausa, poi la smorfia
   async function callNumber(n, withStory) {
+    try { const u = await recURL(n); if (u) return await playURL(u); } catch {}
     try { return await playHuman(`n=${n}&s=${withStory ? 1 : 0}`); } catch {}
     const sm = smorfia(n);
     await speak(`${D.numNap(n)}!`, { rate: 0.88, pitch: 1.05 });
@@ -446,5 +461,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, numsHTML, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, numsHTML, setRecs, recURL, playURL, prepareRec, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

@@ -80,6 +80,18 @@
   @media(max-width:700px){.book{grid-template-columns:1fr}.bhead .stat{padding:4px 8px}.bhead .stat b{font-size:16px}
     .cell .nn{font-size:22px}.cell .ee{font-size:26px}.cell .lb i,.cell .lb b{font-size:7.5px}.bwrap{padding:10px}}
   .cell .nn{z-index:4;text-shadow:0 0 3px #fff,0 0 6px #fff}
+  .recgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:8px 0 14px}
+  .recgrid button{background:var(--cream);border:2px solid var(--line);border-radius:8px;font-weight:900;padding:6px 0;font-size:13px;position:relative}
+  .recgrid button.has{background:#e3f4e8;border-color:#2e7d4f;color:#1e5b3a}
+  .recgrid button.has::after{content:"🎙️";position:absolute;top:-7px;right:-5px;font-size:10px}
+  .recgrid button.sel{outline:3px solid var(--red)}
+  .recpanel{background:#fff7e0;border:2px dashed var(--gold);border-radius:14px;padding:14px;text-align:center}
+  .recpanel .big{font-size:54px;font-weight:900;color:var(--red);line-height:1}
+  .recpanel .script{font-size:17px;line-height:1.5;margin:8px 0}
+  .recpanel .script b{color:var(--wine)}
+  .recctl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .recdot{display:inline-block;width:12px;height:12px;border-radius:50%;background:#e53935;animation:blink .8s infinite alternate;margin-right:6px}
+  .recstat{font-weight:900;min-height:22px;margin-top:6px}
 </style>
 </head>
 <body>
@@ -158,6 +170,7 @@
         <div class="row">
           <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="prizesBtn">🎁 Premi</button>
           <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="playersBtn">👥 Giocatori</button>
+          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="recBtn">🎙️ Registra la voce</button>
           <button class="btn red" id="newBtn">🔄 Nuova partita</button>
           <button class="btn ghost" style="color:var(--red2);border-color:var(--line)" id="resetBtn">🧹 Azzera serata</button>
         </div>
