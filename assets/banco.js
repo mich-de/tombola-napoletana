@@ -52,7 +52,7 @@
   async function loadRoster() { try { roster = (await api("roster", null, "&h=1&t=" + Date.now())).players; renderBoard(); } catch {} }
 
   function onState(s) {
-    st = s; T.setRecs(s.recs);
+    st = s; T.setRecs(s.recs); T.handleSays(s.says, "banco");
     if (seenSeq === null) seenSeq = s.seq || 0;
     for (const ev of (s.events || []).filter(e => e.id > seenSeq)) {
       if (ev.type === "win") {
@@ -83,6 +83,7 @@
     $("#sGame").textContent = s.game; $("#sCount").textContent = s.count; $("#sDrawn").textContent = d.length + "/90";
     $("#startBtn").classList.toggle("hidden", s.phase !== "lobby");
     $("#bancoBtn").textContent = "🧺 Il banco gioca: " + (s.bancoPlays ? "sì" : "no");
+    $("#talkBtn").textContent = "🎤 I giocatori possono parlare: " + (s.playersTalk ? "sì" : "no");
     const live = s.phase === "playing" || s.phase === "tombolino";
     $("#modeSel").value = s.mode; $("#tieSel").value = s.tie; $("#modeSel").disabled = $("#tieSel").disabled = live;
     $("#tieSel").parentElement.querySelectorAll("span")[1].style.opacity = $("#tieSel").style.opacity = s.mode === "chiamata" ? 1 : .4;
@@ -195,37 +196,24 @@
     };
   };
   // ---- walkie-talkie: il banco parla nel microfono e la voce arriva a tutti ----
-  let ptt = null, pttStream = null;
-  async function pttStart() {
-    if (ptt) return;
-    try {
-      pttStream = pttStream || await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
-      const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"].find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || "";
-      const r = new MediaRecorder(pttStream, mime ? { mimeType: mime, audioBitsPerSecond: 40000 } : undefined);
-      const chunks = []; r.ondataavailable = e => e.data.size && chunks.push(e.data);
-      const t0 = Date.now();
-      r.onstop = async () => {
-        const blob = new Blob(chunks, { type: r.mimeType || mime || "audio/webm" });
-        if (Date.now() - t0 < 400) { $("#pttStat").textContent = "Troppo corto: tieni premuto mentre parli"; return; }
-        $("#pttStat").textContent = "📡 Invio a tutti…";
-        const b64 = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.readAsDataURL(blob); });
-        try { await host("say", { mime: blob.type, b64 }); $("#pttStat").textContent = "✅ Inviato! I telefoni lo sentono tra pochi secondi."; }
-        catch (e) { $("#pttStat").textContent = "⚠️ " + e.message; }
-      };
-      r.start(); ptt = r; speechSynthesis.cancel();
-      $("#pttBtn").classList.add("on"); $("#pttBtn").textContent = "🔴 Sto registrando… lascia per inviare";
-      ptt._timer = setTimeout(pttStop, 20000);
-    } catch { $("#pttStat").textContent = "⚠️ Consenti il microfono nel browser"; }
-  }
-  function pttStop() {
-    if (!ptt) return;
-    clearTimeout(ptt._timer); ptt.stop(); ptt = null;
-    $("#pttBtn").classList.remove("on"); $("#pttBtn").textContent = "🎙️ Tieni premuto per parlare";
-  }
-  $("#pttBtn").addEventListener("pointerdown", e => { e.preventDefault(); pttStart(); });
-  ["pointerup", "pointerleave", "pointercancel"].forEach(ev => $("#pttBtn").addEventListener(ev, pttStop));
-  document.addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !document.querySelector(".modal")) { e.preventDefault(); pttStart(); } });
-  document.addEventListener("keyup", e => { if (e.code === "Space") pttStop(); });
+  const PTT_LABEL = "🎙️ Tieni premuto per parlare";
+  const ptt = T.recordPTT($("#pttBtn"), {
+    maxMs: 20000,
+    send: d => host("say", d),
+    onState: (k, msg) => {
+      const b = $("#pttBtn"), st2 = $("#pttStat");
+      if (k === "rec") { speechSynthesis.cancel(); b.classList.add("on"); b.textContent = "🔴 Sto registrando… lascia per inviare"; }
+      if (k === "stop") { b.classList.remove("on"); b.textContent = PTT_LABEL; }
+      if (k === "short") st2.textContent = "Troppo corto: tieni premuto mentre parli";
+      if (k === "sending") st2.textContent = "📡 Invio a tutti…";
+      if (k === "sent") st2.textContent = "✅ Inviato! I telefoni lo sentono tra pochi secondi.";
+      if (k === "error") st2.textContent = "⚠️ " + msg;
+      if (k === "nomic") st2.textContent = "⚠️ Consenti il microfono nel browser";
+    }
+  });
+  document.addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat && !/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName) && !document.querySelector(".modal")) { e.preventDefault(); ptt.start(); } });
+  document.addEventListener("keyup", e => { if (e.code === "Space") ptt.stop(); });
+  $("#talkBtn").onclick = async () => { await host("config", { config: { playersTalk: !(st && st.playersTalk) } }); await refresh(); T.toast(st.playersTalk ? "🎤 Ora i giocatori possono parlare" : "🔇 Parola tolta ai giocatori"); };
 
   // ---- registrazione della voce del banco ----
   $("#recBtn").onclick = () => openRec(6);

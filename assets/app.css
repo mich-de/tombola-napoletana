@@ -243,3 +243,6 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:75}
 @keyframes shakeX{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
 .callhint{font-size:12px;margin-top:6px}
 .pendmsg{font-weight:900;color:var(--red);margin-bottom:8px}
+
+.ptt{user-select:none;-webkit-user-select:none;touch-action:none}
+.ptt.on{background:linear-gradient(180deg,#ff5252,#b71c1c)!important;color:#fff!important;box-shadow:0 0 0 6px rgba(255,82,82,.35)}

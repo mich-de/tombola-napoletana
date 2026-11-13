@@ -166,6 +166,35 @@
     });
   }
   const prepareNumber = (n, withStory) => { recURL(n); return humanAudio(`n=${n}&s=${withStory ? 1 : 0}`); };
+  // ---- tieni premuto per parlare: registra e restituisce {mime, b64} ----
+  let pttStream = null;
+  function recordPTT(btn, { maxMs = 20000, onState = () => {}, send }) {
+    let rec = null;
+    async function start() {
+      if (rec) return;
+      try {
+        pttStream = pttStream || await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+        const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"].find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || "";
+        const r = new MediaRecorder(pttStream, mime ? { mimeType: mime, audioBitsPerSecond: 40000 } : undefined);
+        const chunks = []; r.ondataavailable = e => e.data.size && chunks.push(e.data);
+        const t0 = Date.now();
+        r.onstop = async () => {
+          if (Date.now() - t0 < 400) return onState("short");
+          const blob = new Blob(chunks, { type: r.mimeType || mime || "audio/webm" });
+          const b64 = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.readAsDataURL(blob); });
+          onState("sending");
+          try { await send({ mime: blob.type, b64 }); onState("sent"); } catch (e) { onState("error", e.message); }
+        };
+        r.start(); rec = r; onState("rec");
+        r._t = setTimeout(stop, maxMs);
+      } catch { onState("nomic"); }
+    }
+    function stop() { if (!rec) return; clearTimeout(rec._t); rec.stop(); rec = null; onState("stop"); }
+    btn.addEventListener("pointerdown", e => { e.preventDefault(); start(); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(ev => btn.addEventListener(ev, stop));
+    return { start, stop };
+  }
+
   // ---- voci registrate dal banco (la voce vera!) ----
   let recs = {};
   const recCache = new Map();
@@ -180,6 +209,23 @@
     return new Promise((res, rej) => { const a = new Audio(url); a.onended = res; a.onerror = rej; a.play().catch(rej); });
   }
   const prepareRec = n => { recURL(n); };
+  // messaggi vocali in arrivo: uno alla volta, nell'ordine
+  let sayQueue = Promise.resolve(); const saySeen = new Set(); let sayInit = false;
+  function handleSays(says, myId) {
+    says = says || [];
+    if (!sayInit) { says.forEach(x => saySeen.add(x.id)); sayInit = true; return; }
+    for (const m of says) {
+      if (saySeen.has(m.id)) continue; saySeen.add(m.id);
+      if (m.pid === myId || Date.now() - m.at > 60000) continue;
+      sayQueue = sayQueue.then(async () => {
+        try {
+          const r = await fetch("/api/t?a=say&id=" + m.id); if (!r.ok) return; const j = await r.json();
+          toast(m.pid === "banco" ? "🎙️ Il banco parla…" : `🎤 ${m.name} parla…`, 2500);
+          await playURL(`data:${j.mime};base64,${j.b64}`);
+        } catch {}
+      });
+    }
+  }
   // il numero chiamato come lo chiamerebbe il banco: prima il numero, una pausa, poi la smorfia
   async function callNumber(n, withStory) {
     try { const u = await recURL(n); if (u) return await playURL(u); } catch {}
@@ -461,5 +507,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, numsHTML, setRecs, recURL, playURL, prepareRec, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

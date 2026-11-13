@@ -112,7 +112,7 @@
 
   async function onState(s) {
     const prev = st; st = s; T.setRecs(s.recs);
-    if (s.say && (!prev || !prev.say || prev.say.id !== s.say.id) && prev && Date.now() - s.say.at < 60000) playSay(s.say.id);
+    T.handleSays(s.says, me && me.id);
     if (me && ((me.cardGame == null && s.phase === "lobby") || (me.cardGame != null && s.game !== me.cardGame))) {
       try { me = { ...me, ...(await api("me", null, `&id=${encodeURIComponent(me.id)}&tk=${encodeURIComponent(me.tk)}`)) }; lastDrawnLen = -1; }
       catch (e) { if (e.status === 404 || e.status === 403) { localStorage.removeItem(LS); me = null; return openJoin(); } }
@@ -183,16 +183,24 @@
     renderSpectator();
     renderMini();
     renderCall();
+    $("#talkBar").classList.toggle("hidden", !(st.playersTalk && me));
   }
 
-  // ---- la voce dal vivo del banco (walkie-talkie) ----
-  async function playSay(id) {
-    try {
-      const j = await api("say", null, "&id=" + id);
-      T.toast("🎙️ Il banco parla…", 2500);
-      await T.playURL(`data:${j.mime};base64,${j.b64}`);
-    } catch {}
-  }
+  // ---- rispondere a voce, se il banco lo permette ----
+  T.recordPTT($("#talkBtn"), {
+    maxMs: 10000,
+    send: d => api("talk", { id: me.id, tk: me.tk, ...d }),
+    onState: (k, msg) => {
+      const b = $("#talkBtn"), t = $("#talkStat");
+      if (k === "rec") { b.classList.add("on"); b.textContent = "🔴 Parla… lascia per inviare"; }
+      if (k === "stop") { b.classList.remove("on"); b.textContent = "🎤 Tieni premuto per parlare"; }
+      if (k === "short") t.textContent = "Troppo corto: tieni premuto mentre parli";
+      if (k === "sending") t.textContent = "📡 Invio…";
+      if (k === "sent") t.textContent = "✅ Inviato a tutti!";
+      if (k === "error") t.textContent = "⚠️ " + msg;
+      if (k === "nomic") t.textContent = "⚠️ Consenti il microfono nel browser";
+    }
+  });
 
   // ---- modalità "da chiamare": il tasto per chiamare il premio ----
   let calling = false;
