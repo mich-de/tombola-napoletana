@@ -98,7 +98,7 @@
       const p = pz[l.key];
       if (!p) return `<div class="prz ${next && next.key === l.key && playing ? "next" : ""}"><span class="lv">${l.label}</span><span class="who muted">${next && next.key === l.key && playing ? "in palio adesso…" : "in palio"}</span></div>`;
       return `<div class="prz done"><span class="lv">${l.label}</span><span class="avs">${p.winners.slice(0, 4).map(w => avatarHTML(w.av, "sm")).join("")}</span>
-        <span class="who"><b>${esc(p.winners.map(w => w.name).join(", "))}</b><br><span class="muted">${esc(p.prize)} · al ${p.draw}° numero</span></span></div>`;
+        <span class="who"><b>${esc(p.winners.map(w => w.name).join(", "))}</b><br><span class="muted">${esc(p.prize)} · al ${p.draw}° numero</span>${p.winners.slice(0, 3).map(w => T.numsHTML(w.nums, p.n)).join("")}</span></div>`;
     }).join("");
   }
 

@@ -225,7 +225,7 @@
       if (!p) return `<div class="prz ${next && next.key === l.key && st.phase !== "lobby" ? "next" : ""}"><span class="lv">${l.label}</span><span class="who muted">${next && next.key === l.key ? "in palio adesso…" : "in palio"}</span></div>`;
       const mine = me && p.winners.some(w => w.id === me.id);
       return `<div class="prz done"><span class="lv">${l.label}</span><span class="avs">${p.winners.slice(0, 4).map(w => avatarHTML(w.av, "sm")).join("")}</span>
-        <span class="who"><b>${esc(p.winners.map(w => w.name).join(", "))}</b>${mine ? " 🥳" : ""}<br><span class="muted">${esc(p.prize)}</span></span></div>`;
+        <span class="who"><b>${esc(p.winners.map(w => w.name).join(", "))}</b>${mine ? " 🥳" : ""}<br><span class="muted">${esc(p.prize)}</span>${p.winners.slice(0, 3).map(w => T.numsHTML(w.nums, p.n)).join("")}</span></div>`;
     }).join("");
   }
 })();

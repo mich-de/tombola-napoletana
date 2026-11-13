@@ -18,6 +18,13 @@
   // la bandiera italiana come emoji non si vede su Windows: la disegniamo noi
   const FLAG = '<span class="flag-it"><i></i><i></i><i></i></span>';
   const fig = e => (e === "🇮🇹" ? FLAG : e);
+  // i numeri con cui si è vinto (il numero decisivo in oro)
+  function numsHTML(nums, key, max = 6) {
+    if (!nums || !nums.length) return "";
+    const list = nums.length > max ? null : nums;
+    if (!list) return `<div class="wnums"><span class="k">${key} <small>${fig(smorfia(key).e)}</small></span><span>cartella completa ✔</span></div>`;
+    return `<div class="wnums">${list.map(n => `<span class="${n === key ? "k" : ""}" title="${esc(smorfia(n).nap)}">${n} <small>${fig(smorfia(n).e)}</small></span>`).join("")}</div>`;
+  }
   function avatarHTML(id, size = "") {
     const a = D.AVATAR_BY_ID[id] || { e: "❓", color: "#777", name: "?" };
     return `<div class="av ${size}" style="--c:${a.color}" title="${esc(a.name)}">${fig(a.e)}${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
@@ -372,7 +379,7 @@
         <div style="font-size:${mega ? 46 : 30}px">${mega ? "🎆🎄🎆" : "✨🎉✨"}</div>
         <h1 class="lvl title-font ${mega ? "mega" : ""}">${esc(lv.label)}!</h1>
         <div class="muted">con il numero <b>${ev.n}</b> · ${esc(smorfia(ev.n)?.nap || "")}</div>
-        <div class="wn">${ev.winners.map(w => `<div>${avatarHTML(w.av, "lg")}<span>${esc(w.name)}</span></div>`).join("")}</div>
+        <div class="wn">${ev.winners.map(w => `<div>${avatarHTML(w.av, "lg")}<span>${esc(w.name)}</span>${numsHTML(w.nums, ev.n)}</div>`).join("")}</div>
         ${ev.banco ? `<div class="muted" style="font-weight:800">🧺 Il banco vince con la cartella ${ev.banco.cartella} del tabellone</div>` : ""}
         <div class="prize">🎁 ${esc(ev.prize)}</div>
         <div class="verdictbox"></div>
@@ -439,5 +446,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, numsHTML, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();
