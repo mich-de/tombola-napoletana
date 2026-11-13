@@ -11,7 +11,7 @@ http.createServer(async (req, res) => {
     let raw = ""; for await (const c of req) raw += c;
     let body = {}; try { body = raw ? JSON.parse(raw) : {}; } catch {}
     try {
-      const r = await handle({ method: req.method, query: Object.fromEntries(u.searchParams), body });
+      const r = await handle({ method: req.method, query: Object.fromEntries(u.searchParams), body, ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress });
       if (r.binary) { res.writeHead(200, { "Content-Type": r.type, "Cache-Control": "max-age=86400" }); return res.end(r.binary); }
       res.writeHead(r.status || 200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
       res.end(JSON.stringify(r.json));

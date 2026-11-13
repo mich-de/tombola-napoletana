@@ -123,6 +123,7 @@
     const v = m.querySelector("video"); v.srcObject = stream;
     const stop = () => stream.getTracks().forEach(t => t.stop());
     new MutationObserver((_, o) => { if (!document.body.contains(m)) { stop(); o.disconnect(); } }).observe(document.body, { childList: true });
+    document.addEventListener("visibilitychange", () => { if (document.hidden) m.remove(); }, { once: true });
     m.querySelector("#camShot").onclick = async () => {
       const cd = m.querySelector(".cd");
       for (const k of ["3", "2", "1"]) { cd.textContent = k; T.sounds.pop(); await new Promise(r => setTimeout(r, 700)); }

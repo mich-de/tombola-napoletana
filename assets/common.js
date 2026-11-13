@@ -227,29 +227,41 @@
   }
   const prepareNumber = (n, withStory) => { recURL(n); return humanAudio(`n=${n}&s=${withStory ? 1 : 0}`); };
   // ---- tieni premuto per parlare: registra e restituisce {mime, b64} ----
-  let pttStream = null;
+  // il microfono si apre solo mentre si registra e si chiude subito dopo (anche se si cambia scheda)
+  const activeRecs = new Set();
+  function releaseMic() { activeRecs.forEach(f => f()); }
+  document.addEventListener("visibilitychange", () => { if (document.hidden) releaseMic(); });
+  window.addEventListener("pagehide", releaseMic);
+  window.addEventListener("blur", () => { if (document.hidden) releaseMic(); });
   function recordPTT(btn, { maxMs = 20000, onState = () => {}, send }) {
-    let rec = null;
+    let rec = null, stream = null, cancelled = false;
+    const closeStream = () => { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } };
     async function start() {
-      if (rec) return;
+      if (rec || stream) return;
+      cancelled = false;
       try {
-        pttStream = pttStream || await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+        stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+        if (cancelled || document.hidden) { closeStream(); return; }
         const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"].find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || "";
-        const r = new MediaRecorder(pttStream, mime ? { mimeType: mime, audioBitsPerSecond: 40000 } : undefined);
+        const r = new MediaRecorder(stream, mime ? { mimeType: mime, audioBitsPerSecond: 40000 } : undefined);
         const chunks = []; r.ondataavailable = e => e.data.size && chunks.push(e.data);
         const t0 = Date.now();
         r.onstop = async () => {
+          closeStream(); activeRecs.delete(abort);
+          if (r._aborted) return onState("stop");
           if (Date.now() - t0 < 400) return onState("short");
           const blob = new Blob(chunks, { type: r.mimeType || mime || "audio/webm" });
           const b64 = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.readAsDataURL(blob); });
           onState("sending");
           try { await send({ mime: blob.type, b64 }); onState("sent"); } catch (e) { onState("error", e.message); }
         };
-        r.start(); rec = r; onState("rec");
+        r.start(); rec = r; activeRecs.add(abort); onState("rec");
         r._t = setTimeout(stop, maxMs);
-      } catch { onState("nomic"); }
+      } catch { closeStream(); onState("nomic"); }
     }
-    function stop() { if (!rec) return; clearTimeout(rec._t); rec.stop(); rec = null; onState("stop"); }
+    function stop() { cancelled = true; if (!rec) return; clearTimeout(rec._t); const r = rec; rec = null; r.stop(); onState("stop"); }
+    // se la pagina va in background: si butta la registrazione e si libera il microfono
+    function abort() { cancelled = true; if (rec) { rec._aborted = true; clearTimeout(rec._t); const r = rec; rec = null; try { r.stop(); } catch {} } closeStream(); activeRecs.delete(abort); onState("stop"); }
     btn.addEventListener("pointerdown", e => { e.preventDefault(); start(); });
     ["pointerup", "pointerleave", "pointercancel"].forEach(ev => btn.addEventListener(ev, stop));
     return { start, stop };
@@ -575,5 +587,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

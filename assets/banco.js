@@ -268,6 +268,9 @@
           blob = new Blob(chunks, { type: rec.mimeType || mime || "audio/webm" }); rec = null;
           $m("#rRec").textContent = "⏺ Registra di nuovo"; $m("#rStat").textContent = "✅ Registrato! Ascoltalo e poi premi Salva."; paint();
         };
+        const onHide = () => { if (document.hidden && rec) { rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); clearInterval(timer); rec = null; $m("#rRec").textContent = "⏺ Registra"; $m("#rStat").textContent = "⏸ Registrazione annullata: hai cambiato scheda"; }; rec.stop(); } };
+        document.addEventListener("visibilitychange", onHide, { once: true });
+        new MutationObserver((_, o) => { if (!document.body.contains(m)) { if (rec) { try { rec.stop(); } catch {} } stream.getTracks().forEach(t => t.stop()); o.disconnect(); } }).observe(document.body, { childList: true });
         rec.start(); t0 = Date.now(); $m("#rRec").textContent = "⏹ Stop";
         timer = setInterval(() => { const s2 = Math.floor((Date.now() - t0) / 1000); $m("#rStat").innerHTML = `<span class="recdot"></span>Sto registrando… ${s2}s`; if (s2 >= 20) rec && rec.stop(); }, 250);
       } catch (e) { $m("#rStat").textContent = "⚠️ Non riesco ad accedere al microfono: consenti il permesso nel browser."; }

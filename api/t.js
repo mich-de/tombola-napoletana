@@ -4,7 +4,8 @@ module.exports = async (req, res) => {
   try {
     let body = req.body || {};
     if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
-    const r = await handle({ method: req.method, query: req.query || {}, body });
+    const ip = req.headers["x-real-ip"] || req.headers["x-forwarded-for"] || (req.socket && req.socket.remoteAddress) || "";
+    const r = await handle({ method: req.method, query: req.query || {}, body, ip });
     if (r.binary) {
       res.setHeader("Content-Type", r.type); res.setHeader("Cache-Control", "public, max-age=86400");
       res.setHeader("Vercel-CDN-Cache-Control", "max-age=31536000, immutable");
