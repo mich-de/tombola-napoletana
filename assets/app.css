@@ -263,3 +263,16 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:75}
 .cam .fl{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 .cam .fl.on{animation:camflash .5s}
 @keyframes camflash{from{opacity:1}to{opacity:0}}
+
+/* scelta del tavolo */
+.tablelist{display:grid;gap:10px}
+.tcard{display:flex;align-items:center;gap:12px;background:var(--cream);border-radius:14px;padding:12px;border:2px solid var(--line);text-align:left;width:100%}
+.tcard:hover{border-color:var(--gold)}
+.tcard .ti{font-size:34px}
+.tcard .tt{flex:1}
+.tcard .tt b{display:block;font-size:17px;color:var(--red)}
+.tcard .tt small{color:var(--muted);font-weight:700}
+.tcard .go{font-weight:900;color:var(--wine)}
+#tablePill{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none}
+#phase{flex:none;white-space:nowrap}
+@media(max-width:420px){#phase{font-size:11px;padding:4px 7px}#tablePill{max-width:70px;font-size:11px;padding:4px 7px}}

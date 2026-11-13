@@ -3,7 +3,8 @@
 (function () {
   const { D, $, esc, smorfia, api, avatarHTML } = T;
   let animating = false;
-  let pin = sessionStorage.getItem("tmb_pin") || "";
+  const PINKEY = T.getRoom() === "main" ? "tmb_pin" : "tmb_pin_" + T.getRoom();
+  let pin = sessionStorage.getItem(PINKEY) || "";
   let st = null, seenSeq = null, lastLen = -1, auto = false, busy = false, lastDrawLocal = 0, voice = true, story = localStorage.getItem("tmb_story") || "storiella", roster = [];
   const seenReacts = new Set(); const loadTime = Date.now();
   let overlayUntil = 0;
@@ -15,8 +16,8 @@
   // ---------- PIN ----------
   async function tryPin(p) {
     pin = p;
-    try { await host("check"); sessionStorage.setItem("tmb_pin", p); boot(); return true; }
-    catch (e) { $("#pinErr").textContent = e.data && e.data.error === "setup" ? e.message : "PIN errato"; return false; }
+    try { await host("check"); sessionStorage.setItem(PINKEY, p); boot(); return true; }
+    catch (e) { $("#pinErr").textContent = e.data && (e.data.error === "setup" || e.data.error === "notable") ? e.message : "PIN errato"; return false; }
   }
   $("#pinBtn").onclick = () => { T.audio(); tryPin($("#pin").value.trim()); };
   $("#pin").onkeydown = e => { if (e.key === "Enter") $("#pinBtn").click(); };
@@ -24,7 +25,8 @@
 
   function boot() {
     $("#pinBox").classList.add("hidden"); $("#banco").classList.remove("hidden");
-    const url = location.origin + "/";
+    const url = location.origin + "/" + T.roomQS();
+    if (T.getRoom() !== "main") $("#closeBtn").classList.remove("hidden");
     $("#url").textContent = url.replace(/^https?:\/\//, "");
     $("#qr").src = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=" + encodeURIComponent(url);
     $("#qr").onerror = () => $("#qr").remove();
@@ -47,9 +49,9 @@
   }
 
   // ---------- stato ----------
-  async function refresh() { try { onState(await api("state", null, "&h=1&t=" + Date.now())); } catch {} }
+  async function refresh() { try { onState(await api("state", null, "&h=1&_=" + Date.now())); } catch {} }
   async function poll() { await refresh(); setTimeout(poll, 1200); }
-  async function loadRoster() { try { roster = (await api("roster", null, "&h=1&t=" + Date.now())).players; renderBoard(); } catch {} }
+  async function loadRoster() { try { roster = (await api("roster", null, "&h=1&_=" + Date.now())).players; renderBoard(); } catch {} }
 
   function onState(s) {
     st = s; T.setRecs(s.recs); T.handleSays(s.says, "banco");
@@ -79,6 +81,7 @@
 
   function render() {
     const s = st, d = s.drawn || [];
+    if (s.table) $("#tableTitle").textContent = s.table.code === "main" ? "🎄 Cartellone" : "🎲 " + s.table.name;
     const ph = { lobby: ["Iscrizioni aperte", ""], playing: ["In gioco", "live"], tombolino: ["Caccia al tombolino", "tl"], over: ["Partita finita", "over"] }[s.phase];
     $("#phase").textContent = ph[0]; $("#phase").className = "pill " + ph[1];
     $("#sGame").textContent = s.game; $("#sCount").textContent = s.count; $("#sDrawn").textContent = d.length + "/90";
@@ -182,6 +185,10 @@
   $("#newBtn").onclick = async () => {
     if (st && (st.phase === "playing" || st.phase === "tombolino") && !confirm("La partita è ancora in corso. Vuoi davvero iniziarne una nuova?")) return;
     auto = false; renderAuto(); await host("newgame"); lastLen = -1; T.toast("🔄 Nuova partita: cartelle nuove per tutti"); await refresh();
+  };
+  $("#closeBtn").onclick = async () => {
+    if (!confirm("Chiudere questo tavolo? I giocatori torneranno al tavolo principale e il posto si libera per un altro tavolo.")) return;
+    await host("closeroom"); location.href = "/";
   };
   $("#resetBtn").onclick = async () => {
     if (!confirm("Azzerare TUTTA la serata? Spariscono giocatori, cartelle e classifica.")) return;

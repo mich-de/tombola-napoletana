@@ -2,7 +2,7 @@
    Un'idea di Michele De Angelis · mdeangelis.me */
 (function () {
   const { D, $, esc, smorfia, LEVEL, api, avatarHTML } = T;
-  const LS = "tmb_me";
+  const lsKey = () => (T.getRoom() === "main" ? "tmb_me" : "tmb_me_" + T.getRoom());
   let me = null, st = null, seenSeq = null, lastDrawnLen = -1, roster = [], selAv = null, cat = "smorfia";
   let shownLen = 0;
   let voice = false, polling = false, lastReact = 0;
@@ -18,12 +18,40 @@
     $("#splash").style.transition = "opacity .5s, transform .5s";
     $("#splash").style.opacity = 0; $("#splash").style.transform = "scale(1.1)";
     setTimeout(() => $("#splash").remove(), 500);
-    const saved = JSON.parse(localStorage.getItem(LS) || "null");
+    if (!new URLSearchParams(location.search).get("t")) { const shown = await showTables(); if (shown) return; }
+    enterRoom();
+  };
+  async function enterRoom() {
+    $("#tables").classList.add("hidden");
+    const saved = JSON.parse(localStorage.getItem(lsKey()) || "null");
     if (saved && saved.id) {
       try { me = { ...saved, ...(await api("me", null, `&id=${encodeURIComponent(saved.id)}&tk=${encodeURIComponent(saved.tk)}`)) }; return startGame(); }
-      catch (e) { if (e.data && e.data.error === "setup") return setupError(e); localStorage.removeItem(LS); }
+      catch (e) { if (e.data && e.data.error === "setup") return setupError(e); localStorage.removeItem(lsKey()); }
     }
     openJoin();
+  }
+
+  // ---- i tavoli (massimo 2: il principale + uno aperto da un collega) ----
+  async function showTables() {
+    let r; try { r = await api("rooms"); } catch { return false; }
+    const canOpen = r.rooms.length < r.max;
+    if (r.rooms.length === 1 && !canOpen) return false;
+    $("#tables").classList.remove("hidden");
+    $("#tableList").innerHTML = r.rooms.map(t => {
+      const st2 = t.phase === "playing" || t.phase === "tombolino" ? `partita ${t.game} in corso · ${t.drawn}/90` : t.phase === "over" ? "partita finita" : "in attesa di iniziare";
+      return `<button class="tcard" data-code="${t.code}"><span class="ti">${t.main ? "🎄" : "🎲"}</span><span class="tt"><b>${esc(t.name)}</b><small>👥 ${t.count} giocatori · ${st2}</small></span><span class="go">Entra ›</span></button>`;
+    }).join("");
+    $("#newTable").classList.toggle("hidden", !canOpen);
+    $("#tableList").onclick = e => { const b = e.target.closest(".tcard"); if (!b) return; T.setRoom(b.dataset.code); enterRoom(); };
+    return true;
+  }
+  $("#ntBtn").onclick = async () => {
+    $("#ntErr").textContent = "";
+    try {
+      const r = await api("room_create", { name: $("#ntName").value.trim(), pin: $("#ntPin").value.trim() });
+      sessionStorage.setItem("tmb_pin_" + r.code, $("#ntPin").value.trim());
+      location.href = "/banco?t=" + r.code;
+    } catch (e) { $("#ntErr").textContent = "😬 " + e.message; }
   };
 
   function setupError(e) { document.querySelector(".wrap").innerHTML = `<div class="card-box"><h3>Quasi pronti!</h3><p>${esc(e.message)}</p></div>`; }
@@ -112,7 +140,7 @@
     $("#joinBtn").disabled = true;
     try {
       const r = await api("join", { name, av: selAv, id: me?.id, tk: me?.tk });
-      me = r; localStorage.setItem(LS, JSON.stringify({ id: r.id, tk: r.tk }));
+      me = r;  localStorage.setItem(lsKey(), JSON.stringify({ id: r.id, tk: r.tk }));
       if (photoChanged) { try { const ph = await api("photo", { id: r.id, tk: r.tk, b64: photoB64 || "" }); me.ph = ph.ph; photoChanged = false; } catch (e) { T.toast("⚠️ Foto non salvata: " + e.message); } }
       T.confetti(80, .5); T.sounds.win(0);
       if (r.spectator) T.toast("👀 Partita in corso: giocherai dalla prossima!", 4000);
@@ -152,7 +180,10 @@
     try {
       const s = await api("state");
       onState(s);
-    } catch (e) { if (e.data && e.data.error === "setup") return setupError(e); }
+    } catch (e) {
+      if (e.data && e.data.error === "setup") return setupError(e);
+      if (e.data && e.data.error === "notable") { T.toast("🚪 Questo tavolo è stato chiuso: torni al tavolo principale", 5000); setTimeout(() => { location.href = "/"; }, 2500); return; }
+    }
     setTimeout(poll, document.hidden ? 5000 : 2000);
   }
 
@@ -161,7 +192,7 @@
     T.handleSays(s.says, me && me.id);
     if (me && ((me.cardGame == null && s.phase === "lobby") || (me.cardGame != null && s.game !== me.cardGame))) {
       try { me = { ...me, ...(await api("me", null, `&id=${encodeURIComponent(me.id)}&tk=${encodeURIComponent(me.tk)}`)) }; lastDrawnLen = -1; }
-      catch (e) { if (e.status === 404 || e.status === 403) { localStorage.removeItem(LS); me = null; return openJoin(); } }
+      catch (e) { if (e.status === 404 || e.status === 403) { localStorage.removeItem(lsKey()); me = null; return openJoin(); } }
     }
     // eventi (vincite, inizio, fine)
     if (seenSeq === null) seenSeq = s.seq || 0;
@@ -190,6 +221,7 @@
     const s = st;
     const ph = { lobby: ["In attesa", ""], playing: ["In gioco", "live"], tombolino: ["Tombolino!", "tl"], over: ["Finita", "over"] }[s.phase] || ["", ""];
     $("#phase").textContent = `P.${s.game} · ${ph[0]}`; $("#phase").className = "pill " + ph[1];
+    if (s.table) { $("#tablePill").textContent = s.table.code === "main" ? "🎄" : "🎲 " + s.table.name; $("#tablePill").title = s.table.name; }
     const w = $("#waitMsg");
     if (s.phase === "lobby") { w.innerHTML = `⏳ La partita ${s.game} sta per iniziare<span class="dots"></span> · ${s.count} giocatori iscritti`; w.classList.remove("hidden"); }
     else if (s.phase === "over") { w.innerHTML = `🏁 Partita finita! Aspetta che il banco ne avvii un'altra<span class="dots"></span>`; w.classList.remove("hidden"); }

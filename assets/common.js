@@ -7,9 +7,18 @@
   const smorfia = n => { const r = D.SMORFIA[n - 1]; return r && { n: r[0], nap: r[1], it: r[2], e: r[3], story: r[4] }; };
   const LEVEL = Object.fromEntries(D.LEVELS.map((l, i) => [l.key, { ...l, i }]));
 
+  // il tavolo: ?t=CODICE nell'indirizzo (senza codice = tavolo principale)
+  let room = (new URLSearchParams(location.search).get("t") || "main").toLowerCase().replace(/[^a-z0-9]/g, "") || "main";
+  const setRoom = code => {
+    room = code || "main";
+    const u = new URL(location.href); if (room === "main") u.searchParams.delete("t"); else u.searchParams.set("t", room);
+    history.replaceState(null, "", u);
+  };
+  const getRoom = () => room;
+  const roomQS = () => (room === "main" ? "" : "?t=" + room);
   async function api(a, body, extra = "") {
-    const opt = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ a, ...body }) } : {};
-    const r = await fetch("/api/t?a=" + a + extra, opt);
+    const opt = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ a, t: room, ...body }) } : {};
+    const r = await fetch("/api/t?a=" + a + "&t=" + room + extra, opt);
     let j = {}; try { j = await r.json(); } catch {}
     if (!r.ok) { const e = new Error(j.message || j.error || ("Errore " + r.status)); e.status = r.status; e.data = j; throw e; }
     return j;
@@ -566,5 +575,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

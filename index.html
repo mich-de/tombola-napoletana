@@ -25,6 +25,19 @@
 </div>
 
 <div class="wrap">
+  <!-- scelta del tavolo -->
+  <section id="tables" class="hidden">
+    <div class="card-box"><h3>🎲 Scegli il tuo tavolo</h3><div id="tableList" class="tablelist"></div></div>
+    <div class="card-box hidden" id="newTable">
+      <h3>➕ Apri un nuovo tavolo</h3>
+      <p class="muted" style="margin-top:0">Diventi tu il banco: avrai il cartellone e i comandi. I colleghi entrano con il link del tuo tavolo.</p>
+      <input class="txt" id="ntName" maxlength="30" placeholder="Nome del tavolo (es. Tavolo Amministrazione)">
+      <input class="txt" id="ntPin" maxlength="8" inputmode="numeric" placeholder="Un PIN per il banco (almeno 4 cifre)" style="margin-top:8px">
+      <div class="err" id="ntErr"></div>
+      <div class="center"><button class="btn green big" id="ntBtn">Apri il tavolo e fai il banco</button></div>
+    </div>
+  </section>
+
   <!-- iscrizione -->
   <section id="join" class="hidden">
     <div class="card-box hidden" id="joinLive" style="background:#fff7e0;border:2px dashed var(--gold)"></div>
@@ -61,6 +74,7 @@
     <div class="topbar">
       <div id="meAv"></div>
       <div class="who"><b id="meName"></b><small id="meSub"></small></div>
+      <span class="pill" id="tablePill" style="background:#5c0f14"></span>
       <span class="pill" id="phase"></span>
       <button class="iconbtn" id="voiceBtn" title="Voce">🔇</button>
       <button class="iconbtn" id="infoBtn" title="Info">ℹ️</button>
