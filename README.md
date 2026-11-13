@@ -33,7 +33,7 @@ Per contenere il traffico, lo stato del gioco viene messo in cache sulla CDN per
 ## Prova in locale, o su un PC dell'ufficio
 
 ```
-node server.js
+node tools/local-server.js
 ```
 
 Poi apri http://localhost:3000 per giocare e http://localhost:3000/banco per il cartellone. Non serve installare niente, basta Node 18 o successivo. In locale i dati restano in memoria.
@@ -48,7 +48,7 @@ assets/player.js, banco.js    logica delle due schermate
 lib/core.js                   regole: cartelle, estrazioni, vincite, tombolino, Tribunale
 lib/store.js                  archivio dati: Upstash Redis oppure memoria
 api/t.js                      funzione serverless di Vercel
-server.js                     server locale senza dipendenze
+tools/local-server.js         server locale senza dipendenze
 ```
 
 © 2026 Michele De Angelis · mdeangelis.me
