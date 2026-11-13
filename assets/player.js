@@ -14,6 +14,7 @@
   // ---------- splash ----------
   $("#enter").onclick = async () => {
     T.audio(); T.sounds.draw();
+    try { const a = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="); a.play().catch(() => {}); } catch {}
     $("#splash").style.transition = "opacity .5s, transform .5s";
     $("#splash").style.opacity = 0; $("#splash").style.transform = "scale(1.1)";
     setTimeout(() => $("#splash").remove(), 500);
@@ -111,6 +112,7 @@
 
   async function onState(s) {
     const prev = st; st = s; T.setRecs(s.recs);
+    if (s.say && (!prev || !prev.say || prev.say.id !== s.say.id) && prev && Date.now() - s.say.at < 60000) playSay(s.say.id);
     if (me && ((me.cardGame == null && s.phase === "lobby") || (me.cardGame != null && s.game !== me.cardGame))) {
       try { me = { ...me, ...(await api("me", null, `&id=${encodeURIComponent(me.id)}&tk=${encodeURIComponent(me.tk)}`)) }; lastDrawnLen = -1; }
       catch (e) { if (e.status === 404 || e.status === 403) { localStorage.removeItem(LS); me = null; return openJoin(); } }
@@ -181,6 +183,15 @@
     renderSpectator();
     renderMini();
     renderCall();
+  }
+
+  // ---- la voce dal vivo del banco (walkie-talkie) ----
+  async function playSay(id) {
+    try {
+      const j = await api("say", null, "&id=" + id);
+      T.toast("🎙️ Il banco parla…", 2500);
+      await T.playURL(`data:${j.mime};base64,${j.b64}`);
+    } catch {}
   }
 
   // ---- modalità "da chiamare": il tasto per chiamare il premio ----

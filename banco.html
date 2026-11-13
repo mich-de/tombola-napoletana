@@ -92,6 +92,8 @@
   .recctl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
   .recdot{display:inline-block;width:12px;height:12px;border-radius:50%;background:#e53935;animation:blink .8s infinite alternate;margin-right:6px}
   .recstat{font-weight:900;min-height:22px;margin-top:6px}
+  .ptt{user-select:none;-webkit-user-select:none;touch-action:none}
+  .ptt.on{background:linear-gradient(180deg,#ff5252,#b71c1c);box-shadow:0 0 0 6px rgba(255,82,82,.35),0 4px 0 #5a0d0d;animation:pulse 1s infinite}
 </style>
 </head>
 <body>
@@ -154,6 +156,7 @@
           <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="storyBtn">📜 Filastrocca: sì</button>
           <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="bancoBtn">🧺 Il banco gioca: sì</button>
         </div>
+        <div class="row"><button class="btn red ptt" id="pttBtn">🎙️ Tieni premuto per parlare</button><span class="muted" id="pttStat" style="font-weight:800">oppure tieni premuta la barra spaziatrice</span></div>
         <div class="row" id="modeRow">
           <span class="muted" style="font-weight:800">Vincite:</span>
           <select class="vsel" id="modeSel"><option value="auto">Automatiche</option><option value="chiamata">Da chiamare</option></select>
