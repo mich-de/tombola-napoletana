@@ -34,8 +34,9 @@
       html += `<div class="page">`;
       for (let r = 0; r < 9; r++) for (let c = 0; c < 5; c++) {
         const n = r * 10 + half * 5 + c + 1, sm = smorfia(n);
-        html += `<div class="cell" data-n="${n}" title="${n} · ${esc(sm.nap)} (${esc(sm.it)})"><span class="nn">${n}</span><span class="ee">${sm.e}</span><span class="lb"><i>${esc(sm.nap)}</i><b>${esc(sm.it)}</b></span><span class="fg"></span></div>`;
+        html += `<div class="cell" data-n="${n}" title="${n} · ${esc(sm.nap)} (${esc(sm.it)})"><span class="nn">${n}</span><span class="ee">${T.fig(sm.e)}</span><span class="lb"><i>${esc(sm.nap)}</i><b>${esc(sm.it)}</b></span><span class="fg"></span></div>`;
       }
+      html += [0, 1, 2].map(k => `<span class="ctag" style="top:calc(${k} * (100% / 3) + ${k * 2}px)">CARTELLA ${k * 2 + half + 1}</span>`).join("");
       html += `</div>`;
     }
     $("#tab90").innerHTML = html;
@@ -56,7 +57,7 @@
     for (const ev of (s.events || []).filter(e => e.id > seenSeq)) {
       if (ev.type === "win") {
         const extra = ev.verdict ? (ev.verdict.mode === "wheel" ? 13000 : 7000) : 0;
-        overlayUntil = Date.now() + 6200 + (["tombola", "tombolino"].includes(ev.level) ? 13000 : 9000) + extra;
+        overlayUntil = Date.now() + 6200 + (ev.cards ? 6500 * Math.min(3, ev.winners.length) : 0) + (["tombola", "tombolino"].includes(ev.level) ? 13000 : 9000) + extra;
         setTimeout(() => T.showWin(ev, { speak: voice, stay: true }), 6200);
         loadRoster();
       }
@@ -106,7 +107,7 @@
     if (n) {
       const sm = smorfia(n);
       $("#bb").textContent = n; $("#bb").classList.remove("anim"); void $("#bb").offsetWidth; $("#bb").classList.add("anim");
-      $("#fig").textContent = sm.e; $("#nap").textContent = sm.nap; $("#it").textContent = sm.it;
+      $("#fig").innerHTML = T.fig(sm.e); $("#nap").textContent = sm.nap; $("#it").textContent = sm.it;
       $("#story").textContent = sm.story;
     } else {
       $("#bb").textContent = "–"; $("#fig").textContent = "🧺"; $("#nap").textContent = st && st.phase === "lobby" ? "Si comincia tra poco" : "Pronti?"; $("#it").textContent = "";

@@ -15,9 +15,12 @@
     return j;
   }
 
+  // la bandiera italiana come emoji non si vede su Windows: la disegniamo noi
+  const FLAG = '<span class="flag-it"><i></i><i></i><i></i></span>';
+  const fig = e => (e === "🇮🇹" ? FLAG : e);
   function avatarHTML(id, size = "") {
     const a = D.AVATAR_BY_ID[id] || { e: "❓", color: "#777", name: "?" };
-    return `<div class="av ${size}" style="--c:${a.color}" title="${esc(a.name)}">${a.e}${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
+    return `<div class="av ${size}" style="--c:${a.color}" title="${esc(a.name)}">${fig(a.e)}${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
   }
 
   // ---- neve ----
@@ -306,7 +309,7 @@
           x.fillStyle = cols[i % cols.length]; x.fill(); x.strokeStyle = "#fff"; x.lineWidth = 4; x.stroke();
           x.save(); x.translate(260, 260); x.rotate(rot + i * seg + seg / 2);
           x.textAlign = "right"; x.fillStyle = "#fff"; x.font = "bold 30px Nunito,sans-serif";
-          const a = D.AVATAR_BY_ID[winners[i].av]; x.fillText((winners[i].name || "").slice(0, 12) + " " + (a ? a.e : ""), 236, 10);
+          const a = D.AVATAR_BY_ID[winners[i].av]; x.fillText((winners[i].name || "").slice(0, 12) + " " + (a && a.e !== "🇮🇹" ? a.e : ""), 236, 10);
           x.restore();
         }
         x.beginPath(); x.arc(260, 260, 34, 0, 7); x.fillStyle = "#fffaf0"; x.fill(); x.font = "34px serif"; x.textAlign = "center"; x.fillText("🎲", 260, 272);
@@ -322,9 +325,44 @@
     });
   }
 
+  // ---- il controllo della tombola (per scherzo, come si fa al tavolo) ----
+  const QUIPS = ["Il banco si mette gli occhiali 👓", "Nessuno ha spostato i fagioli? 🫘", "Silenzio in sala, si controlla! 🤫", "Il notaio della smorfia sta verificando… 📜", "Fammi vedere 'sta cartella… 🧐", "Occhio, che qua si bara! 👀"];
+  function checkCard(ev, opts = {}) {
+    const list = ev.winners.filter(w => ev.cards && ev.cards[w.id]).slice(0, 3);
+    let p = Promise.resolve();
+    list.forEach(w => { p = p.then(() => new Promise(done => {
+      const nums = ev.cards[w.id];
+      const ov = document.createElement("div"); ov.className = "overlay";
+      ov.innerHTML = `<div class="winbox checkbox"><div style="font-size:40px">🔎</div>
+        <h2 class="title-font" style="color:var(--red);margin:4px 0">Un momento… controlliamo ${ev.level === "tombolino" ? "il tombolino" : "la tombola"}!</h2>
+        <div class="muted" style="font-weight:800">${esc(QUIPS[Math.floor(Math.random() * QUIPS.length)])}</div>
+        <div class="wn" style="margin:12px 0 6px"><div>${avatarHTML(w.av, "lg")}<span>${esc(w.name)}</span></div></div>
+        <div class="chkgrid">${nums.map(n => `<span data-n="${n}">${n}<small>${fig(smorfia(n).e)}</small></span>`).join("")}</div>
+        <div class="chkmsg"></div><div class="stamp">✅ TUTTO REGOLARE!</div></div>`;
+      document.body.appendChild(ov);
+      const cells = [...ov.querySelectorAll(".chkgrid span")], msg = ov.querySelector(".chkmsg");
+      let i = 0;
+      const next = () => {
+        if (i === cells.length - 1) {
+          const n = +cells[i].dataset.n;
+          msg.textContent = `…e il ${n}? ${smorfia(n).nap}…`; tone(220, 0, .5, "sine", .12); tone(220, .5, .5, "sine", .12);
+          setTimeout(() => { cells[i].classList.add("ok"); tone(1320, 0, .2, "sine", .12); opts.onCheck && opts.onCheck(n); msg.textContent = "C'è!";
+            setTimeout(() => { ov.querySelector(".stamp").classList.add("on"); tone(196, 0, .25, "square", .12); confetti(60, .45); setTimeout(() => { ov.remove(); done(); }, 1500); }, 350); }, 1200);
+          return;
+        }
+        const n = +cells[i].dataset.n; cells[i].classList.add("ok"); opts.onCheck && opts.onCheck(n);
+        tone(900 + i * 40, 0, .07, "triangle", .1); msg.textContent = `${n}… c'è!`;
+        i++; setTimeout(next, 190);
+      };
+      setTimeout(next, 900);
+    })); });
+    return p;
+  }
+
   // ---- overlay vincita ----
   let overlayQueue = Promise.resolve();
   function showWin(ev, opts = {}) {
+    if (ev.cards) overlayQueue = overlayQueue.then(() => checkCard(ev, opts));
     overlayQueue = overlayQueue.then(() => new Promise(done => {
       const lv = LEVEL[ev.level] || { i: 0, label: ev.label };
       const mega = lv.i >= 4;
@@ -335,6 +373,7 @@
         <h1 class="lvl title-font ${mega ? "mega" : ""}">${esc(lv.label)}!</h1>
         <div class="muted">con il numero <b>${ev.n}</b> · ${esc(smorfia(ev.n)?.nap || "")}</div>
         <div class="wn">${ev.winners.map(w => `<div>${avatarHTML(w.av, "lg")}<span>${esc(w.name)}</span></div>`).join("")}</div>
+        ${ev.banco ? `<div class="muted" style="font-weight:800">🧺 Il banco vince con la cartella ${ev.banco.cartella} del tabellone</div>` : ""}
         <div class="prize">🎁 ${esc(ev.prize)}</div>
         <div class="verdictbox"></div>
         ${amIn ? `<div class="me">🥳 HAI VINTO TU! Vai a ritirare il premio dal banco!</div>` : ""}
@@ -400,5 +439,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

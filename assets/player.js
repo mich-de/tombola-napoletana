@@ -156,7 +156,7 @@
         if (n) {
           const sm = smorfia(n);
           ball.textContent = n; ball.classList.remove("anim"); void ball.offsetWidth; ball.classList.add("anim");
-          $("#meaning").innerHTML = `<b>${sm.e} ${esc(sm.nap)}</b><i>${esc(sm.it)} · ${d.length}° estratto · ne mancano ${90 - d.length}</i>`;
+          $("#meaning").innerHTML = `<b>${T.fig(sm.e)} ${esc(sm.nap)}</b><i>${esc(sm.it)} · ${d.length}° estratto · ne mancano ${90 - d.length}</i>`;
           $("#story").textContent = sm.story; $("#story").classList.remove("hidden");
         } else {
           ball.textContent = "–";
@@ -200,7 +200,7 @@
   function renderCard() {
     if (!me || !me.card) return;
     const set = new Set(st?.drawn || []);
-    $("#cartella").innerHTML = `<span class="tag">LA TUA CARTELLA</span><table>${me.card.map(r => `<tr>${r.map(n => { if (!n) return `<td class="e"></td>`; const sm = smorfia(n); return `<td class="${set.has(n) ? "hit" : ""}" title="${esc(sm.nap)} · ${esc(sm.it)}"><span class="cn">${n}</span><span class="ce">${sm.e}</span><span class="ct">${esc(sm.it)}</span><span class="fg"></span></td>`; }).join("")}</tr>`).join("")}</table>`;
+    $("#cartella").innerHTML = `<span class="tag">LA TUA CARTELLA</span><table>${me.card.map(r => `<tr>${r.map(n => { if (!n) return `<td class="e"></td>`; const sm = smorfia(n); return `<td class="${set.has(n) ? "hit" : ""}" title="${esc(sm.nap)} · ${esc(sm.it)}"><span class="cn">${n}</span><span class="ce">${T.fig(sm.e)}</span><span class="ct">${esc(sm.it)}</span><span class="fg"></span></td>`; }).join("")}</tr>`).join("")}</table>`;
     const rows = me.card.map(r => r.filter(n => n && set.has(n)).length);
     const tot = rows.reduce((a, b) => a + b, 0), best = Math.max(...rows);
     const pz = st?.prizes || {};
