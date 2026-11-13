@@ -96,11 +96,17 @@ input.txt:focus{border-color:var(--gold)}
 /* cartella */
 .cartella{background:#fff;border:3px solid var(--red);border-radius:12px;padding:6px;position:relative}
 .cartella table{width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed}
-.cartella td{height:42px;text-align:center;font-weight:900;font-size:19px;border-radius:7px;background:var(--cream);color:var(--ink);position:relative}
+.cartella td{height:60px;padding:0;border-radius:6px;background:linear-gradient(160deg,#fffdf6,#f4ecd8);color:var(--ink);position:relative;overflow:hidden;border:1px solid #d9c9a6}
+.cartella td .cn{position:absolute;top:1px;left:3px;font-weight:900;font-size:16px;line-height:1;z-index:2;letter-spacing:-.5px}
+.cartella td .ce{position:absolute;right:1px;top:15px;font-size:19px;line-height:1}
+.cartella td .ct{position:absolute;left:1px;right:1px;bottom:1px;font-size:7px;font-weight:800;line-height:1;text-align:center;color:#5b4a36;background:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2}
+.cartella td .fg{position:absolute;left:50%;top:44%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;z-index:3;opacity:0;transform:scale(.3);
+  background:radial-gradient(circle at 35% 30%,rgba(255,120,120,.95),rgba(190,20,30,.92) 60%,rgba(120,8,15,.95));box-shadow:0 3px 6px rgba(0,0,0,.4)}
+.cartella td.hit .fg{opacity:.8;transform:scale(1);transition:all .4s cubic-bezier(.2,1.8,.4,1)}
+@media(min-width:480px){.cartella td{height:72px}.cartella td .cn{font-size:19px}.cartella td .ce{font-size:24px}.cartella td .ct{font-size:8.5px}}
 .cartella td.e{background:repeating-linear-gradient(45deg,#f3e4c2 0 6px,#efdcb3 6px 12px)}
-.cartella td.hit{background:var(--red);color:#fff;animation:mark .45s cubic-bezier(.2,1.8,.4,1)}
-.cartella td.hit::after{content:"";position:absolute;inset:6px;border-radius:50%;border:2px dashed rgba(255,255,255,.55)}
-@keyframes mark{from{transform:scale(1.5);background:var(--gold)}to{transform:none}}
+.cartella td.hit{background:linear-gradient(160deg,#fbe3d8,#f1d2c2);animation:mark .45s cubic-bezier(.2,1.8,.4,1)}
+@keyframes mark{from{transform:scale(1.25);background:var(--gold2)}to{transform:none}}
 .cartella .tag{position:absolute;top:-12px;left:12px;background:var(--red);color:#fff;font-size:11px;font-weight:900;padding:2px 10px;border-radius:999px}
 .rowinfo{display:flex;justify-content:space-between;font-size:12.5px;margin-top:8px;color:var(--muted);font-weight:700}
 .hint{margin-top:8px;font-weight:900;color:var(--green);font-size:14px;min-height:18px}
@@ -194,3 +200,13 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:75}
 .mini90 span.last{background:var(--gold2);color:var(--wine)}
 .mini90 span:nth-child(10n+5){margin-right:4px}
 .mini90 span:nth-child(n+21):nth-child(-n+30),.mini90 span:nth-child(n+51):nth-child(-n+60){margin-bottom:4px}
+
+/* schermi grandi (23" e oltre): due colonne per il giocatore */
+@media(min-width:1000px){
+  .wrap{max-width:1180px;padding-top:22px}
+  #join{max-width:760px;margin:0 auto}
+  .cols{display:grid;grid-template-columns:1.15fr 1fr;gap:22px;align-items:start}
+  .cartella td{height:84px}.cartella td .cn{font-size:24px}.cartella td .ce{font-size:30px;top:22px}.cartella td .ct{font-size:10px}.cartella td .fg{width:44px;height:44px;margin:-22px 0 0 -22px}
+  .mini90 span{font-size:14px}
+  .avgrid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));max-height:52vh}
+}

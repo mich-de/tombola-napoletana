@@ -28,14 +28,13 @@
     $("#url").textContent = url.replace(/^https?:\/\//, "");
     $("#qr").src = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=" + encodeURIComponent(url);
     $("#qr").onerror = () => $("#qr").remove();
-    // 6 cartelle: 2 colonne × 3 file, ognuna 3 righe × 5 numeri (come il cartellone vero)
+    // il cartellone della smorfia: due pagine da 5 colonne × 9 righe (1-5 / 6-10 …)
     let html = "";
-    for (let b = 0; b < 6; b++) {
-      const br = Math.floor(b / 2), bc = b % 2;
-      html += `<div class="blk">`;
-      for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) {
-        const n = (br * 3 + r) * 10 + bc * 5 + c + 1, sm = smorfia(n);
-        html += `<div class="cell" data-n="${n}" title="${n} · ${esc(sm.nap)} (${esc(sm.it)})"><span class="nn">${n}</span><span class="ee">${sm.e}</span><span class="tt">${esc(sm.nap)}</span></div>`;
+    for (const half of [0, 1]) {
+      html += `<div class="page">`;
+      for (let r = 0; r < 9; r++) for (let c = 0; c < 5; c++) {
+        const n = r * 10 + half * 5 + c + 1, sm = smorfia(n);
+        html += `<div class="cell" data-n="${n}" title="${n} · ${esc(sm.nap)} (${esc(sm.it)})"><span class="nn">${n}</span><span class="ee">${sm.e}</span><span class="lb"><i>${esc(sm.nap)}</i><b>${esc(sm.it)}</b></span><span class="fg"></span></div>`;
       }
       html += `</div>`;
     }
@@ -57,8 +56,8 @@
     for (const ev of (s.events || []).filter(e => e.id > seenSeq)) {
       if (ev.type === "win") {
         const extra = ev.verdict ? (ev.verdict.mode === "wheel" ? 13000 : 7000) : 0;
-        overlayUntil = Date.now() + (["tombola", "tombolino"].includes(ev.level) ? 13000 : 9000) + extra;
-        setTimeout(() => T.showWin(ev, { speak: voice, stay: true }), 2000);
+        overlayUntil = Date.now() + 6200 + (["tombola", "tombolino"].includes(ev.level) ? 13000 : 9000) + extra;
+        setTimeout(() => T.showWin(ev, { speak: voice, stay: true }), 6200);
         loadRoster();
       }
       if (ev.type === "over") { auto = false; renderAuto(); T.toast("🏁 Partita finita!"); }

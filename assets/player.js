@@ -118,7 +118,7 @@
     // eventi (vincite, inizio, fine)
     if (seenSeq === null) seenSeq = s.seq || 0;
     for (const ev of (s.events || []).filter(e => e.id > seenSeq)) {
-      if (ev.type === "win") setTimeout(() => T.showWin(ev, { me: me?.id, speak: voice }), 1800);
+      if (ev.type === "win") setTimeout(() => T.showWin(ev, { me: me?.id, speak: voice }), 6200);
       if (ev.type === "start") { T.toast("🎲 Si comincia! Buona fortuna"); T.confetti(60); }
       if (ev.type === "newgame") T.toast("🔄 Nuova partita: ecco la tua cartella!");
       if (ev.type === "over") T.toast("🏁 Partita finita! Grazie a tutti");
@@ -200,7 +200,7 @@
   function renderCard() {
     if (!me || !me.card) return;
     const set = new Set(st?.drawn || []);
-    $("#cartella").innerHTML = `<span class="tag">LA TUA CARTELLA</span><table>${me.card.map(r => `<tr>${r.map(n => n ? `<td class="${set.has(n) ? "hit" : ""}">${n}</td>` : `<td class="e"></td>`).join("")}</tr>`).join("")}</table>`;
+    $("#cartella").innerHTML = `<span class="tag">LA TUA CARTELLA</span><table>${me.card.map(r => `<tr>${r.map(n => { if (!n) return `<td class="e"></td>`; const sm = smorfia(n); return `<td class="${set.has(n) ? "hit" : ""}" title="${esc(sm.nap)} · ${esc(sm.it)}"><span class="cn">${n}</span><span class="ce">${sm.e}</span><span class="ct">${esc(sm.it)}</span><span class="fg"></span></td>`; }).join("")}</tr>`).join("")}</table>`;
     const rows = me.card.map(r => r.filter(n => n && set.has(n)).length);
     const tot = rows.reduce((a, b) => a + b, 0), best = Math.max(...rows);
     const pz = st?.prizes || {};
