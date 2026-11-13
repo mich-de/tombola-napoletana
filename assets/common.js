@@ -17,7 +17,7 @@
   const getRoom = () => room;
   const roomQS = () => (room === "main" ? "" : "?t=" + room);
   async function api(a, body, extra = "") {
-    const opt = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ a, t: room, ...body }) } : {};
+    const opt = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ a, t: room, ...body }) } : { cache: "no-store" };
     const r = await fetch("/api/t?a=" + a + "&t=" + room + extra, opt);
     let j = {}; try { j = await r.json(); } catch {}
     if (!r.ok) { const e = new Error(j.message || j.error || ("Errore " + r.status)); e.status = r.status; e.data = j; throw e; }
