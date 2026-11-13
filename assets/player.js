@@ -122,6 +122,8 @@
       if (ev.type === "start") { T.toast("🎲 Si comincia! Buona fortuna"); T.confetti(60); }
       if (ev.type === "newgame") T.toast("🔄 Nuova partita: ecco la tua cartella!");
       if (ev.type === "over") T.toast("🏁 Partita finita! Grazie a tutti");
+      if (ev.type === "call") { T.toast(ev.join ? `🤝 Anche ${ev.name} chiama ${ev.label.toUpperCase()}!` : `📣 ${ev.name} chiama ${ev.label.toUpperCase()}!`, 3000); T.sounds.pop(); }
+      if (ev.type === "falsecall") { T.toast(`😂 ${ev.name} ha chiamato ${ev.label.toUpperCase()}… a vuoto!`, 3500); T.floater("🙈", ev.name); }
     }
     seenSeq = Math.max(seenSeq, s.seq || 0);
     // reazioni degli altri
@@ -178,7 +180,36 @@
     renderPrizes();
     renderSpectator();
     renderMini();
+    renderCall();
   }
+
+  // ---- modalità "da chiamare": il tasto per chiamare il premio ----
+  let calling = false;
+  function renderCall() {
+    const on = st.mode === "chiamata" && (st.phase === "playing" || st.phase === "tombolino") && me && me.card;
+    $("#callBar").classList.toggle("hidden", !on);
+    if (!on) return;
+    const lvlKey = st.pending ? st.pending.level : st.next;
+    const lvl = T.LEVEL[lvlKey];
+    $("#callBtn").textContent = lvl ? `📣 ${st.pending ? "Anche io: " : ""}${lvl.label.toUpperCase()}!` : "📣";
+    $("#callBtn").dataset.level = lvlKey || "";
+    const pm = $("#pendMsg");
+    if (st.pending) {
+      const secs = Math.max(0, Math.ceil((st.pending.until - st.now) / 1000));
+      pm.textContent = `⏳ ${st.pending.label} chiamato da ${st.pending.names.join(", ")}: se ce l'hai anche tu, chiamalo ora! (${secs}s) Si divide.`;
+      pm.classList.remove("hidden");
+    } else pm.classList.add("hidden");
+  }
+  $("#callBtn").onclick = async () => {
+    const level = $("#callBtn").dataset.level; if (!level || calling) return;
+    calling = true; T.audio();
+    try {
+      const r = await api("call", { id: me.id, tk: me.tk, level });
+      if (r.result === "false") { $("#callBtn").classList.add("shake"); T.sounds.win(-1); setTimeout(() => $("#callBtn").classList.remove("shake"), 600); }
+      T.toast((r.result === "won" ? "🏆 " : r.result === "pending" ? "⏳ " : r.result === "false" ? "🙈 " : "⌛ ") + r.message, 3500);
+    } catch (e) { T.toast("⚠️ " + e.message); }
+    setTimeout(() => calling = false, 1500);
+  };
 
   function renderSpectator() {
     const spec = !!me && !me.card;
@@ -205,7 +236,7 @@
     const tot = rows.reduce((a, b) => a + b, 0), best = Math.max(...rows);
     const pz = st?.prizes || {};
     let hint = "";
-    if (st && (st.phase === "playing" || st.phase === "tombolino")) {
+    if (st && st.mode !== "chiamata" && (st.phase === "playing" || st.phase === "tombolino")) {
       const next = D.LEVELS.find(l => !pz[l.key]);
       if (next) {
         const miss = next.need <= 5 ? next.need - best : 15 - tot;

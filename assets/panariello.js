@@ -269,11 +269,6 @@
         const sp = ctx.createRadialGradient(W / 2, tableY - 120 * S, 40 * S, W / 2, tableY - 120 * S, Math.max(W, H) * .7);
         sp.addColorStop(0, "rgba(60,10,12,.25)"); sp.addColorStop(.45, "rgba(25,3,6,.78)"); sp.addColorStop(1, "rgba(8,0,2,.93)");
         ctx.fillStyle = sp; ctx.fillRect(-20, -20, W + 40, H + 40);
-        // tovaglia
-        ctx.save(); ctx.beginPath(); ctx.moveTo(W / 2 - W * .48, H + 10); ctx.lineTo(W / 2 - W * .34, tableY - 18 * S); ctx.lineTo(W / 2 + W * .34, tableY - 18 * S); ctx.lineTo(W / 2 + W * .48, H + 10); ctx.closePath();
-        ctx.fillStyle = cloth(ctx); ctx.fill(); ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.fill();
-        const tl = ctx.createRadialGradient(W / 2, tableY, 10, W / 2, tableY, W * .4); tl.addColorStop(0, "rgba(255,230,170,.35)"); tl.addColorStop(1, "rgba(0,0,0,0)"); ctx.fillStyle = tl; ctx.fill();
-        ctx.strokeStyle = "#e9b949"; ctx.lineWidth = 4 * S; ctx.beginPath(); ctx.moveTo(W / 2 - W * .34, tableY - 18 * S); ctx.lineTo(W / 2 + W * .34, tableY - 18 * S); ctx.stroke(); ctx.restore();
         // raggi dietro la rivelazione
         if (glow > 0) {
           ctx.save(); ctx.translate(tokX, tokY); ctx.rotate(t * .6); ctx.globalAlpha *= glow;
@@ -282,8 +277,6 @@
           const ring = clamp((t - T0.flip) / .7);
           if (ring > 0 && ring < 1) { ctx.save(); ctx.globalAlpha *= 1 - ring; ctx.strokeStyle = "#fff3c4"; ctx.lineWidth = 8 * S * (1 - ring); ctx.beginPath(); ctx.arc(tokX, tokY, tokR * (1 + ring * 3), 0, 7); ctx.stroke(); ctx.restore(); }
         }
-        // ombra del cesto
-        ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.beginPath(); ctx.ellipse(bx, tableY - 6 * S, bw * .5 * (1 - lift / (LIFT * 2.2)), 14 * S, 0, 0, 7); ctx.fill();
         // cesto + mano che lo regge (+ mano che tappa durante le scosse)
         if (basketImg.complete) {
           ctx.save(); ctx.translate(bx, tableY - lift + by); ctx.rotate(ang);

@@ -62,6 +62,8 @@
         loadRoster();
       }
       if (ev.type === "over") { auto = false; renderAuto(); T.toast("🏁 Partita finita!"); }
+      if (ev.type === "call") { T.toast(ev.join ? `🤝 Anche ${ev.name} chiama ${ev.label.toUpperCase()}!` : `📣 ${ev.name} chiama ${ev.label.toUpperCase()}!`, 3000); T.sounds.pop(); if (voice) T.speak(`${ev.name} chiama ${ev.label}!`); }
+      if (ev.type === "falsecall") { T.toast(`😂 ${ev.name} ha chiamato ${ev.label.toUpperCase()}… a vuoto!`, 3500); T.floater("🙈", ev.name); if (voice) T.speak(`${ev.name} ha chiamato ${ev.label} a vuoto! Nun è overo!`); }
     }
     seenSeq = Math.max(seenSeq, s.seq || 0);
     let shown = 0;
@@ -81,6 +83,14 @@
     $("#sGame").textContent = s.game; $("#sCount").textContent = s.count; $("#sDrawn").textContent = d.length + "/90";
     $("#startBtn").classList.toggle("hidden", s.phase !== "lobby");
     $("#bancoBtn").textContent = "🧺 Il banco gioca: " + (s.bancoPlays ? "sì" : "no");
+    const live = s.phase === "playing" || s.phase === "tombolino";
+    $("#modeSel").value = s.mode; $("#tieSel").value = s.tie; $("#modeSel").disabled = $("#tieSel").disabled = live;
+    $("#tieSel").parentElement.querySelectorAll("span")[1].style.opacity = $("#tieSel").style.opacity = s.mode === "chiamata" ? 1 : .4;
+    const showCall = s.mode === "chiamata" && live && s.bancoPlays;
+    $("#bancoCallRow").classList.toggle("hidden", !(s.mode === "chiamata" && live));
+    $("#bancoCall").classList.toggle("hidden", !showCall);
+    const lk = s.pending ? s.pending.level : s.next; $("#bancoCall").dataset.level = lk || ""; $("#bancoCall").textContent = `📣 Il banco chiama ${(T.LEVEL[lk] || { label: "" }).label.toUpperCase()}!`;
+    $("#pendBanco").textContent = s.pending ? `⏳ ${s.pending.label} chiamato da ${s.pending.names.join(", ")} · ${Math.max(0, Math.ceil((s.pending.until - s.now) / 1000))}s` : "";
     const playing = s.phase === "playing" || s.phase === "tombolino";
     $("#drawBtn").disabled = !playing || busy; $("#autoBtn").disabled = !playing;
 
@@ -145,7 +155,7 @@
   function autoTick() {
     if (!auto || !st || busy) return;
     if (!(st.phase === "playing" || st.phase === "tombolino")) return;
-    if (animating || speechSynthesis.speaking || Date.now() < overlayUntil || document.querySelector(".overlay")) return;
+    if (animating || (st && st.pending) || speechSynthesis.speaking || Date.now() < overlayUntil || document.querySelector(".overlay")) return;
     const iv = (+$("#interval").value || 12) * 1000;
     if (Date.now() - lastDrawLocal >= iv) draw();
   }
@@ -156,6 +166,9 @@
   $("#voiceBtn").onclick = () => { voice = !voice; $("#voiceBtn").textContent = "🔊 Voce: " + (voice ? "sì" : "no"); if (!voice) speechSynthesis.cancel(); };
   $("#storyBtn").onclick = () => { story = !story; $("#storyBtn").textContent = "📜 Filastrocca: " + (story ? "sì" : "no"); };
   $("#bancoBtn").onclick = async () => { await host("config", { config: { bancoPlays: !st.bancoPlays } }); await refresh(); };
+  $("#modeSel").onchange = async () => { await host("config", { config: { mode: $("#modeSel").value } }); T.toast($("#modeSel").value === "chiamata" ? "📣 Vincite da chiamare: ognuno deve accorgersene da solo!" : "🤖 Vincite automatiche"); await refresh(); };
+  $("#tieSel").onchange = async () => { await host("config", { config: { tie: $("#tieSel").value } }); await refresh(); };
+  $("#bancoCall").onclick = async () => { const level = $("#bancoCall").dataset.level; if (!level) return; const r = await host("call", { level }); T.toast((r.result === "won" ? "🏆 " : r.result === "false" ? "🙈 " : "⏳ ") + r.message, 3500); await refresh(); };
   $("#voiceSel").onchange = () => T.setVoice($("#voiceSel").value);
   $("#voiceTest").onclick = () => { speechSynthesis.cancel(); T.callNumber(33, false); };
   $("#interval").oninput = () => { $("#intervalV").textContent = $("#interval").value + " s"; };

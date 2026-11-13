@@ -234,3 +234,12 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:75}
 .wnums span small{font-size:11px}
 .winbox .wnums{justify-content:center;margin-top:6px}
 .winbox .wnums span{font-size:15px;line-height:24px;padding:0 9px}
+
+/* chiamata dei premi */
+.callbar{background:var(--paper);border-radius:var(--r);box-shadow:var(--shadow);padding:12px;margin:12px 0;text-align:center;border:3px dashed var(--gold)}
+.callbtn{width:100%;font-size:26px;letter-spacing:1px;animation:callpulse 1.6s infinite}
+@keyframes callpulse{50%{transform:scale(1.03)}}
+.callbtn.shake{animation:shakeX .5s}
+@keyframes shakeX{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.callhint{font-size:12px;margin-top:6px}
+.pendmsg{font-weight:900;color:var(--red);margin-bottom:8px}

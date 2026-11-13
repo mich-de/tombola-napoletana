@@ -142,6 +142,13 @@
           <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="storyBtn">📜 Filastrocca: sì</button>
           <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="bancoBtn">🧺 Il banco gioca: sì</button>
         </div>
+        <div class="row" id="modeRow">
+          <span class="muted" style="font-weight:800">Vincite:</span>
+          <select class="vsel" id="modeSel"><option value="auto">Automatiche</option><option value="chiamata">Da chiamare</option></select>
+          <span class="muted" style="font-weight:800">Se chiamano in più:</span>
+          <select class="vsel" id="tieSel"><option value="primo">Vince il primo</option><option value="dividi">Si divide (8 secondi)</option></select>
+        </div>
+        <div class="row hidden" id="bancoCallRow"><button class="btn green" id="bancoCall">📣 Il banco chiama AMBO!</button><span class="muted" id="pendBanco" style="font-weight:800"></span></div>
         <div class="row"><span class="muted" style="font-weight:800">Voce:</span><select class="vsel" id="voiceSel"></select><button class="btn ghost" style="color:var(--ink);border-color:var(--line);padding:8px 14px" id="voiceTest">▶ Prova</button></div>
         <div class="muted" id="voiceTip" style="font-size:13px;margin-top:6px"></div>
         <div class="row">
