@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tombola Napoletana · Natale in ufficio</title>
+<meta name="description" content="Tombola napoletana online con la smorfia. Un'idea di Michele De Angelis · mdeangelis.me">
+<meta name="author" content="Michele De Angelis · mdeangelis.me">
+<meta name="theme-color" content="#7a1418">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎄</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<!-- Tombola Napoletana · Un'idea di Michele De Angelis · https://mdeangelis.me -->
+<div id="splash">
+  <div class="lights"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="presepe-line">⭐ 🐑 🫏 👶 🐂 🐑 ⭐</div>
+  <h1 class="splash-title title-font">Tombola</h1>
+  <div class="splash-sub title-font">NAPOLETANA</div>
+  <div class="balls"><div class="ball">33</div><div class="ball">47</div><div class="ball">90</div></div>
+  <button class="btn big" id="enter">🎲 Entra in gioco</button>
+  <div class="splash-credit">Un'idea di <b>Michele De Angelis</b> · <a href="https://mdeangelis.me" target="_blank" rel="noopener">mdeangelis.me</a> · v1.0</div>
+</div>
+
+<div class="wrap">
+  <!-- iscrizione -->
+  <section id="join" class="hidden">
+    <div class="card-box">
+      <h3>1 · Come ti chiami?</h3>
+      <input class="txt" id="name" maxlength="24" placeholder="Il tuo nome" autocomplete="nickname">
+    </div>
+    <div class="card-box">
+      <h3>2 · Scegli il tuo personaggio</h3>
+      <div class="tabs" id="tabs"></div>
+      <input class="txt" id="search" placeholder="🔎 Cerca un numero o un nome…" style="font-size:15px;padding:10px 14px;margin:8px 0">
+      <div class="avgrid" id="avgrid"></div>
+    </div>
+    <div class="err" id="joinErr"></div>
+    <div class="center"><button class="btn big" id="joinBtn">🎟️ Prendi la cartella</button></div>
+  </section>
+
+  <!-- gioco -->
+  <section id="game" class="hidden">
+    <div class="topbar">
+      <div id="meAv"></div>
+      <div class="who"><b id="meName"></b><small id="meSub"></small></div>
+      <span class="pill" id="phase"></span>
+      <button class="iconbtn" id="voiceBtn" title="Voce">🔇</button>
+      <button class="iconbtn" id="infoBtn" title="Info">ℹ️</button>
+    </div>
+    <div class="wait hidden" id="waitMsg"></div>
+
+    <div class="card-box" id="lastBox">
+      <h3>Ultimo numero estratto</h3>
+      <div class="last">
+        <div class="bigball" id="bigball">–</div>
+        <div class="meaning" id="meaning"><b>In attesa…</b><i>Il banco sta per iniziare</i></div>
+      </div>
+      <div class="story hidden" id="story"></div>
+      <div class="prev" id="prev"></div>
+    </div>
+
+    <div class="card-box">
+      <div class="cartella" id="cartella"><span class="tag">LA TUA CARTELLA</span></div>
+      <div class="hint" id="hint"></div>
+    </div>
+
+    <div class="card-box">
+      <h3>Premi della partita</h3>
+      <div class="prizes" id="prizes"></div>
+    </div>
+
+    <div class="center" style="margin-top:6px"><button class="btn ghost" id="changeBtn">✏️ Cambia nome o personaggio</button></div>
+    <div class="credits" id="credits"></div>
+  </section>
+</div>
+
+<div class="reactbar hidden" id="reactbar"></div>
+
+<script src="/assets/data.js"></script>
+<script src="/assets/common.js"></script>
+<script src="/assets/player.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "tombola-napoletana",
+  "version": "1.0.0",
+  "description": "Tombola napoletana multigiocatore per la festa di Natale in ufficio. Un'idea di Michele De Angelis · mdeangelis.me",
+  "author": "Michele De Angelis (https://mdeangelis.me)",
+  "private": true,
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}

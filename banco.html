@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cartellone · Tombola Napoletana</title>
+<meta name="author" content="Michele De Angelis · mdeangelis.me">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+  .bwrap{position:relative;z-index:1;padding:14px 18px 40px;max-width:1500px;margin:0 auto}
+  .bhead{display:flex;align-items:center;gap:14px;color:#fff;flex-wrap:wrap}
+  .bhead h1{margin:0;font-size:clamp(28px,3.4vw,46px);color:var(--gold2);text-shadow:0 3px 0 #5c0f14}
+  .bhead .sp{flex:1}
+  .stat{background:rgba(255,255,255,.12);border-radius:14px;padding:8px 14px;font-weight:900;text-align:center}
+  .stat small{display:block;font-size:11px;opacity:.75;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+  .stat b{font-size:22px}
+  .grid3{display:grid;grid-template-columns:minmax(300px,1fr) minmax(420px,1.5fr) minmax(300px,1fr);gap:16px;margin-top:12px}
+  @media(max-width:1100px){.grid3{grid-template-columns:1fr}}
+  .lastbig{text-align:center}
+  .lastbig .bb{width:min(220px,40vw);height:min(220px,40vw);margin:6px auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:min(110px,20vw);font-weight:900;color:var(--wine);
+    background:radial-gradient(circle at 32% 28%,#fff 0 16%,#fff1c4 30%,var(--gold) 72%,#a8780f 100%);box-shadow:0 14px 40px rgba(0,0,0,.4)}
+  .lastbig .bb.anim{animation:drop .8s cubic-bezier(.2,1.5,.4,1)}
+  .lastbig .fig{font-size:64px;line-height:1}
+  .lastbig .nap{font-size:30px;color:var(--red);margin:4px 0 0}
+  .lastbig .it{color:var(--muted);font-weight:800}
+  .lastbig .story{text-align:left;font-size:16px}
+  .tab90{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+  .tab90 div{aspect-ratio:1.25;display:flex;align-items:center;justify-content:center;border-radius:10px;font-weight:900;font-size:clamp(15px,1.6vw,24px);background:var(--cream);color:#c9b48c;border:2px solid var(--line);position:relative}
+  .tab90 div.on{background:var(--red);color:#fff;border-color:var(--red)}
+  .tab90 div.last{background:var(--gold2);color:var(--wine);border-color:var(--gold);animation:pulse 1.2s infinite}
+  .tab90 div:nth-child(10n+5){margin-right:6px}
+  @keyframes pulse{50%{box-shadow:0 0 0 6px rgba(255,216,107,.5)}}
+  .tab90 .sep{grid-column:1/-1;height:4px}
+  .ctrls{display:flex;flex-wrap:wrap;gap:8px}
+  .ctrls .btn{padding:12px 16px;font-size:15px}
+  .row{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .qr{display:flex;gap:12px;align-items:center}
+  .qr img{width:120px;height:120px;border-radius:10px;background:#fff;padding:6px}
+  .qr .url{font-weight:900;font-size:18px;word-break:break-all;color:var(--red)}
+  .board{display:grid;gap:6px;max-height:300px;overflow:auto}
+  .board .r{display:flex;align-items:center;gap:8px;background:var(--cream);border-radius:10px;padding:6px 8px;font-weight:800}
+  .board .r b{flex:1}
+  .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px}
+  .plist .r{display:flex;align-items:center;gap:8px;background:var(--cream);border-radius:10px;padding:6px 8px}
+  .plist .r span{flex:1;font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .plist .r button{background:none;font-size:16px}
+  textarea{width:100%;min-height:70px;font:inherit;border:2px solid var(--line);border-radius:10px;padding:8px}
+  label.lb{display:block;font-weight:900;color:var(--red);margin:10px 0 4px}
+  .auto-on{outline:3px solid var(--gold2)}
+  #pinBox{max-width:420px;margin:12vh auto 0}
+</style>
+</head>
+<body>
+<!-- Tombola Napoletana · Cartellone del banco · Un'idea di Michele De Angelis · https://mdeangelis.me -->
+<div id="pinBox" class="wrap">
+  <div class="card-box center">
+    <div style="font-size:54px">🎲</div>
+    <h2 class="title-font" style="color:var(--red);margin:4px 0">Il Banco</h2>
+    <p class="muted">Inserisci il PIN di chi tiene il cartellone</p>
+    <input class="txt" id="pin" type="password" inputmode="numeric" placeholder="PIN" style="text-align:center">
+    <div class="err" id="pinErr"></div>
+    <button class="btn big" id="pinBtn">Entra</button>
+  </div>
+  <div class="credits"></div>
+</div>
+
+<div class="bwrap hidden" id="banco">
+  <div class="bhead">
+    <h1 class="title-font">🎄 Cartellone</h1>
+    <span class="pill" id="phase"></span>
+    <div class="sp"></div>
+    <div class="stat"><small>Partita</small><b id="sGame">1</b></div>
+    <div class="stat"><small>Giocatori</small><b id="sCount">0</b></div>
+    <div class="stat"><small>Estratti</small><b id="sDrawn">0</b></div>
+    <button class="iconbtn" id="infoBtn">ℹ️</button>
+  </div>
+
+  <div class="grid3">
+    <div>
+      <div class="card-box lastbig">
+        <h3>Ultimo estratto</h3>
+        <div class="bb" id="bb">–</div>
+        <div class="fig" id="fig">🎄</div>
+        <h2 class="nap title-font" id="nap">Si comincia tra poco</h2>
+        <div class="it" id="it"></div>
+        <div class="story" id="story">Ognuno apra il link sul telefono, scriva il nome e scelga il suo personaggio della smorfia.</div>
+      </div>
+      <div class="card-box">
+        <h3>📱 Entra in gioco</h3>
+        <div class="qr"><img id="qr" alt="QR code per entrare"><div><div class="muted">Apri dal telefono:</div><div class="url" id="url"></div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card-box">
+        <h3>Tabellone</h3>
+        <div class="tab90" id="tab90"></div>
+      </div>
+      <div class="card-box">
+        <h3>Comandi del banco</h3>
+        <div class="ctrls">
+          <button class="btn green" id="startBtn">▶ Inizia la partita</button>
+          <button class="btn" id="drawBtn">🎲 Estrai</button>
+          <button class="btn" id="autoBtn">⏯ Automatico</button>
+          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="voiceBtn">🔊 Voce: sì</button>
+          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="storyBtn">📜 Storiella: sì</button>
+        </div>
+        <div class="row">
+          <span class="muted" style="font-weight:800">Intervallo automatico:</span>
+          <input type="range" id="interval" min="5" max="40" step="1" value="12"><b id="intervalV">12 s</b>
+        </div>
+        <div class="row">
+          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="prizesBtn">🎁 Premi</button>
+          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="playersBtn">👥 Giocatori</button>
+          <button class="btn red" id="newBtn">🔄 Nuova partita</button>
+          <button class="btn ghost" style="color:var(--red2);border-color:var(--line)" id="resetBtn">🧹 Azzera serata</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card-box">
+        <h3>Premi della partita</h3>
+        <div class="prizes" id="prizes"></div>
+      </div>
+      <div class="card-box">
+        <h3>🏆 Classifica della serata</h3>
+        <div class="board" id="board"><span class="muted">Ancora nessun vincitore</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="credits" id="credits"></div>
+</div>
+
+<script src="/assets/data.js"></script>
+<script src="/assets/common.js"></script>
+<script src="/assets/banco.js"></script>
+</body>
+</html>

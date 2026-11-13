@@ -1,0 +1,5 @@
+{
+  "cleanUrls": true,
+  "rewrites": [{ "source": "/banco", "destination": "/banco.html" }],
+  "functions": { "api/t.js": { "includeFiles": "{lib,assets}/**" } }
+}
