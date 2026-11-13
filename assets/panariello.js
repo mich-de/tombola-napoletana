@@ -118,10 +118,12 @@
     g.addColorStop(0, SKIN_L); g.addColorStop(.6, SKIN); g.addColorStop(1, SKIN_D);
     ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, rot, 0, 7); ctx.fill();
   }
+  // solo il polso, che sfuma: niente braccia
   function sleeve(ctx, x1, y1, x2, y2, w) {
-    ctx.save(); ctx.lineCap = "round"; ctx.strokeStyle = "#d9d9d9"; ctx.lineWidth = w + 3; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    ctx.strokeStyle = "#f4f4f4"; ctx.lineWidth = w; ctx.stroke();
-    ctx.strokeStyle = "rgba(0,0,0,.07)"; ctx.lineWidth = w * .25; ctx.beginPath(); ctx.moveTo(x1 + w * .2, y1 + w * .2); ctx.lineTo(x2 + w * .2, y2 + w * .2); ctx.stroke(); ctx.restore();
+    const sx = x2 + (x1 - x2) * .28, sy = y2 + (y1 - y2) * .28;
+    const g = ctx.createLinearGradient(x2, y2, sx, sy);
+    g.addColorStop(0, SKIN); g.addColorStop(.55, "rgba(239,195,156,.6)"); g.addColorStop(1, "rgba(239,195,156,0)");
+    ctx.save(); ctx.lineCap = "round"; ctx.strokeStyle = g; ctx.lineWidth = w * .62; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
   }
   // mano sinistra: regge il panariello dal fondo, le dita lo avvolgono davanti
   function bottomHand(ctx, bw, bh, S) {
