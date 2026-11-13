@@ -111,6 +111,36 @@
     tick() { tone(1200, 0, .03, "square", .04); }
   };
 
+  // ---- 'a pernacchia: ronzio di labbra, con tremolo e un po' di soffio ----
+  function pernacchia(vol = .35, dur = 1.3) {
+    const a = audio(); if (!a) return;
+    const t = a.currentTime;
+    const o = a.createOscillator(); o.type = "sawtooth";
+    o.frequency.setValueAtTime(95 + Math.random() * 30, t); o.frequency.linearRampToValueAtTime(140, t + dur * .3); o.frequency.linearRampToValueAtTime(70, t + dur);
+    const lfo = a.createOscillator(), lg = a.createGain(); lfo.frequency.value = 28; lg.gain.value = 25; lfo.connect(lg); lg.connect(o.frequency);
+    const am = a.createGain(), alfo = a.createOscillator(), alg = a.createGain(); alfo.frequency.value = 33; alg.gain.value = .5; am.gain.value = .5; alfo.connect(alg); alg.connect(am.gain);
+    const lp = a.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; lp.Q.value = 4;
+    const g = a.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .05); g.gain.setValueAtTime(vol, t + dur * .75); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+    o.connect(am); am.connect(lp); lp.connect(g); g.connect(a.destination);
+    [o, lfo, alfo].forEach(x => { x.start(t); x.stop(t + dur + .05); });
+  }
+  function lateOverlay(ev) {
+    const ov = document.createElement("div"); ov.className = "overlay";
+    ov.innerHTML = `<div class="winbox"><div style="font-size:54px">⏰💨</div>
+      <h1 class="lvl title-font" style="font-size:clamp(34px,9vw,64px)">Ritardatario!</h1>
+      <div class="wn"><div>${avatarHTML(ev.av, "lg")}<span>${esc(ev.name)}</span></div></div>
+      <div class="prize">Entra a partita in corso, dopo ${ev.drawn} numeri estratti.</div>
+      <div class="verdict"><h4>⚖️ Il Tribunale della Smorfia</h4>
+        <p>${ev.missed.length ? `I premi già usciti (<b>${esc(ev.missed.join(", "))}</b>) non li prende: gioca solo per quelli che restano.` : "Nessun premio è ancora uscito: gli è andata bene… ma la pena resta!"}</p>
+        <p>E per il ritardo si becca un <b>PERNACCHIONE</b> da tutti i partecipanti! 💨💨💨</p></div>
+      <div style="margin-top:14px"><button class="btn">Chiudi</button></div></div>`;
+    document.body.appendChild(ov);
+    pernacchia(.4, 1.6); setTimeout(() => pernacchia(.3, 1.1), 1700);
+    for (let i = 0; i < 14; i++) setTimeout(() => floater("💨"), i * 140);
+    const close = () => ov.remove();
+    ov.querySelector("button").onclick = close; setTimeout(close, 9000);
+  }
+
   // ---- voce: sceglie la voce italiana più naturale disponibile ----
   const VKEY = "tmb_voice";
   function itVoices() {
@@ -356,6 +386,7 @@
     el.style.left = (8 + Math.random() * 80) + "%";
     el.style.setProperty("--dx", ((Math.random() - .5) * 120) + "px");
     el.innerHTML = `<span class="e">${emoji}</span>${name ? `<span class="n">${esc(name)}</span>` : ""}`;
+    if (emoji === "💨" && name) pernacchia(.18, .7);
     box.appendChild(el); setTimeout(() => el.remove(), 3300);
   }
 
@@ -507,5 +538,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

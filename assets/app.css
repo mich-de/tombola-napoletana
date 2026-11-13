@@ -76,7 +76,7 @@ button{font:inherit;cursor:pointer;border:0}
 .avopt small{font-size:10px;color:var(--muted);line-height:1.1}
 .avopt.sel{border-color:var(--red);background:#fff;transform:scale(1.03)}
 .avopt.taken{opacity:.35;pointer-events:none}
-.avopt.taken span::after{content:" · preso"}
+.avopt.taken > span::after{content:" · preso"}
 input.txt{width:100%;font:inherit;font-size:18px;padding:14px 16px;border-radius:14px;border:2px solid var(--line);background:#fff;outline:none}
 input.txt:focus{border-color:var(--gold)}
 .err{color:var(--red2);font-weight:800;min-height:20px;margin:6px 0}

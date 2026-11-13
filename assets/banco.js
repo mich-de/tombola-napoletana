@@ -63,6 +63,7 @@
       }
       if (ev.type === "over") { auto = false; renderAuto(); T.toast("🏁 Partita finita!"); }
       if (ev.type === "call") { T.toast(ev.join ? `🤝 Anche ${ev.name} chiama ${ev.label.toUpperCase()}!` : `📣 ${ev.name} chiama ${ev.label.toUpperCase()}!`, 3000); T.sounds.pop(); if (voice) T.speak(`${ev.name} chiama ${ev.label}!`); }
+      if (ev.type === "late") { T.lateOverlay(ev); overlayUntil = Math.max(overlayUntil, Date.now() + 9000); if (voice) T.speak(`Ritardatario! ${ev.name} entra a partita in corso. Pernacchione per lui!`); }
       if (ev.type === "falsecall") { T.toast(`😂 ${ev.name} ha chiamato ${ev.label.toUpperCase()}… a vuoto!`, 3500); T.floater("🙈", ev.name); if (voice) T.speak(`${ev.name} ha chiamato ${ev.label} a vuoto! Nun è overo!`); }
     }
     seenSeq = Math.max(seenSeq, s.seq || 0);
@@ -83,6 +84,7 @@
     $("#sGame").textContent = s.game; $("#sCount").textContent = s.count; $("#sDrawn").textContent = d.length + "/90";
     $("#startBtn").classList.toggle("hidden", s.phase !== "lobby");
     $("#bancoBtn").textContent = "🧺 Il banco gioca: " + (s.bancoPlays ? "sì" : "no");
+    $("#lateBtn").textContent = "⏰ Ritardatari: " + (s.lateJoin ? "entrano (pernacchione)" : "aspettano la prossima");
     $("#talkBtn").textContent = "🎤 I giocatori possono parlare: " + (s.playersTalk ? "sì" : "no");
     const live = s.phase === "playing" || s.phase === "tombolino";
     $("#modeSel").value = s.mode; $("#tieSel").value = s.tie; $("#modeSel").disabled = $("#tieSel").disabled = live;
@@ -213,6 +215,7 @@
   });
   document.addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat && !/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName) && !document.querySelector(".modal")) { e.preventDefault(); ptt.start(); } });
   document.addEventListener("keyup", e => { if (e.code === "Space") ptt.stop(); });
+  $("#lateBtn").onclick = async () => { await host("config", { config: { lateJoin: !(st && st.lateJoin) } }); await refresh(); };
   $("#talkBtn").onclick = async () => { await host("config", { config: { playersTalk: !(st && st.playersTalk) } }); await refresh(); T.toast(st.playersTalk ? "🎤 Ora i giocatori possono parlare" : "🔇 Parola tolta ai giocatori"); };
 
   // ---- registrazione della voce del banco ----

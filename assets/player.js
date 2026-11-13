@@ -44,7 +44,10 @@
     try {
       const s = await api("state");
       const live = s.phase === "playing" || s.phase === "tombolino";
-      $("#joinLive").innerHTML = live ? `🎲 <b>La partita ${s.game} è in corso</b> (${s.drawn.length} numeri estratti su 90). Iscriviti adesso: guarderai questa partita e giocherai dalla prossima.`
+      const missed = D.LEVELS.filter(l => s.prizes[l.key]).map(l => l.label);
+      $("#joinLive").innerHTML = live ? (s.lateJoin
+          ? `⏰ <b>Sei in ritardo!</b> La partita ${s.game} è già cominciata (${s.drawn.length} numeri estratti). Entri subito, ma ${missed.length ? `i premi già usciti (<b>${missed.join(", ")}</b>) non li prendi` : "giochi solo per i premi che restano"}… e ti becchi un <b>pernacchione</b> da tutti! 💨`
+          : `🎲 <b>La partita ${s.game} è in corso</b> (${s.drawn.length} numeri estratti su 90). Iscriviti adesso: guarderai questa partita e giocherai dalla prossima.`)
         : s.phase === "over" ? `🏁 La partita ${s.game} è appena finita. Iscriviti: giocherai dalla prossima.` : "";
       $("#joinLive").classList.toggle("hidden", !(live || s.phase === "over"));
     } catch {}
@@ -71,6 +74,7 @@
       me = r; localStorage.setItem(LS, JSON.stringify({ id: r.id, tk: r.tk }));
       T.confetti(80, .5); T.sounds.win(0);
       if (r.spectator) T.toast("👀 Partita in corso: giocherai dalla prossima!", 4000);
+      if (r.late) T.toast("⏰ Sei in ritardo! I premi già usciti non li prendi… e ti becchi un pernacchione da tutti 💨", 6000);
       startGame();
     } catch (e) {
       $("#joinErr").textContent = "😬 " + e.message;
@@ -125,6 +129,7 @@
       if (ev.type === "newgame") T.toast("🔄 Nuova partita: ecco la tua cartella!");
       if (ev.type === "over") T.toast("🏁 Partita finita! Grazie a tutti");
       if (ev.type === "call") { T.toast(ev.join ? `🤝 Anche ${ev.name} chiama ${ev.label.toUpperCase()}!` : `📣 ${ev.name} chiama ${ev.label.toUpperCase()}!`, 3000); T.sounds.pop(); }
+      if (ev.type === "late" && (!me || ev.name !== me.name)) { T.lateOverlay(ev); }
       if (ev.type === "falsecall") { T.toast(`😂 ${ev.name} ha chiamato ${ev.label.toUpperCase()}… a vuoto!`, 3500); T.floater("🙈", ev.name); }
     }
     seenSeq = Math.max(seenSeq, s.seq || 0);

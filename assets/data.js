@@ -221,7 +221,7 @@
     tombolino: ["Panettone artigianale 🎄", "Bottiglia di vino buono 🍷"]
   };
 
-  const REACTIONS = ["😂", "😡", "😱", "👏", "🎉", "😭", "🍀", "🔥"];
+  const REACTIONS = ["😂", "😡", "😱", "👏", "🎉", "😭", "🍀", "💨"];
 
   const CREDITS = { author: "Michele De Angelis", site: "mdeangelis.me", url: "https://mdeangelis.me", version: "1.0.0", year: 2026 };
 
