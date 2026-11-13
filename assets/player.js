@@ -109,7 +109,7 @@
     // eventi (vincite, inizio, fine)
     if (seenSeq === null) seenSeq = s.seq || 0;
     for (const ev of (s.events || []).filter(e => e.id > seenSeq)) {
-      if (ev.type === "win") T.showWin(ev, { me: me?.id, speak: voice });
+      if (ev.type === "win") setTimeout(() => T.showWin(ev, { me: me?.id, speak: voice }), 1800);
       if (ev.type === "start") { T.toast("🎲 Si comincia! Buona fortuna"); T.confetti(60); }
       if (ev.type === "newgame") T.toast("🔄 Nuova partita: ecco la tua nuova cartella!");
       if (ev.type === "over") T.toast("🏁 Partita finita! Grazie a tutti");
@@ -142,23 +142,27 @@
       lastDrawnLen = d.length;
       const n = d[d.length - 1];
       const ball = $("#bigball");
-      if (n) {
-        const sm = smorfia(n);
-        ball.textContent = n; ball.classList.remove("anim"); void ball.offsetWidth; ball.classList.add("anim");
-        $("#meaning").innerHTML = `<b>${sm.e} ${esc(sm.nap)}</b><i>${esc(sm.it)} · ${d.length}° estratto · ne mancano ${90 - d.length}</i>`;
-        $("#story").textContent = sm.story; $("#story").classList.remove("hidden");
-        if (isNew) {
-          T.sounds.draw();
-          if (voice) T.speak(`${n}. ${sm.nap}`);
-          if (me && me.card.flat().includes(n)) { T.confetti(25, .55); if (navigator.vibrate) navigator.vibrate(80); }
+      const show = () => {
+        if (n) {
+          const sm = smorfia(n);
+          ball.textContent = n; ball.classList.remove("anim"); void ball.offsetWidth; ball.classList.add("anim");
+          $("#meaning").innerHTML = `<b>${sm.e} ${esc(sm.nap)}</b><i>${esc(sm.it)} · ${d.length}° estratto · ne mancano ${90 - d.length}</i>`;
+          $("#story").textContent = sm.story; $("#story").classList.remove("hidden");
+        } else {
+          ball.textContent = "–";
+          $("#meaning").innerHTML = `<b>In attesa…</b><i>Il banco sta per iniziare</i>`;
+          $("#story").classList.add("hidden");
         }
-      } else {
-        ball.textContent = "–";
-        $("#meaning").innerHTML = `<b>In attesa…</b><i>Il banco sta per iniziare</i>`;
-        $("#story").classList.add("hidden");
-      }
+        renderCard();
+      };
+      if (n && isNew) {
+        T.panariello(n).then(() => {
+          show();
+          if (voice) T.callNumber(n, false);
+          if (me && me.card.flat().includes(n)) { T.confetti(25, .55); if (navigator.vibrate) navigator.vibrate(80); }
+        });
+      } else show();
       $("#prev").innerHTML = d.slice(-8, -1).reverse().map(x => `<span title="${esc(smorfia(x).nap)}">${x}</span>`).join("");
-      renderCard();
     }
     renderPrizes();
   }

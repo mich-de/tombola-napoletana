@@ -101,14 +101,72 @@
     tick() { tone(1200, 0, .03, "square", .04); }
   };
 
-  // ---- voce ----
+  // ---- voce: sceglie la voce italiana più naturale disponibile ----
+  const VKEY = "tmb_voice";
+  function itVoices() {
+    if (!("speechSynthesis" in window)) return [];
+    return speechSynthesis.getVoices().filter(v => /^it([-_]|$)/i.test(v.lang));
+  }
+  function voiceScore(v) {
+    const n = v.name;
+    let s = 0;
+    if (/natural|neural|online/i.test(n)) s += 10;        // Edge/Windows: Elsa, Isabella, Diego…
+    if (/premium|enhanced|siri/i.test(n)) s += 8;          // Apple voci migliorate
+    if (/google/i.test(n)) s += 6;                         // Chrome
+    if (/elsa|isabella|diego|giuseppe|alice|federica|paola|luca|emma|chiara/i.test(n)) s += 3;
+    if (/compact|espeak/i.test(n)) s -= 10;
+    return s;
+  }
+  function bestVoice() {
+    const vs = itVoices();
+    const saved = localStorage.getItem(VKEY);
+    return vs.find(v => v.name === saved) || vs.sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null;
+  }
+  const setVoice = name => { try { localStorage.setItem(VKEY, name); } catch {} };
+  if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => document.dispatchEvent(new Event("voices"));
+  const spoken = t => String(t).replace(/\p{Extended_Pictographic}/gu, "").replace(/['’]/g, "").replace(/\s+/g, " ").trim();
   function speak(text, opts = {}) {
-    if (!("speechSynthesis" in window)) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "it-IT"; u.rate = opts.rate || 1; u.pitch = opts.pitch || 1;
-    const v = speechSynthesis.getVoices().find(v => /it[-_]IT/i.test(v.lang));
-    if (v) u.voice = v;
-    speechSynthesis.speak(u);
+    if (!("speechSynthesis" in window)) return Promise.resolve();
+    return new Promise(res => {
+      const u = new SpeechSynthesisUtterance(spoken(text));
+      u.lang = "it-IT"; u.rate = opts.rate || 0.95; u.pitch = opts.pitch || 1;
+      const v = bestVoice(); if (v) u.voice = v;
+      u.onend = u.onerror = () => res();
+      speechSynthesis.speak(u);
+    });
+  }
+  // il numero chiamato come lo chiamerebbe il banco: prima il numero, una pausa, poi la smorfia
+  async function callNumber(n, withStory) {
+    const sm = smorfia(n);
+    await speak(`${n}!`, { rate: 0.9, pitch: 1.05 });
+    await new Promise(r => setTimeout(r, 250));
+    await speak(`${sm.nap}… ${sm.it}.`, { rate: 0.95 });
+    if (withStory) { await new Promise(r => setTimeout(r, 300)); await speak(sm.story, { rate: 1 }); }
+  }
+
+  // ---- il panariello: si scuote e salta fuori il numero ----
+  const BASKET = `<svg viewBox="0 0 200 230" class="pan-svg"><defs>
+      <clipPath id="pc"><path d="M68 18 Q100 8 132 18 L186 196 Q100 222 14 196 Z"/></clipPath>
+      <linearGradient id="pw" x1="0" x2="1"><stop offset="0" stop-color="#c9a76b"/><stop offset=".5" stop-color="#f3dfb4"/><stop offset="1" stop-color="#b8935a"/></linearGradient>
+      <linearGradient id="pp" x1="0" x2="1"><stop offset="0" stop-color="#b0184f"/><stop offset=".5" stop-color="#ea3f7f"/><stop offset="1" stop-color="#a0123f"/></linearGradient></defs>
+    <g clip-path="url(#pc)"><rect width="200" height="230" fill="url(#pw)"/><rect y="150" width="200" height="80" fill="url(#pp)"/>
+    ${Array.from({ length: 22 }, (_, i) => `<path d="M0 ${16 + i * 9} Q100 ${24 + i * 9} 200 ${16 + i * 9}" stroke="rgba(90,60,20,.35)" stroke-width="2" fill="none"/>`).join("")}
+    ${Array.from({ length: 14 }, (_, i) => `<path d="M${100 + (i - 7) * 5} 10 L${100 + (i - 7) * 13} 230" stroke="rgba(90,60,20,.18)" stroke-width="1.5"/>`).join("")}</g>
+    <ellipse cx="100" cy="18" rx="33" ry="7" fill="#7a5a2c"/><ellipse cx="100" cy="17" rx="27" ry="4.5" fill="#3b2a12"/></svg>`;
+  let panBusy = Promise.resolve();
+  function panariello(n, opts = {}) {
+    const big = !!opts.big;
+    const run = () => new Promise(reveal => {
+      const w = document.createElement("div");
+      w.className = "pan " + (big ? "big" : "small");
+      w.innerHTML = `<div class="pan-basket">${BASKET}</div><div class="pan-token"><span>${n}</span></div>`;
+      document.body.appendChild(w);
+      for (let i = 0; i < 9; i++) setTimeout(() => tone(300 + Math.random() * 500, 0, .04, "square", .03), 250 + i * 85);
+      setTimeout(() => { w.classList.add("out"); tone(880, 0, .1, "sine", .1); tone(1320, .07, .18, "sine", .08); }, 1050);
+      setTimeout(() => reveal(), 1600);
+      setTimeout(() => { w.classList.add("bye"); setTimeout(() => w.remove(), 450); }, big ? 2600 : 2200);
+    });
+    const p = panBusy.then(run); panBusy = p.catch(() => {}); return p;
   }
 
   // ---- reazioni volanti ----
@@ -180,7 +238,7 @@
       confetti(mega ? 260 : 60 + lv.i * 40);
       if (mega) { fireworks(10, 3500); setTimeout(() => confetti(200, .1), 1600); }
       else if (lv.i >= 2) fireworks(3, 1200);
-      if (opts.speak) speak(`${lv.label}! ${ev.winners.map(w => w.name).join(", ")}${ev.winners.length > 1 ? " si spartiscono" : " vince"}: ${ev.prize.replace(/\p{Extended_Pictographic}/gu, "")}`);
+      if (opts.speak) { speechSynthesis.cancel(); speak(`${lv.label}! ${ev.winners.map(w => w.name).join(", e ")}${ev.winners.length > 1 ? " si spartiscono" : " vince"}: ${ev.prize}`, { rate: .95, pitch: 1.05 }); }
       const vb = ov.querySelector(".verdictbox");
       const showVerdict = () => {
         if (!ev.verdict) return;
@@ -234,5 +292,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

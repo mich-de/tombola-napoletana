@@ -200,6 +200,8 @@
   MODERNI.forEach(([id, name, e, sub], i) => AVATARS.push({ id, cat: "moderni", name, sub, e, color: COLORS[(i + 5) % COLORS.length] }));
   NATALE.forEach(([id, name, e, sub], i) => AVATARS.push({ id, cat: "natale", name, sub, e, color: COLORS[(i + 7) % COLORS.length] }));
   const AVATAR_BY_ID = Object.fromEntries(AVATARS.map(a => [a.id, a]));
+  // il cartellone (banco) gioca anche lui: avatar speciale, non selezionabile
+  AVATAR_BY_ID.banco = { id: "banco", cat: "speciale", name: "Il Banco", sub: "il cartellone", e: "🧺", color: "#5c0f14" };
 
   const LEVELS = [
     { key: "ambo", label: "Ambo", need: 2 },

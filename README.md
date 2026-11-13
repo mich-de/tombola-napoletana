@@ -19,6 +19,8 @@ Una tombola napoletana online per 140 e più colleghi. Ognuno gioca dal proprio 
 | Giocatori | `/` | tutti, dal telefono |
 | Cartellone del banco | `/banco` | chi tiene il cartellone, meglio se proiettato |
 
+Il banco gioca anche lui con le 6 cartelle del tabellone (si può disattivare dal banco). La voce usa la voce italiana più naturale del browser: per il cartellone proiettato conviene Microsoft Edge, che ha voci neurali (Elsa, Isabella, Diego); in Chrome si usa "Google italiano". Dal banco si può scegliere la voce.
+
 Il PIN predefinito del banco è **1734**, l'anno di nascita della tombola. Puoi cambiarlo con la variabile d'ambiente `HOST_PIN`.
 
 ## Pubblicazione su Vercel (gratis)

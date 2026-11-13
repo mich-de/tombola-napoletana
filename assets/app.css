@@ -163,3 +163,21 @@ input.txt:focus{border-color:var(--gold)}
 @keyframes dots{0%{content:""}33%{content:"."}66%{content:".."}100%{content:"..."}}
 .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:90;background:#222;color:#fff;padding:10px 16px;border-radius:999px;font-weight:800;box-shadow:var(--shadow);animation:fade .2s}
 canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:75}
+
+/* panariello */
+.pan{position:fixed;left:50%;top:42%;z-index:66;pointer-events:none;transform:translate(-50%,-50%);animation:panIn .25s ease-out both}
+.pan.big{width:240px;height:280px}.pan.small{width:130px;height:150px;top:38%}
+.pan .pan-basket{position:absolute;inset:0;transform-origin:50% 85%;animation:panShake .8s .25s ease-in-out both;filter:drop-shadow(0 18px 24px rgba(0,0,0,.45))}
+.pan .pan-svg{width:100%;height:100%}
+.pan .pan-token{position:absolute;left:50%;top:6%;width:34%;aspect-ratio:1;margin-left:-17%;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%,#fff4dc,#e8c48e 55%,#b88a4c);border:3px solid #a8783a;box-shadow:inset 0 0 0 4px rgba(255,255,255,.35),0 6px 14px rgba(0,0,0,.35);opacity:0;transform:scale(.4)}
+.pan .pan-token span{color:#b71c1c;font-weight:900;font-size:clamp(18px,4vw,40px);border:2px solid #b71c1c;border-radius:50%;width:78%;height:78%;display:flex;align-items:center;justify-content:center}
+.pan.small .pan-token span{font-size:18px}
+.pan.out .pan-token{animation:tokenOut .6s cubic-bezier(.2,1.4,.4,1) forwards}
+.pan.big.out .pan-token{animation-name:tokenOutBig}
+.pan.bye{animation:panBye .45s forwards}
+@keyframes panIn{from{opacity:0;transform:translate(-50%,-40%) scale(.5)}}
+@keyframes panShake{0%,100%{transform:rotate(0)}12%{transform:rotate(-12deg)}25%{transform:rotate(10deg)}37%{transform:rotate(-9deg)}50%{transform:rotate(8deg)}62%{transform:rotate(-6deg)}75%{transform:rotate(5deg)}87%{transform:rotate(-3deg)}}
+@keyframes tokenOut{0%{opacity:1;transform:translateY(20px) scale(.4) rotate(0)}60%{opacity:1;transform:translateY(-120%) scale(1.5) rotate(540deg)}100%{opacity:1;transform:translateY(-90%) scale(1.7) rotate(720deg)}}
+@keyframes tokenOutBig{0%{opacity:1;transform:translateY(30px) scale(.4) rotate(0)}60%{opacity:1;transform:translateY(-160%) scale(2) rotate(540deg)}100%{opacity:1;transform:translateY(-120%) scale(2.3) rotate(720deg)}}
+@keyframes panBye{to{opacity:0;transform:translate(-50%,-60%) scale(.8)}}
