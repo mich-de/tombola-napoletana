@@ -46,7 +46,7 @@
       const live = s.phase === "playing" || s.phase === "tombolino";
       const missed = D.LEVELS.filter(l => s.prizes[l.key]).map(l => l.label);
       $("#joinLive").innerHTML = live ? (s.lateJoin
-          ? `⏰ <b>Sei in ritardo!</b> La partita ${s.game} è già cominciata (${s.drawn.length} numeri estratti). Entri subito, ma ${missed.length ? `i premi già usciti (<b>${missed.join(", ")}</b>) non li prendi` : "giochi solo per i premi che restano"}… e ti becchi un <b>pernacchione</b> da tutti! 💨`
+          ? `⏰ <b>Sei in ritardo!</b> La partita ${s.game} è già cominciata (${s.drawn.length} numeri estratti). Entri subito, ma ${missed.length ? `i premi già usciti (<b>${missed.join(", ")}</b>) non li prendi` : "giochi solo per i premi che restano"}… e il banco ha un <b>messaggio</b> per te! 🎙️`
           : `🎲 <b>La partita ${s.game} è in corso</b> (${s.drawn.length} numeri estratti su 90). Iscriviti adesso: guarderai questa partita e giocherai dalla prossima.`)
         : s.phase === "over" ? `🏁 La partita ${s.game} è appena finita. Iscriviti: giocherai dalla prossima.` : "";
       $("#joinLive").classList.toggle("hidden", !(live || s.phase === "over"));
@@ -74,7 +74,7 @@
       me = r; localStorage.setItem(LS, JSON.stringify({ id: r.id, tk: r.tk }));
       T.confetti(80, .5); T.sounds.win(0);
       if (r.spectator) T.toast("👀 Partita in corso: giocherai dalla prossima!", 4000);
-      if (r.late) T.toast("⏰ Sei in ritardo! I premi già usciti non li prendi… e ti becchi un pernacchione da tutti 💨", 6000);
+      if (r.late) { T.toast("⏰ Sei in ritardo! I premi già usciti non li prendi… e il banco ha un messaggio per te 🎙️", 6000); setTimeout(async () => { try { const u = await T.recURL("late"); if (u) T.playURL(u); } catch {} }, 1500); }
       startGame();
     } catch (e) {
       $("#joinErr").textContent = "😬 " + e.message;

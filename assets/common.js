@@ -124,21 +124,36 @@
     o.connect(am); am.connect(lp); lp.connect(g); g.connect(a.destination);
     [o, lfo, alfo].forEach(x => { x.start(t); x.stop(t + dur + .05); });
   }
-  function lateOverlay(ev) {
+  // il ritardatario: il banco gli manda un messaggio audio (registrato prima, o dal vivo)
+  function lateOverlay(ev, opts = {}) {
     const ov = document.createElement("div"); ov.className = "overlay";
-    ov.innerHTML = `<div class="winbox"><div style="font-size:54px">⏰💨</div>
+    ov.innerHTML = `<div class="winbox"><div style="font-size:54px">⏰🎙️</div>
       <h1 class="lvl title-font" style="font-size:clamp(34px,9vw,64px)">Ritardatario!</h1>
       <div class="wn"><div>${avatarHTML(ev.av, "lg")}<span>${esc(ev.name)}</span></div></div>
       <div class="prize">Entra a partita in corso, dopo ${ev.drawn} numeri estratti.</div>
       <div class="verdict"><h4>⚖️ Il Tribunale della Smorfia</h4>
-        <p>${ev.missed.length ? `I premi già usciti (<b>${esc(ev.missed.join(", "))}</b>) non li prende: gioca solo per quelli che restano.` : "Nessun premio è ancora uscito: gli è andata bene… ma la pena resta!"}</p>
-        <p>E per il ritardo si becca un <b>PERNACCHIONE</b> da tutti i partecipanti! 💨💨💨</p></div>
-      <div style="margin-top:14px"><button class="btn">Chiudi</button></div></div>`;
+        <p>${ev.missed.length ? `I premi già usciti (<b>${esc(ev.missed.join(", "))}</b>) non li prende: gioca solo per quelli che restano.` : "Nessun premio è ancora uscito: gli è andata bene!"}</p>
+        <p>E adesso… <b>il banco ha un messaggio per lui!</b> 🎙️</p></div>
+      ${opts.banco ? `<div style="margin-top:12px"><button class="btn red ptt" id="latePtt">🎙️ Tieni premuto e diglielo a voce</button><div class="muted" id="lateStat" style="margin-top:6px;font-weight:800"></div></div>` : ""}
+      <div style="margin-top:14px"><button class="btn closebtn">Chiudi</button></div></div>`;
     document.body.appendChild(ov);
-    pernacchia(.4, 1.6); setTimeout(() => pernacchia(.3, 1.1), 1700);
-    for (let i = 0; i < 14; i++) setTimeout(() => floater("💨"), i * 140);
+    // il messaggio registrato per i ritardatari, se il banco l'ha preparato
+    setTimeout(async () => { try { const u = await recURL("late"); if (u) await playURL(u); } catch {} }, 900);
+    if (opts.banco) recordPTT(ov.querySelector("#latePtt"), {
+      maxMs: 20000, send: opts.send,
+      onState: (k, msg) => {
+        const b = ov.querySelector("#latePtt"), t = ov.querySelector("#lateStat");
+        if (k === "rec") { b.classList.add("on"); b.textContent = "🔴 Parla… lascia per inviare"; clearTimeout(tm); }
+        if (k === "stop") { b.classList.remove("on"); b.textContent = "🎙️ Tieni premuto e diglielo a voce"; }
+        if (k === "sending") t.textContent = "📡 Invio a tutti…";
+        if (k === "sent") { t.textContent = "✅ Messaggio inviato a tutti!"; tm = setTimeout(close, 2500); }
+        if (k === "error") t.textContent = "⚠️ " + msg;
+        if (k === "nomic") t.textContent = "⚠️ Consenti il microfono nel browser";
+      }
+    });
     const close = () => ov.remove();
-    ov.querySelector("button").onclick = close; setTimeout(close, 9000);
+    ov.querySelector(".closebtn").onclick = close;
+    let tm = setTimeout(close, opts.banco ? 20000 : 10000);
   }
 
   // ---- voce: sceglie la voce italiana più naturale disponibile ----

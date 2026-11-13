@@ -63,7 +63,7 @@
       }
       if (ev.type === "over") { auto = false; renderAuto(); T.toast("🏁 Partita finita!"); }
       if (ev.type === "call") { T.toast(ev.join ? `🤝 Anche ${ev.name} chiama ${ev.label.toUpperCase()}!` : `📣 ${ev.name} chiama ${ev.label.toUpperCase()}!`, 3000); T.sounds.pop(); if (voice) T.speak(`${ev.name} chiama ${ev.label}!`); }
-      if (ev.type === "late") { T.lateOverlay(ev); overlayUntil = Math.max(overlayUntil, Date.now() + 9000); if (voice) T.speak(`Ritardatario! ${ev.name} entra a partita in corso. Pernacchione per lui!`); }
+      if (ev.type === "late") { T.lateOverlay(ev, { banco: true, send: d => host("say", d) }); overlayUntil = Math.max(overlayUntil, Date.now() + 20000); }
       if (ev.type === "falsecall") { T.toast(`😂 ${ev.name} ha chiamato ${ev.label.toUpperCase()}… a vuoto!`, 3500); T.floater("🙈", ev.name); if (voice) T.speak(`${ev.name} ha chiamato ${ev.label} a vuoto! Nun è overo!`); }
     }
     seenSeq = Math.max(seenSeq, s.seq || 0);
@@ -84,7 +84,7 @@
     $("#sGame").textContent = s.game; $("#sCount").textContent = s.count; $("#sDrawn").textContent = d.length + "/90";
     $("#startBtn").classList.toggle("hidden", s.phase !== "lobby");
     $("#bancoBtn").textContent = "🧺 Il banco gioca: " + (s.bancoPlays ? "sì" : "no");
-    $("#lateBtn").textContent = "⏰ Ritardatari: " + (s.lateJoin ? "entrano (pernacchione)" : "aspettano la prossima");
+    $("#lateBtn").textContent = "⏰ Ritardatari: " + (s.lateJoin ? "entrano (con messaggio del banco)" : "aspettano la prossima");
     $("#talkBtn").textContent = "🎤 I giocatori possono parlare: " + (s.playersTalk ? "sì" : "no");
     const live = s.phase === "playing" || s.phase === "tombolino";
     $("#modeSel").value = s.mode; $("#tieSel").value = s.tie; $("#modeSel").disabled = $("#tieSel").disabled = live;
@@ -227,7 +227,7 @@
     let cur = sel, rec = null, chunks = [], blob = null, mime = "", timer = null, t0 = 0;
     const m = T.modal(`<h2 class="title-font">🎙️ La voce del banco</h2>
       <p class="muted">Scegli un numero, premi <b>Registra</b> e dillo come al tavolo: il numero in napoletano, la figura e, se vuoi, la filastrocca. Durante la partita si sentirà la tua voce; i numeri non registrati li dice la voce del browser.</p>
-      <div class="recgrid">${Array.from({ length: 90 }, (_, i) => `<button data-n="${i + 1}">${i + 1}</button>`).join("")}</div>
+      <div class="recgrid">${Array.from({ length: 90 }, (_, i) => `<button data-n="${i + 1}">${i + 1}</button>`).join("")}<button data-n="late" style="grid-column:span 10">⏰ Messaggio per i ritardatari</button></div>
       <div class="recpanel"><div class="big" id="rNum"></div><div class="script" id="rScript"></div>
         <div class="recctl"><button class="btn red" id="rRec">⏺ Registra</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="rPlay" disabled>▶ Ascolta</button>
         <button class="btn green" id="rSave" disabled>💾 Salva</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="rSaved">🔊 Salvata</button><button class="btn ghost" style="color:var(--red2);border-color:var(--line)" id="rDel">🗑️</button><button class="btn" id="rDemo">🎬 Prova con l'estrazione</button></div>
@@ -235,14 +235,20 @@
     const $m = q => m.querySelector(q);
     const paint = () => {
       const recs = (st && st.recs) || {};
-      m.querySelectorAll(".recgrid button").forEach(b => { const n = +b.dataset.n; b.classList.toggle("has", !!recs[n]); b.classList.toggle("sel", n === cur); });
-      const sm = smorfia(cur);
-      $m("#rNum").innerHTML = `${cur} <span style="font-size:34px">${T.fig(sm.e)}</span>`;
-      $m("#rScript").innerHTML = `Di': <b>« ${esc(D.numNap(cur))} »</b> … <b>${esc(sm.nap)}</b> <span class="muted">(${esc(sm.it)})</span><br><i>${esc(D.RIME[cur - 1])}</i>`;
+      m.querySelectorAll(".recgrid button").forEach(b => { const n = b.dataset.n === "late" ? "late" : +b.dataset.n; b.classList.toggle("has", !!recs[n]); b.classList.toggle("sel", n === cur); });
+      if (cur === "late") {
+        $m("#rNum").innerHTML = `⏰ <span style="font-size:30px">Ritardatari</span>`;
+        $m("#rScript").innerHTML = `Registra quello che vuoi dire a chi arriva tardi: si sentirà su tutti i telefoni ogni volta che entra un ritardatario.<br><i>Es.: «E tu a chest'ora arrive? Ambo e terno t'e sì perso, assiettate e statte zitto!»</i>`;
+      } else {
+        const sm = smorfia(cur);
+        $m("#rNum").innerHTML = `${cur} <span style="font-size:34px">${T.fig(sm.e)}</span>`;
+        $m("#rScript").innerHTML = `Di': <b>« ${esc(D.numNap(cur))} »</b> … <b>${esc(sm.nap)}</b> <span class="muted">(${esc(sm.it)})</span><br><i>${esc(D.RIME[cur - 1])}</i>`;
+      }
+      $m("#rDemo").style.display = cur === "late" ? "none" : "";
       $m("#rSaved").style.display = $m("#rDel").style.display = recs[cur] ? "" : "none";
       $m("#rPlay").disabled = $m("#rSave").disabled = !blob;
     };
-    m.querySelector(".recgrid").onclick = e => { const b = e.target.closest("button"); if (!b || rec) return; cur = +b.dataset.n; blob = null; $m("#rStat").textContent = ""; paint(); };
+    m.querySelector(".recgrid").onclick = e => { const b = e.target.closest("button"); if (!b || rec) return; cur = b.dataset.n === "late" ? "late" : +b.dataset.n; blob = null; $m("#rStat").textContent = ""; paint(); };
     $m("#rRec").onclick = async () => {
       if (rec) { rec.stop(); return; }
       try {
@@ -264,7 +270,7 @@
     $m("#rSave").onclick = async () => {
       if (!blob) return; $m("#rStat").textContent = "Salvataggio…";
       const b64 = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(",")[1]); fr.readAsDataURL(blob); });
-      try { const r = await host("rec", { n: cur, mime: blob.type, b64 }); st.recs = r.recs; T.setRecs(r.recs); blob = null; $m("#rStat").textContent = `💾 Salvato! Il ${cur} ora ha la tua voce.`; paint(); }
+      try { const r = await host("rec", { n: cur, mime: blob.type, b64 }); st.recs = r.recs; T.setRecs(r.recs); blob = null; $m("#rStat").textContent = cur === "late" ? "💾 Salvato! I ritardatari sono avvisati 😈" : `💾 Salvato! Il ${cur} ora ha la tua voce.`; paint(); }
       catch (e) { $m("#rStat").textContent = "⚠️ " + e.message; }
     };
     $m("#rDemo").onclick = () => { m.remove(); T.prepareRec(cur); T.panariello(cur, { big: true }).then(() => T.callNumber(cur, story)); };
