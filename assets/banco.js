@@ -122,6 +122,9 @@
   }
   function fillVoices() {
     const vs = T.itVoices(), best = T.bestVoice();
+    const natural = best && /natural|neural|online|premium|enhanced|siri/i.test(best.name);
+    $("#voiceTip").innerHTML = natural ? "✅ Voce naturale attiva: " + esc(best.name)
+      : "💡 Per una voce naturale <b>gratis</b> apri questa pagina con <b>Microsoft Edge</b>: ha le voci neurali italiane Isabella, Elsa, Diego e Giuseppe.";
     $("#voiceSel").innerHTML = vs.length ? vs.map(v => `<option ${best && v.name === best.name ? "selected" : ""}>${esc(v.name)}</option>`).join("") : `<option>Nessuna voce italiana nel browser</option>`;
   }
 
@@ -152,7 +155,7 @@
   $("#storyBtn").onclick = () => { story = !story; $("#storyBtn").textContent = "📜 Storiella: " + (story ? "sì" : "no"); };
   $("#bancoBtn").onclick = async () => { await host("config", { config: { bancoPlays: !st.bancoPlays } }); await refresh(); };
   $("#voiceSel").onchange = () => T.setVoice($("#voiceSel").value);
-  $("#voiceTest").onclick = () => { speechSynthesis.cancel(); T.announce("k=test", "Trentatré! Gli anni di Cristo."); };
+  $("#voiceTest").onclick = () => { speechSynthesis.cancel(); T.callNumber(33, false); };
   $("#interval").oninput = () => { $("#intervalV").textContent = $("#interval").value + " s"; };
   $("#interval").onchange = () => host("config", { config: { interval: +$("#interval").value } }).catch(() => {});
   $("#newBtn").onclick = async () => {

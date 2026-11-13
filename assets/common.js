@@ -149,7 +149,7 @@
     return new Promise((res, rej) => {
       let done = false; const fin = ok => { if (done) return; done = true; audioCache.delete(qs); ok ? res() : rej(); };
       a.onended = () => fin(true);
-      a.onerror = () => { humanOK = false; setTimeout(() => humanOK = true, 60000); fin(false); };
+      a.onerror = () => { humanOK = false; fin(false); };
       const t = setTimeout(() => fin(false), 9000);
       a.currentTime = 0;
       a.play().then(() => clearTimeout(t)).catch(() => { clearTimeout(t); fin(false); });
@@ -179,18 +179,100 @@
     ${Array.from({ length: 22 }, (_, i) => `<path d="M0 ${16 + i * 9} Q100 ${24 + i * 9} 200 ${16 + i * 9}" stroke="rgba(90,60,20,.35)" stroke-width="2" fill="none"/>`).join("")}
     ${Array.from({ length: 14 }, (_, i) => `<path d="M${100 + (i - 7) * 5} 10 L${100 + (i - 7) * 13} 230" stroke="rgba(90,60,20,.18)" stroke-width="1.5"/>`).join("")}</g>
     <ellipse cx="100" cy="18" rx="33" ry="7" fill="#7a5a2c"/><ellipse cx="100" cy="17" rx="27" ry="4.5" fill="#3b2a12"/></svg>`;
+  // ---- suoni del panariello: numeri di legno che sbattono dentro il cesto di vimini ----
+  let noiseBuf;
+  function noise() {
+    const a = audio(); if (!a) return null;
+    if (!noiseBuf) { noiseBuf = a.createBuffer(1, a.sampleRate * .2, a.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+    return noiseBuf;
+  }
+  function woodClick(when, vol = .25, f = 1600) {
+    const a = audio(); if (!a) return;
+    const t = a.currentTime + when;
+    const src = a.createBufferSource(); src.buffer = noise();
+    const bp = a.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = f; bp.Q.value = 7;
+    const g = a.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0005, t + .035);
+    src.connect(bp); bp.connect(g); g.connect(a.destination); src.start(t, Math.random() * .1, .05);
+    const o = a.createOscillator(), og = a.createGain(); o.type = "sine"; o.frequency.setValueAtTime(f * .55, t); o.frequency.exponentialRampToValueAtTime(f * .4, t + .04);
+    og.gain.setValueAtTime(vol * .5, t); og.gain.exponentialRampToValueAtTime(.0005, t + .045); o.connect(og); og.connect(a.destination); o.start(t); o.stop(t + .06);
+  }
+  function rattle(when, dur, n, vol = .2) {
+    for (let i = 0; i < n; i++) { const x = Math.random(); woodClick(when + dur * Math.pow(x, .8), vol * (.4 + Math.random() * .8), 900 + Math.random() * 1900); }
+  }
+  function wickerSwish(when, dur) {
+    const a = audio(); if (!a) return; const t = a.currentTime + when;
+    const src = a.createBufferSource(); src.buffer = noise(); src.loop = true;
+    const hp = a.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 2500;
+    const g = a.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.05, t + dur * .4); g.gain.linearRampToValueAtTime(0, t + dur);
+    src.connect(hp); hp.connect(g); g.connect(a.destination); src.start(t); src.stop(t + dur + .05);
+  }
+  function tock(when, vol = .5) { woodClick(when, vol, 700); woodClick(when + .004, vol * .6, 1900); }
+  function chime(when) { [1318.5, 1975.5, 2637].forEach((f, i) => tone(f, when + i * .06, 1.3, "sine", .07 / (i + 1))); }
+
+  // ---- il panariello: si scuote, si inclina, cade il numero, rotola e si gira ----
   let panBusy = Promise.resolve();
   function panariello(n, opts = {}) {
     const big = !!opts.big;
     const run = () => new Promise(reveal => {
-      const w = document.createElement("div");
-      w.className = "pan " + (big ? "big" : "small");
-      w.innerHTML = `<div class="pan-basket">${BASKET}</div><div class="pan-token"><span>${n}</span></div>`;
-      document.body.appendChild(w);
-      for (let i = 0; i < 9; i++) setTimeout(() => tone(300 + Math.random() * 500, 0, .04, "square", .03), 250 + i * 85);
-      setTimeout(() => { w.classList.add("out"); tone(880, 0, .1, "sine", .1); tone(1320, .07, .18, "sine", .08); }, 1050);
-      setTimeout(() => reveal(), 1600);
-      setTimeout(() => { w.classList.add("bye"); setTimeout(() => w.remove(), 450); }, big ? 2600 : 2200);
+      const sm = smorfia(n);
+      const st = document.createElement("div");
+      st.className = "pan-stage " + (big ? "big" : "small");
+      st.innerHTML = `<div class="pan-table"></div>
+        <div class="pan-rays"></div>
+        <div class="pan-basket">${BASKET}<div class="pan-inside">${[0, 1, 2, 3, 4].map(i => `<i style="--i:${i}"></i>`).join("")}</div></div>
+        <div class="pan-token3"><div class="face front"><span>${n}</span></div><div class="face back"></div></div>
+        <div class="pan-label"><b>${sm.e} ${esc(sm.nap)}</b><small>${esc(sm.it)}</small></div>`;
+      document.body.appendChild(st);
+      const S = big ? 1 : .62;
+      const basket = st.querySelector(".pan-basket"), tok = st.querySelector(".pan-token3"), rays = st.querySelector(".pan-rays"), label = st.querySelector(".pan-label");
+      const inside = [...st.querySelectorAll(".pan-inside i")];
+      const E = "cubic-bezier(.3,.7,.4,1)";
+      // 1. il cesto arriva
+      basket.animate([{ transform: `translate(-50%,-140%) scale(${S}) rotate(-8deg)`, opacity: 0 }, { transform: `translate(-50%,0) scale(${S}) rotate(4deg)`, opacity: 1, offset: .7 }, { transform: `translate(-50%,0) scale(${S}) rotate(0)` }], { duration: 380, easing: E, fill: "forwards" });
+      tock(.3, .25);
+      // 2. tre scosse forti, i numeri saltano dentro
+      const shake = [];
+      for (let k = 0; k < 3; k++) {
+        const d = k % 2 ? 1 : -1;
+        shake.push({ transform: `translate(-50%,0) scale(${S}) rotate(0)` }, { transform: `translate(calc(-50% + ${d * 14}px),-26px) scale(${S}) rotate(${d * 15}deg)` }, { transform: `translate(calc(-50% - ${d * 10}px),6px) scale(${S}) rotate(${-d * 11}deg)` });
+        rattle(.42 + k * .36, .3, 22, .22);
+      }
+      shake.push({ transform: `translate(-50%,0) scale(${S}) rotate(0)` });
+      wickerSwish(.4, 1.1);
+      setTimeout(() => {
+        basket.animate(shake, { duration: 1080, easing: "ease-in-out", fill: "forwards" });
+        inside.forEach((el, i) => el.animate([{ transform: "translateY(0) rotate(0)" }, { transform: `translateY(${-22 - i * 7}px) rotate(${i % 2 ? 160 : -200}deg)` }, { transform: "translateY(0) rotate(360deg)" }], { duration: 360, iterations: 3, delay: i * 40, easing: "ease-in-out" }));
+      }, 400);
+      // 3. il cesto si inclina e cade fuori un numero
+      setTimeout(() => {
+        basket.animate([{ transform: `translate(-50%,0) scale(${S}) rotate(0)` }, { transform: `translate(-30%,-10px) scale(${S}) rotate(-112deg)`, offset: .55 }, { transform: `translate(-30%,-10px) scale(${S}) rotate(-112deg)` }], { duration: 650, easing: "ease-out", fill: "forwards" });
+        rattle(.15, .35, 10, .18);
+      }, 1500);
+      setTimeout(() => {
+        const sx = big ? -170 : -100, fy = big ? 120 : 70;
+        tok.style.display = "block";
+        tok.animate([
+          { transform: `translate(calc(-50% + ${sx}px), -40px) scale(${.55 * S}) rotateY(180deg) rotate(0)`, opacity: 1 },
+          { transform: `translate(calc(-50% + ${sx * .7}px), ${fy}px) scale(${.55 * S}) rotateY(180deg) rotate(-180deg)`, offset: .28, easing: "ease-in" },
+          { transform: `translate(calc(-50% + ${sx * .5}px), ${fy * .55}px) scale(${.55 * S}) rotateY(180deg) rotate(-300deg)`, offset: .42 },
+          { transform: `translate(calc(-50% + ${sx * .32}px), ${fy}px) scale(${.55 * S}) rotateY(180deg) rotate(-400deg)`, offset: .54 },
+          { transform: `translate(calc(-50% + ${sx * .2}px), ${fy * .82}px) scale(${.55 * S}) rotateY(180deg) rotate(-460deg)`, offset: .63 },
+          { transform: `translate(calc(-50% + ${sx * .08}px), ${fy}px) scale(${.55 * S}) rotateY(180deg) rotate(-540deg)`, offset: .72 },
+          { transform: `translate(-50%, ${fy}px) scale(${.6 * S}) rotateY(180deg) rotate(-720deg)`, offset: .8 },
+          { transform: `translate(-50%, -30px) scale(${1.25 * S}) rotateY(0deg) rotate(-720deg)` }
+        ], { duration: 1500, easing: "linear", fill: "forwards" });
+        tok.animate([{ filter: "brightness(.9)" }, { filter: "brightness(1.15) drop-shadow(0 0 30px rgba(255,216,107,.9))" }], { duration: 400, delay: 1300, fill: "forwards" });
+        tock(.42, .55); tock(.63, .32); tock(.8, .2); rattle(.9, .25, 4, .08);
+      }, 1950);
+      // 4. rivelazione: raggi, campanella, nome della smorfia
+      setTimeout(() => {
+        basket.animate([{ opacity: 1 }, { opacity: 0, transform: `translate(-30%,30px) scale(${S * .8}) rotate(-112deg)` }], { duration: 400, fill: "forwards" });
+        rays.animate([{ opacity: 0, transform: "translate(-50%,-50%) scale(.3) rotate(0)" }, { opacity: 1, transform: `translate(-50%,-50%) scale(${S}) rotate(90deg)` }], { duration: 900, easing: "ease-out", fill: "forwards" });
+        label.animate([{ opacity: 0, transform: "translate(-50%,20px) scale(.6)" }, { opacity: 1, transform: "translate(-50%,0) scale(1)" }], { duration: 450, delay: 150, easing: "cubic-bezier(.2,1.6,.4,1)", fill: "forwards" });
+        chime(0); confetti(big ? 70 : 30, .38);
+        reveal();
+      }, 3420);
+      setTimeout(() => { st.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: "forwards" }).onfinish = () => st.remove(); }, big ? 5200 : 4600);
     });
     const p = panBusy.then(run); panBusy = p.catch(() => {}); return p;
   }

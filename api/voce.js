@@ -35,6 +35,8 @@ function textFor(q, state) {
 module.exports = async (req, res) => {
   try {
     const q = req.query || {};
+    // la voce AI è facoltativa (serve AI Gateway attivo): senza TTS_ENABLED=1 si usa la voce gratuita del browser
+    if (process.env.TTS_ENABLED !== "1") return res.status(404).json({ error: "voce AI non attiva" });
     const st = getStore();
     let state = null;
     if (q.ev) { const raw = await st.get("tmb:state"); state = raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : null; }
