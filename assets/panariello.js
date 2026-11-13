@@ -99,6 +99,44 @@
     ctx.fillStyle = "#e3ad80"; for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(16 * S, (-22 + i * 14) * S, 13 * S, 7 * S, 0, 0, 7); ctx.fill(); }
     ctx.restore();
   }
+  function finger(ctx, x, y, len, w, ang) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+    const g = ctx.createLinearGradient(0, -w / 2, 0, w / 2); g.addColorStop(0, "#f6cfaa"); g.addColorStop(.6, "#eab78e"); g.addColorStop(1, "#c98e66");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.roundRect(0, -w / 2, len, w, w / 2); ctx.fill();
+    ctx.strokeStyle = "rgba(140,80,50,.35)"; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = "rgba(255,235,225,.85)"; ctx.beginPath(); ctx.roundRect(len - w * .95, -w * .32, w * .75, w * .64, w * .3); ctx.fill();   // unghia
+    ctx.strokeStyle = "rgba(150,90,60,.25)"; ctx.beginPath(); ctx.moveTo(len * .45, -w * .4); ctx.lineTo(len * .45, w * .4); ctx.stroke();      // nocca
+    ctx.restore();
+  }
+  function sleeve(ctx, x1, y1, x2, y2, w) {
+    ctx.save(); ctx.lineCap = "round"; ctx.strokeStyle = "#ececec"; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.strokeStyle = "rgba(0,0,0,.08)"; ctx.lineWidth = w * .3; ctx.beginPath(); ctx.moveTo(x1, y1 + w * .2); ctx.lineTo(x2, y2 + w * .2); ctx.stroke(); ctx.restore();
+  }
+  // mano di sotto: regge la base, le dita avvolgono il davanti del cesto
+  function bottomHand(ctx, bw, bh, S) {
+    sleeve(ctx, -bw * 1.1, bh * .05, -bw * .38, -bh * .05, 70 * S);
+    ctx.fillStyle = "#eab78e"; ctx.beginPath(); ctx.ellipse(-bw * .22, -bh * .06, 46 * S, 34 * S, -.2, 0, 7); ctx.fill();               // palmo
+    for (let i = 0; i < 4; i++) finger(ctx, -bw * .3, -bh * (.1 + i * .085), (118 - i * 8) * S, 23 * S, -.08 - i * .03);
+    finger(ctx, -bw * .33, -bh * .02, 64 * S, 25 * S, -.9);                                                                              // pollice
+  }
+  // mano di sopra: tappa la bocca del panariello, le dita scendono sul davanti
+  function topHand(ctx, bw, bh, S) {
+    sleeve(ctx, bw * 1.2, -bh * 1.35, bw * .3, -bh * 1.02, 66 * S);
+    ctx.fillStyle = "#eab78e"; ctx.beginPath(); ctx.ellipse(bw * .02, -bh * .97, 52 * S, 30 * S, .15, 0, 7); ctx.fill();                // palmo sul bordo
+    for (let i = 0; i < 4; i++) finger(ctx, bw * (.08 - i * .07), -bh * .98, (112 - Math.abs(i - 1.2) * 14) * S, 22 * S, 1.75 + i * .12);
+    finger(ctx, bw * .22, -bh * .9, 58 * S, 24 * S, 2.6);
+  }
+  function openHand(ctx, x, y, S, open) {
+    sleeve(ctx, x - 230 * S, y + 190 * S, x - 70 * S, y + 40 * S, 74 * S);
+    ctx.fillStyle = "#fff"; ctx.save(); ctx.translate(x - 74 * S, y + 44 * S); ctx.rotate(-.85); ctx.fillRect(-40 * S, -8 * S, 80 * S, 16 * S); ctx.restore();   // polsino
+    const g = ctx.createRadialGradient(x - 10 * S, y - 6 * S, 5 * S, x, y, 80 * S); g.addColorStop(0, "#f7d2b0"); g.addColorStop(1, "#d99a70");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x - 20 * S, y + 6 * S, 78 * S, 36 * S, -.12, 0, 7); ctx.fill();                                              // palmo
+    ctx.strokeStyle = "rgba(150,90,60,.35)"; ctx.lineWidth = 2 * S; ctx.beginPath(); ctx.arc(x - 30 * S, y - 20 * S, 40 * S, .5, 1.6); ctx.stroke();                   // linee della mano
+    finger(ctx, x - 70 * S, y - 10 * S, 70 * S, 28 * S, -1.2 - (1 - open) * .6);                                                                                    // pollice
+  }
+  function openHandFront(ctx, x, y, S) {
+    for (let i = 0; i < 4; i++) finger(ctx, x + 30 * S, y + (8 - i * 9) * S, (96 - Math.abs(i - 1.3) * 12) * S, 24 * S, -.05 - i * .13);
+  }
   const easeOut = t => 1 - Math.pow(1 - t, 3), easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const back = t => { const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
   const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
@@ -121,26 +159,27 @@
       const bw = 240 * S, bh = 280 * S;
       const excl = EXCL[Math.floor(Math.random() * EXCL.length)];
 
-      // tempi della scena (secondi)
-      const T0 = { in: .45, shake: 2.15, tilt: 2.75, pop: 2.95, settle: 4.6, rise: 5.05, flip: 5.55, end: big ? 7.6 : 7 };
+      // tempi della scena (secondi): una mano tappa e scuote, poi si apre sotto e riceve il numero
+      const T0 = { in: .45, shake: 2.15, move: 2.6, tilt: 3.0, drop: 3.05, back: 3.45, present: 3.9, rise: 4.5, flip: 5.0, end: big ? 7.1 : 6.6 };
+      const TA = -2.0, LIFT = 200 * S;
       // suoni programmati
       osc(0, 90, .4, { vol: .25, to: 50 }); whoosh(0, .4); tock(.42, .4);
       tarantella(.5, 12);
-      for (let i = 0; i < 26; i++) wood(.5 + Math.random() * 1.6, .1 + Math.random() * .2);
-      heart(2.2);
-      for (let i = 0; i < 8; i++) wood(2.45 + i * .04, .15);
-      whoosh(2.95, .5);
-      let impacts = 0;
-
-      const fountain = [], dust = [];
-      let lastEmit = 0;
-      const chosen = { x: 0, y: 0, vx: 0, vy: 0, rot: 0, r: 26 * S, state: "hidden", bounces: 0 };
+      for (let i = 0; i < 34; i++) wood(.5 + Math.random() * 1.6, .1 + Math.random() * .2);
+      heart(2.25); heart(2.75);
+      for (let i = 0; i < 6; i++) wood(2.95 + i * .03, .14);
+      const dust = [];
+      const chosen = { x: 0, y: 0, vx: 0, vy: 0, rot: 0, r: 26 * S, state: "hidden" };
       let shakeCam = 0, flash = 0, revealed = false, t0 = performance.now(), last = t0;
 
       function rimPos(angle, lift) {
-        const px = bx, py = tableY - lift, rx = 0, ry = -bh * .92;
-        return { x: px + rx * Math.cos(angle) - ry * Math.sin(angle), y: py + rx * Math.sin(angle) + ry * Math.cos(angle) };
+        const px = bx, py = tableY - lift, ry = -bh * .92;
+        return { x: px - ry * Math.sin(angle), y: py + ry * Math.cos(angle) };
       }
+      const rimT = rimPos(TA, LIFT);
+      const palm0 = { x: rimT.x - 6 * S, y: rimT.y + 95 * S };        // dove si apre la mano sotto la bocca
+      const palmC = { x: W / 2, y: big ? H * .5 : H * .47 };           // dove la mano mostra il numero
+      let palm = null;
 
       function frame(now) {
         const dt = Math.min(.05, (now - last) / 1000); last = now;
@@ -149,56 +188,50 @@
         let ang = 0, lift = 0, by = 0, handsOn = 1;
         if (t < T0.in) { const p = clamp(t / T0.in); by = -(1 - back(p)) * H * .6; }
         else if (t < T0.shake) {
-          const p = (t - T0.in) / (T0.shake - T0.in), amp = .12 + .22 * p;
-          ang = Math.sin(t * 23) * amp; lift = Math.abs(Math.sin(t * 23)) * 30 * S * (.4 + p);
-        } else if (t < T0.tilt) { const p = easeInOut(clamp((t - T0.shake) / (T0.tilt - T0.shake))); ang = -1.9 * p + Math.sin(t * 40) * .02 * (1 - p); lift = 40 * S * p; }
-        else if (t < T0.settle) { ang = -1.9; lift = 40 * S; }
-        else { const p = easeInOut(clamp((t - T0.settle) / .5)); ang = -1.9 * (1 - p); lift = 40 * S * (1 - p); handsOn = 1 - p; }
+          const p = (t - T0.in) / (T0.shake - T0.in), amp = .1 + .2 * p;
+          ang = Math.sin(t * 23) * amp; lift = Math.abs(Math.sin(t * 23)) * 34 * S * (.4 + p);
+        } else if (t < T0.move) { ang = Math.sin(t * 50) * .02; }
+        else if (t < T0.tilt) { const p = easeInOut(clamp((t - T0.move) / (T0.tilt - T0.move))); ang = TA * p; lift = LIFT * p; }
+        else if (t < T0.back) { ang = TA + Math.sin(t * 60) * .015; lift = LIFT; }
+        else { const p = easeInOut(clamp((t - T0.back) / .45)); ang = TA * (1 - p); lift = LIFT * (1 - p); handsOn = 1 - p; }
 
-        // numeri che saltano dal bordo durante le scosse
-        if (t > T0.in + .05 && t < T0.shake && t - lastEmit > .12) {
-          lastEmit = t; const rp = rimPos(ang, lift);
-          for (let k = 0; k < 3 + Math.floor(Math.random() * 3); k++)
-            fountain.push({ x: rp.x + (Math.random() - .5) * 50 * S, y: rp.y, vx: (Math.random() - .5) * 220 * S + Math.sin(ang) * 260 * S, vy: -(380 + Math.random() * 380) * S, rot: Math.random() * 6, vr: (Math.random() - .5) * 18, n: 1 + Math.floor(Math.random() * 90), y0: rp.y });
+        // la mano di sopra: tappa la bocca, poi si sposta sotto e si apre
+        let palmVis = 0;
+        if (t >= T0.shake) {
+          const p = easeInOut(clamp((t - T0.shake) / (T0.move - T0.shake)));
+          const from = { x: bx + 10 * S, y: tableY - bh * 1.05 };
+          palm = { x: from.x + (palm0.x - from.x) * p, y: from.y + (palm0.y - from.y) * p - Math.sin(p * Math.PI) * 60 * S };
+          palmVis = 1;
+          if (t >= T0.present) {
+            const q = easeInOut(clamp((t - T0.present) / (T0.rise - T0.present)));
+            palm = { x: palm0.x + (palmC.x - palm0.x) * q, y: palm0.y + (palmC.y - palm0.y) * q };
+          }
+          if (t >= T0.rise) palmVis = 1 - clamp((t - T0.rise - .15) / .35);
         }
-        for (const f of fountain) { f.vy += 1500 * S * dt; f.x += f.vx * dt; f.y += f.vy * dt; f.rot += f.vr * dt; if (f.vy > 0 && f.y > f.y0 + 12 * S) { f.dead = 1; if (Math.random() < .35) wood(0, .08); } }
-        for (let i = fountain.length - 1; i >= 0; i--) if (fountain[i].dead) fountain.splice(i, 1);
 
-        // il numero scelto
-        const slow = t > T0.pop && t < T0.pop + .45 ? .35 : 1; // rallentatore all'uscita
-        if (t >= T0.pop && chosen.state === "hidden") {
-          const rp = rimPos(ang, lift); Object.assign(chosen, { x: rp.x, y: rp.y, vx: -330 * S, vy: -620 * S, state: "fly" });
+        // il numero scivola fuori dalla bocca e cade nel palmo
+        if (t >= T0.drop && chosen.state === "hidden") {
+          const rp = rimPos(ang, lift); Object.assign(chosen, { x: rp.x, y: rp.y, vx: -25 * S, vy: 60 * S, state: "fall" }); whoosh(0, .3);
         }
-        if (chosen.state === "fly") {
-          chosen.vy += 1700 * S * dt * slow; chosen.x += chosen.vx * dt * slow; chosen.y += chosen.vy * dt * slow; chosen.rot -= 9 * dt * slow;
-          if (chosen.y + chosen.r >= tableY) {
-            chosen.y = tableY - chosen.r; chosen.bounces++;
-            const v = Math.abs(chosen.vy);
-            tock(0, Math.min(.7, v / (900 * S))); impacts++;
-            if (impacts === 1) shakeCam = 14 * S;
-            for (let k = 0; k < 12; k++) dust.push({ x: chosen.x, y: tableY, vx: (Math.random() - .5) * 260 * S, vy: -Math.random() * 160 * S, life: 1 });
-            chosen.vy = -v * .42; chosen.vx *= .82;
-            if (Math.abs(chosen.vy) < 160 * S) { chosen.state = "roll"; chosen.rollT = t; chosen.rollX = chosen.x; }
+        const rest = () => palm.y - 30 * S;
+        if (chosen.state === "fall") {
+          chosen.vy += 1600 * S * dt; chosen.x += chosen.vx * dt; chosen.y += chosen.vy * dt; chosen.rot -= 6 * dt;
+          if (chosen.y >= rest()) {
+            chosen.y = rest(); const v = chosen.vy;
+            skin(0, .45); wood(0, .25, 1400); shakeCam = 6 * S;
+            for (let k = 0; k < 8; k++) dust.push({ x: chosen.x, y: chosen.y + 10 * S, vx: (Math.random() - .5) * 200 * S, vy: -Math.random() * 140 * S, life: 1 });
+            if (v > 300 * S) chosen.vy = -v * .3; else chosen.state = "palm";
           }
         }
-        let wob = 0;
-        if (chosen.state === "roll") {
-          const p = easeOut(clamp((t - chosen.rollT) / .75)), tx = W / 2;
-          const nx = chosen.rollX + (tx - chosen.rollX) * p; chosen.rot += (nx - chosen.x) / chosen.r; chosen.x = nx; chosen.y = tableY - chosen.r;
-          if (p >= 1) { chosen.state = "spin"; chosen.spinT = t; for (let i = 0; i < 14; i++) wood(i * (.09 - i * .005), .16 * (1 - i / 16), 2200); }
-        }
-        if (chosen.state === "spin") {
-          const p = clamp((t - chosen.spinT) / (T0.rise - chosen.spinT));
-          wob = (1 - p); chosen.y = tableY - chosen.r * (1 - .55 * p);
-        }
-        let tokSx = -1, tokSy = 1, tokR = chosen.r, tokX = chosen.x, tokY = chosen.y, glow = 0;
-        if (chosen.state === "spin") { tokSy = 1 - .62 * clamp((t - chosen.spinT) / (T0.rise - chosen.spinT)); tokSx = -(1 - .12 * Math.abs(Math.sin(t * 30 * wob))); }
+        if (chosen.state === "palm" || (chosen.state === "fall" && t > T0.drop + .9)) { chosen.state = "palm"; chosen.x += (palm.x - chosen.x) * .3; chosen.y = rest(); chosen.rot *= .9; }
+
+        let tokSx = -1, tokSy = chosen.state === "palm" ? .55 : 1, tokR = chosen.r, tokX = chosen.x, tokY = chosen.y, glow = 0;
         if (t >= T0.rise) {
-          if (chosen.state !== "up") { chosen.state = "up"; whoosh(0, .5); }
+          if (chosen.state !== "up") { chosen.state = "up"; whoosh(0, .5); chosen.sx0 = chosen.x; chosen.sy0 = chosen.y; }
           const p = easeInOut(clamp((t - T0.rise) / (T0.flip - T0.rise + .25)));
           const big2 = (big ? 105 : 70) * S / .62 * (big ? .62 : 1);
-          tokR = chosen.r + (big2 - chosen.r) * p; tokX = W / 2; tokY = (tableY - chosen.r * .45) + ((big ? H * .42 : H * .38) - (tableY - chosen.r * .45)) * p;
-          tokSy = .38 + .62 * p;
+          tokR = chosen.r + (big2 - chosen.r) * p; tokX = chosen.sx0 + (W / 2 - chosen.sx0) * p; tokY = chosen.sy0 + ((big ? H * .4 : H * .36) - chosen.sy0) * p;
+          tokSy = .55 + .45 * p;
           const fp = clamp((t - (T0.flip - .2)) / .4); tokSx = Math.cos(Math.PI * (1 - fp)); chosen.rot *= .9; glow = fp;
           if (fp >= .5 && !revealed) {
             revealed = true; flash = 1; fanfare(0); T.confetti(big ? 110 : 50, .35);
@@ -230,23 +263,23 @@
           if (ring > 0 && ring < 1) { ctx.save(); ctx.globalAlpha *= 1 - ring; ctx.strokeStyle = "#fff3c4"; ctx.lineWidth = 8 * S * (1 - ring); ctx.beginPath(); ctx.arc(tokX, tokY, tokR * (1 + ring * 3), 0, 7); ctx.stroke(); ctx.restore(); }
         }
         // ombra del cesto
-        ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.beginPath(); ctx.ellipse(bx, tableY - 6 * S, bw * .5, 14 * S, 0, 0, 7); ctx.fill();
-        // numeri che volano
-        for (const f of fountain) token(ctx, f.x, f.y, 16 * S, { rot: f.rot, sx: Math.cos(f.rot * 1.7) > 0 ? 1 : -1, sy: .55 + .45 * Math.abs(Math.cos(f.rot)), n: f.n });
-        // cesto + mani
+        ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.beginPath(); ctx.ellipse(bx, tableY - 6 * S, bw * .5 * (1 - lift / (LIFT * 2.2)), 14 * S, 0, 0, 7); ctx.fill();
+        // cesto + mano che lo regge (+ mano che tappa durante le scosse)
         if (basketImg.complete) {
           ctx.save(); ctx.translate(bx, tableY - lift + by); ctx.rotate(ang);
           ctx.drawImage(basketImg, -bw / 2, -bh, bw, bh);
-          if (handsOn > 0) { ctx.globalAlpha *= handsOn; ctx.save(); ctx.rotate(.35); hand(ctx, bw * .36, -bh * .2, -1, S * 1.25); ctx.restore(); }
+          if (handsOn > 0) { ctx.save(); ctx.globalAlpha *= handsOn; bottomHand(ctx, bw, bh, S); ctx.restore(); }
+          if (t < T0.shake) topHand(ctx, bw, bh, S);
           ctx.restore();
         }
+        // la mano aperta che riceve il numero
+        if (palm && palmVis > 0 && t >= T0.shake) { ctx.save(); ctx.globalAlpha *= palmVis; openHand(ctx, palm.x, palm.y, S * (big ? 1.1 : 1), clamp((t - T0.shake) / .4)); if (chosen.state !== "palm") openHandFront(ctx, palm.x, palm.y, S * (big ? 1.1 : 1)); ctx.restore(); }
         // polvere
         for (const p of dust) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 300 * S * dt; p.life -= dt * 1.6; if (p.life > 0) { ctx.fillStyle = `rgba(255,240,210,${p.life * .5})`; ctx.beginPath(); ctx.arc(p.x, p.y, 4 * S * p.life, 0, 7); ctx.fill(); } }
         // il numero scelto
-        if (chosen.state !== "hidden") {
-          if (t < T0.rise) { ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.beginPath(); ctx.ellipse(chosen.x, tableY - 4 * S, chosen.r * .9, 6 * S, 0, 0, 7); ctx.fill(); }
-          token(ctx, tokX, tokY, tokR, { rot: chosen.rot, sx: tokSx, sy: tokSy, n, glow });
-        }
+        if (chosen.state !== "hidden") token(ctx, tokX, tokY, tokR, { rot: chosen.rot, sx: tokSx, sy: tokSy, n, glow });
+        // le dita della mano aperta davanti al numero mentre è nel palmo
+        if (palm && palmVis > 0 && chosen.state === "palm") { ctx.save(); ctx.globalAlpha *= palmVis; openHandFront(ctx, palm.x, palm.y, S * (big ? 1.1 : 1)); ctx.restore(); }
         // la figura della smorfia e il cartellino
         if (revealed) {
           const p = clamp((t - T0.flip - .1) / .45), pe = back(p);
