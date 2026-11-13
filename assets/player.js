@@ -70,6 +70,9 @@
     if (me) {
       $("#name").value = me.name; selAv = me.av; cat = D.AVATAR_BY_ID[me.av]?.cat || "smorfia";
       if (me.ph && !photoChanged) { $("#phPrev").innerHTML = `<img src="/api/t?a=photo&id=${me.id}&v=${me.ph}" alt="">`; $("#phDel").classList.remove("hidden"); }
+    } else {
+      let d = null; try { d = localStorage.getItem(PHKEY); } catch {}
+      if (d) { photoB64 = d.split(",")[1]; photoChanged = true; $("#phPrev").innerHTML = `<img src="${d}" alt="">`; $("#phDel").classList.remove("hidden"); }
     }
     await loadRoster(); renderGrid();
     try {
@@ -96,10 +99,28 @@
   $("#avgrid").onclick = e => { const b = e.target.closest(".avopt"); if (!b) return; selAv = b.dataset.id; T.sounds.pop(); renderGrid(); };
   // ---- foto dalla webcam o dalla galleria: ritaglio quadrato 192×192, JPEG leggero ----
   let photoB64 = null, photoChanged = false;
+  const PHKEY = "tmb_photo";
   function setPhoto(dataURL) {
     photoB64 = dataURL ? dataURL.split(",")[1] : ""; photoChanged = true;
     $("#phPrev").innerHTML = dataURL ? `<img src="${dataURL}" alt="">` : "📷";
     $("#phDel").classList.toggle("hidden", !dataURL);
+    try { if (dataURL) localStorage.setItem(PHKEY, dataURL); else localStorage.removeItem(PHKEY); } catch {}
+    if (me && me.id) uploadPhoto();
+  }
+  async function uploadPhoto() {
+    try {
+      const ph = await api("photo", { id: me.id, tk: me.tk, b64: photoB64 || "" });
+      me.ph = ph.ph; photoChanged = false; renderMe();
+      T.toast(photoB64 ? "📸 Foto salvata: ora tutti vedono la tua faccia!" : "Foto tolta", 2500);
+    } catch (e) { T.toast("⚠️ Foto non salvata: " + e.message, 4000); }
+  }
+  // se il server non ha più la foto (es. dopo «Azzera serata») la rimandiamo da sola
+  async function restorePhoto() {
+    if (!me || me.ph) return;
+    let d = null; try { d = localStorage.getItem(PHKEY); } catch {}
+    if (!d) return;
+    photoB64 = d.split(",")[1];
+    try { const ph = await api("photo", { id: me.id, tk: me.tk, b64: photoB64 }); me.ph = ph.ph; renderMe(); } catch {}
   }
   function squareJPEG(src, w, h, mirror) {
     const c = document.createElement("canvas"); c.width = c.height = 192;
@@ -142,7 +163,7 @@
     try {
       const r = await api("join", { name, av: selAv, id: me?.id, tk: me?.tk });
       me = r;  localStorage.setItem(lsKey(), JSON.stringify({ id: r.id, tk: r.tk }));
-      if (photoChanged) { try { const ph = await api("photo", { id: r.id, tk: r.tk, b64: photoB64 || "" }); me.ph = ph.ph; photoChanged = false; } catch (e) { T.toast("⚠️ Foto non salvata: " + e.message); } }
+      if (photoChanged) await uploadPhoto(); else await restorePhoto();
       T.confetti(80, .5); T.sounds.win(0);
       if (r.spectator) T.toast("👀 Partita in corso: giocherai dalla prossima!", 4000);
       if (r.late) { T.toast("⏰ Sei in ritardo! I premi già usciti non li prendi… e il banco ha un messaggio per te 🎙️", 6000); setTimeout(async () => { try { const u = await T.recURL("late"); if (u) T.playURL(u); } catch {} }, 1500); }
@@ -160,7 +181,7 @@
     try { const r = await api("roster"); $("#crowd").innerHTML = T.crowdHTML(r.players, me && me.id); $("#crowdN").textContent = `(${r.players.length})`; } catch {}
   }
   function startGame() {
-    loadCrowd(); clearInterval(crowdTimer); crowdTimer = setInterval(() => { if (!document.hidden) loadCrowd(); }, 8000);
+    restorePhoto().then(loadCrowd); clearInterval(crowdTimer); crowdTimer = setInterval(() => { if (!document.hidden) loadCrowd(); }, 8000);
     $("#join").classList.add("hidden"); $("#game").classList.remove("hidden"); $("#reactbar").classList.remove("hidden");
     renderMe(); renderCard();
     if (!polling) { polling = true; poll(); }
@@ -172,6 +193,7 @@
     $("#meSub").textContent = a ? (a.num ? `${a.num} · ${a.name}` : a.name) : "";
   }
   $("#changeBtn").onclick = openJoin;
+  $("#meAv").onclick = openJoin; $("#meAv").style.cursor = "pointer"; $("#meAv").title = "Tocca per cambiare foto o personaggio";
   $("#infoBtn").onclick = T.infoModal;
   $("#voiceBtn").onclick = () => { voice = !voice; $("#voiceBtn").textContent = voice ? "🔊" : "🔇"; T.toast(voice ? "Voce attiva: leggerò i numeri" : "Voce spenta"); if (voice) T.speak("Voce attiva"); };
 
