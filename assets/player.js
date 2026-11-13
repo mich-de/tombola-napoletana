@@ -154,7 +154,13 @@
   };
 
   // ---------- gioco ----------
+  // chi c'è al tavolo: aggiornato ogni 8 secondi (risposta in cache, costa pochissimo)
+  let crowdTimer = null;
+  async function loadCrowd() {
+    try { const r = await api("roster"); $("#crowd").innerHTML = T.crowdHTML(r.players, me && me.id); $("#crowdN").textContent = `(${r.players.length})`; } catch {}
+  }
   function startGame() {
+    loadCrowd(); clearInterval(crowdTimer); crowdTimer = setInterval(() => { if (!document.hidden) loadCrowd(); }, 8000);
     $("#join").classList.add("hidden"); $("#game").classList.remove("hidden"); $("#reactbar").classList.remove("hidden");
     renderMe(); renderCard();
     if (!polling) { polling = true; poll(); }

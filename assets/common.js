@@ -35,6 +35,18 @@
     return `<div class="wnums">${list.map(n => `<span class="${n === key ? "k" : ""}" title="${esc(smorfia(n).nap)}">${n} <small>${fig(smorfia(n).e)}</small></span>`).join("")}</div>`;
   }
   // avatar: la foto del giocatore (se l'ha scattata) con il personaggio della smorfia come spilla
+  // la tavolata: tutti gli avatar dei partecipanti (chi entra "salta" dentro)
+  const crowdSeen = new Set(); let crowdInit = false;
+  function crowdHTML(players, myId) {
+    const list = [...players].sort((a, b) => (b.wins || []).length - (a.wins || []).length || a.name.localeCompare(b.name));
+    const html = list.map(p => {
+      const isNew = crowdInit && !crowdSeen.has(p.id); crowdSeen.add(p.id);
+      const w = (p.wins || []).length;
+      return `<div class="pp ${p.id === myId ? "me" : ""} ${isNew ? "new" : ""}" title="${esc(p.name)}"><div style="position:relative">${avatarHTML(p.av, "sm", p)}${w ? `<span class="tro">🏆${w > 1 ? w : ""}</span>` : ""}</div><span>${esc(p.name)}</span></div>`;
+    }).join("");
+    crowdInit = true;
+    return html || `<span class="muted">Ancora nessuno: aspettiamo i colleghi!</span>`;
+  }
   function avatarHTML(id, size = "", who = null) {
     const a = D.AVATAR_BY_ID[id] || { e: "❓", color: "#777", name: "?" };
     const photo = who && who.ph && who.id && who.id !== "banco";
@@ -587,5 +599,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

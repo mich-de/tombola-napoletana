@@ -45,13 +45,13 @@
     fillVoices(); document.addEventListener("voices", fillVoices);
     prewarm();
     host("getconfig").then(r => { $("#interval").value = r.config.interval; $("#intervalV").textContent = r.config.interval + " s"; }).catch(() => {});
-    poll(); setInterval(loadRoster, 6000); loadRoster(); setInterval(autoTick, 500);
+    poll(); setInterval(loadRoster, 5000); loadRoster(); setInterval(autoTick, 500);
   }
 
   // ---------- stato ----------
   async function refresh() { try { onState(await api("state", null, "&h=1&_=" + Date.now())); } catch {} }
   async function poll() { await refresh(); setTimeout(poll, 1200); }
-  async function loadRoster() { try { roster = (await api("roster", null, "&h=1&_=" + Date.now())).players; renderBoard(); } catch {} }
+  async function loadRoster() { try { roster = (await api("roster", null, "&h=1&_=" + Date.now())).players; renderBoard(); $("#crowd").innerHTML = T.crowdHTML(roster); $("#crowdN").textContent = `(${roster.length})`; } catch {} }
 
   function onState(s) {
     st = s; T.setRecs(s.recs); T.handleSays(s.says, "banco");

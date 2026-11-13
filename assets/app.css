@@ -276,3 +276,13 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:75}
 #tablePill{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none}
 #phase{flex:none;white-space:nowrap}
 @media(max-width:420px){#phase{font-size:11px;padding:4px 7px}#tablePill{max-width:70px;font-size:11px;padding:4px 7px}}
+
+/* chi c'è al tavolo */
+.crowd{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:8px 4px;max-height:320px;overflow:auto;padding:6px 2px}
+.crowd .pp{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.crowd .pp span{font-size:10.5px;font-weight:800;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.crowd .pp.me span{color:var(--red)}
+.crowd .pp.new{animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+.crowd .pp .av{position:relative}
+.crowd .pp .tro{position:absolute;bottom:-6px;left:-6px;font-size:13px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+.crowd .av.sm{width:42px;height:42px;font-size:22px}
