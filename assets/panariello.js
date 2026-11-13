@@ -237,7 +237,7 @@
         if (basketImg.complete) {
           ctx.save(); ctx.translate(bx, tableY - lift + by); ctx.rotate(ang);
           ctx.drawImage(basketImg, -bw / 2, -bh, bw, bh);
-          if (handsOn > 0) { ctx.globalAlpha *= handsOn; hand(ctx, -bw * .42, -bh * .45, 1, S); hand(ctx, bw * .42, -bh * .45, -1, S); }
+          if (handsOn > 0) { ctx.globalAlpha *= handsOn; ctx.save(); ctx.rotate(.35); hand(ctx, bw * .36, -bh * .2, -1, S * 1.25); ctx.restore(); }
           ctx.restore();
         }
         // polvere

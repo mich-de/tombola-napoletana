@@ -163,10 +163,10 @@
   async function callNumber(n, withStory) {
     try { return await playHuman(`n=${n}&s=${withStory ? 1 : 0}`); } catch {}
     const sm = smorfia(n);
-    await speak(`${n}!`, { rate: 0.9, pitch: 1.05 });
-    await new Promise(r => setTimeout(r, 250));
-    await speak(`${sm.nap}… ${sm.it}.`, { rate: 0.95 });
-    if (withStory) { await new Promise(r => setTimeout(r, 300)); await speak(sm.story, { rate: 1 }); }
+    await speak(`${D.numNap(n)}!`, { rate: 0.88, pitch: 1.05 });
+    await new Promise(r => setTimeout(r, 200));
+    await speak(`${n}. ${sm.nap}… ${sm.it}.`, { rate: 0.95 });
+    if (withStory) { await new Promise(r => setTimeout(r, 300)); await speak(D.RIME[n - 1], { rate: 0.98 }); }
   }
   async function announce(qs, fallbackText) {
     try { return await playHuman(qs); } catch {}

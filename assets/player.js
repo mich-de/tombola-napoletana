@@ -157,7 +157,7 @@
           const sm = smorfia(n);
           ball.textContent = n; ball.classList.remove("anim"); void ball.offsetWidth; ball.classList.add("anim");
           $("#meaning").innerHTML = `<b>${T.fig(sm.e)} ${esc(sm.nap)}</b><i>${esc(sm.it)} · ${d.length}° estratto · ne mancano ${90 - d.length}</i>`;
-          $("#story").textContent = sm.story; $("#story").classList.remove("hidden");
+          $("#story").innerHTML = `<b style="color:var(--wine)">« ${esc(D.numNap(n))} »</b> <i style="font-weight:800;color:var(--red)">${esc(D.RIME[n - 1])}</i><br><span class="muted">${esc(sm.story)}</span>`; $("#story").classList.remove("hidden");
         } else {
           ball.textContent = "–";
           $("#meaning").innerHTML = `<b>In attesa…</b><i>Il banco sta per iniziare</i>`;

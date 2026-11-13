@@ -229,3 +229,114 @@
   if (typeof module !== "undefined" && module.exports) module.exports = data;
   else root.TOMBOLA_DATA = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);
+
+/* Filastrocche napoletane (originali) e numeri detti in napoletano */
+(function (root) {
+  const D = (typeof module !== "undefined" && module.exports) ? module.exports : root.TOMBOLA_DATA;
+  D.RIME = [
+    "L'Italia è nu stivale ca cammina, e Napule è 'a scarpa cchiù fina!",
+    "'A criatura vence sempe: è piccerella, ma è cchiù furba 'e tutte quante!",
+    "'A jatta guarda 'o pesce 'ncopp' 'a tavola: chi s'addorme, perde 'a cena!",
+    "'O puorco: 'e chisto nun se jetta niente, manco 'o grugnito!",
+    "'A mano: chi tene 'e mane longhe s'arrobba pure 'e fasule d'a cartella!",
+    "Chella ca guarda 'nterra: nun 'a guardà tu, ca te fa arrussì!",
+    "'O vasetto: sotto 'o lietto d'a nonna, pronto pe' ll'emergenze!",
+    "'A Maronna t'accumpagna... ma 'a cinquina t'a faje tu!",
+    "'A figliata: tanta criature, e na cartella sola pe' tutte quante!",
+    "'E fasule: pe' segnà 'e nummere... e pe' fa' 'a musica doppo cena!",
+    "'E surice abballano quanno 'a jatta nun ce sta!",
+    "'E surdate marciano: uno, ddoje... e uno se perde sempe!",
+    "Sant'Antonio, Sant'Antonio, fance truvà 'a cartella e pure 'o matrimonio!",
+    "'O 'mbriaco vede ddoje cartelle, e fa ddoje tombole!",
+    "'O guaglione: tene quinnece anne e se crede 'o padrone d'o munno!",
+    "Sìrice, 'o culo: chi 'o tene vence! E stasera chi 'o tene?",
+    "Dicessette, 'a disgrazia: tuccate ferro, e pure quacche cos'ato!",
+    "'O sanghe: 'o sanghe nun è acqua, ma manco 'o vino!",
+    "'A resata: ride buono chi fa tombola pe' ultimo!",
+    "'A festa: e quanno maje se ferma 'a festa a Napule?",
+    "'A femmena annura: zi', stuta 'e lente, ca s'appannano!",
+    "'O pazzo: joca diece cartelle e nun ne segna manco una!",
+    "'O scemo: chi 'o chiamma e chi s'o sente!",
+    "'E gguardie: arrivano sempe quanno 'a festa è già fernuta!",
+    "Natale: panettone, struffoli e na tombola ca nun fernesce maje!",
+    "Nanninella: piccerella, ma quanno parla 'a sente tutto 'o palazzo!",
+    "'O cantero: 'o tesoro d'a nonna, sotto 'o lietto, sempe chino!",
+    "'E zzizze: vintotto, e 'o zio fa finta 'e nun avè sentuto!",
+    "'O pate d'e criature: vintinove, e tutte 'e femmene s'ammuccano 'a risata!",
+    "'E palle d'o tenente: trenta, e 'o tenente ancora 'e sta cercanno!",
+    "'O padrone 'e casa: arriva 'o primmo d'o mese, comme 'a sfurtuna!",
+    "'O capitone: scappa d'a vacinella, ma 'a nonna è cchiù veloce!",
+    "Trentatré, ll'anne 'e Cristo: 'o nummero cchiù santo d'a tombola!",
+    "'A capa: chi nun tene capa, adda tené gamme... e cartelle!",
+    "L'aucelluzzo: piccerillo piccerillo, ma canta cchiù forte 'e tutte!",
+    "'E ccastagnelle: tric e trac, e s'abballa 'a tarantella!",
+    "'O monaco: prega pe' ll'ambo, ma 'a cinquina 'a vo' tutta pe' isso!",
+    "'E mmazzate: chelle ca se pigliano quanno se sposta nu fasulo!",
+    "'A funa 'nganna: quanno te manca nu nummero sulo... e nun esce maje!",
+    "'A paposcia: chesta tombola è cchiù longa 'e na messa cantata!",
+    "'O curtiello: taglia 'o panettone, ma 'e fette tutte eguale, eh!",
+    "'O ccafè: a Napule nun se nega a nisciuno, manco a mezzanotte!",
+    "'A donna 'o barcone: vede tutto, sape tutto, e 'o dice a tutte!",
+    "'E ccancelle: addò fernesce chi s'arrobba 'e nummere!",
+    "'O vino: chillo buono 'o tene annascuso 'o zio dint' 'a cantina!",
+    "'E denare: 'e sorde fanno venì 'a vista pure a 'e cecate!",
+    "'O muorto: nun te mettere paura, ca a tombola porta furtuna!",
+    "'O muorto che parla: e che dice? Joca 'o quarantotto!",
+    "'O piezzo 'e carne: e chi s'o magna primma, vence!",
+    "'O ppane: cinquanta, e 'a scarpetta dint' 'o ragù nun s'a leva nisciuno!",
+    "'O ciardino: addò 'o nonno chianta 'e pummarole e 'e speranze!",
+    "'A mamma: 'e mamma ce n'è una sola, e tene sempe ragione!",
+    "'O viecchio: sape tutte 'e nummere a mmemoria, e 'e chiamma primma!",
+    "'O cappiello: levatello, ca annanze a 'a tombola s'adda purtà rispetto!",
+    "'A museca: e mo' sunate, ca stasera nun dorme nisciuno!",
+    "'A caruta: so' caduti tutte 'e fasule d'a cartella... che disgrazia!",
+    "'O scartellato: tuccate 'a scartellatura, ca porta bene!",
+    "'O paccotto: speramme ca è nu regalo, e no nu pacco napulitano!",
+    "'E pile: chi tene 'o pilo 'ncopp' 'o stommaco vence 'a tombola!",
+    "Se lamenta: chi perde dice sempe ca 'e cartelle erano truccate!",
+    "'O cacciatore: spara a 'e nummere comme fossero aucielle!",
+    "'O muorto acciso: e chi è stato? 'O tombolino, 'o tombolino!",
+    "'A sposa: bella, emozionata, e cu 'a cartella dint' 'a borsetta!",
+    "'A sciammeria: 'a giacca bona d'o sposo, già macchiata 'e sugo!",
+    "'O chianto: chi chiagne pecché perde, e chi chiagne pe' 'a gioia!",
+    "'E ddoje zetelle: sissantaséje, e se sparteno pure l'ambo!",
+    "'O totaro dint' 'a chitarra: nisciuno sape pecché, ma sona buono!",
+    "'A zuppa cotta: calda calda, pe' sti serate 'e vierno!",
+    "Sott'e 'ncoppa: comme 'a casa doppo 'o cenone 'e Natale!",
+    "'O palazzo: e 'ncopp' a ogni barcone ce sta na tombola appicciata!",
+    "L'ommo 'e merda: chillo ca vene a cena e nun porta manco 'o vino!",
+    "'A meraviglia: 'a faccia 'e chi fa tombola 'o primmo giro!",
+    "'O spitale: addò se va doppo 'a terza porzione 'e struffoli!",
+    "'A rotta: comme chella d'o presepe, addò è accummenciato tutto!",
+    "Pullecenella: fa 'o scemo pe' nun ghì a faticà, ma 'a tombola 'a vence!",
+    "'A funtana: votta l'acqua e votta 'a sciorta!",
+    "'E riavule: sittantasette, 'e gamme d'e femmene... e 'o riavulo ce mette 'a coda!",
+    "'A bella figliola: passa, e 'o banco se scorda 'e chiammà 'o nummero!",
+    "'O mariuolo: tenite 'e mmane 'ncopp' 'e cartelle!",
+    "'A vocca: chella ca chiamma 'e nummere e se magna 'o panettone!",
+    "'E sciure: e pe' ogni cinquina, nu mazzo 'e sciure!",
+    "'A tavula 'mbandita: chiena 'e piatte, e sotto 'e cartelle!",
+    "'O maletiempo: fore chiove, ma dinto se joca a tombola!",
+    "'A chiesa: doppo 'a messa 'e mezzanotte, tutte a casa a jucà!",
+    "Ll'aneme d'o priatorio: pregate pe' lloro, ca lloro ve danno 'e nummere!",
+    "'A puteca: sotto casa, addò s'accattano 'e cartelle e 'o torrone!",
+    "'E perucchie: piccerille e fastidiose, comme chi addimanna «che è asciuto?»",
+    "'E casecavalle: uttantotto, appise comme ddoje pere!",
+    "'A vecchia: vence sempe essa, e nisciuno ha capito maje comme!",
+    "Nuvanta, 'a paura: e 'a paura fa nuvanta!"
+  ];
+  const U = ["", "uno", "ddoje", "tre", "quatto", "cinche", "séje", "sette", "otto", "nove"];
+  const SPECIAL = { 1: "uno", 2: "ddoje", 3: "tre", 4: "quatto", 5: "cinche", 6: "séje", 7: "sette", 8: "otto", 9: "nove", 10: "dièce",
+    11: "ùnnece", 12: "dùrece", 13: "trìrece", 14: "quattuòrdece", 15: "quìnnece", 16: "sìrice", 17: "dicessette", 18: "diciotto", 19: "dicennove" };
+  const T10 = { 2: "vinte", 3: "trenta", 4: "quaranta", 5: "cinquanta", 6: "sissanta", 7: "sittanta", 8: "uttanta", 9: "nuvanta" };
+  D.numNap = n => {
+    if (SPECIAL[n]) return SPECIAL[n];
+    const t = Math.floor(n / 10), u = n % 10;
+    if (!u) return T10[t];
+    let base = T10[t];
+    if (u === 1 || u === 8) base = base.replace(/[ae]$/, "");     // vintuno, trentotto
+    if (t === 2 && u !== 1 && u !== 8) base = "vinti";              // vintiddoje, vintitré
+    if (t > 2 && u === 2) return base + "ddoje";                    // trentaddoje
+    return base + (u === 3 ? "tré" : U[u]);
+  };
+})(typeof globalThis !== "undefined" ? globalThis : this);

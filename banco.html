@@ -32,6 +32,8 @@
   .lastbig .nap{font-size:30px;color:var(--red);margin:4px 0 0}
   .lastbig .it{color:var(--muted);font-weight:800}
   .lastbig .story{text-align:left;font-size:16px}
+  .lastbig .napnum{font-family:"Abril Fatface",Georgia,serif;font-size:22px;color:var(--wine);margin-top:2px}
+  .story .rima{display:block;font-style:italic;font-weight:800;color:var(--red);margin-bottom:6px}
   /* tabellone: le due pagine del cartellone della smorfia */
   .book{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#efe6d2;padding:12px;border-radius:6px;box-shadow:inset 0 0 40px rgba(120,90,40,.25)}
   .page{display:grid;grid-template-columns:repeat(5,1fr);border:3px solid #1b1b1b;background:#1b1b1b;gap:1.5px;box-shadow:0 6px 16px rgba(0,0,0,.25)}
@@ -113,6 +115,7 @@
         <div class="fig" id="fig">🎄</div>
         <h2 class="nap title-font" id="nap">Si comincia tra poco</h2>
         <div class="it" id="it"></div>
+        <div class="napnum" id="napnum"></div>
         <div class="story" id="story">Ognuno apra il link sul telefono, scriva il nome e scelga il suo personaggio della smorfia.</div>
       </div>
       <div class="card-box">
@@ -136,7 +139,7 @@
           <button class="btn" id="drawBtn">🎲 Estrai</button>
           <button class="btn" id="autoBtn">⏯ Automatico</button>
           <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="voiceBtn">🔊 Voce: sì</button>
-          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="storyBtn">📜 Storiella: sì</button>
+          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="storyBtn">📜 Filastrocca: sì</button>
           <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="bancoBtn">🧺 Il banco gioca: sì</button>
         </div>
         <div class="row"><span class="muted" style="font-weight:800">Voce:</span><select class="vsel" id="voiceSel"></select><button class="btn ghost" style="color:var(--ink);border-color:var(--line);padding:8px 14px" id="voiceTest">▶ Prova</button></div>

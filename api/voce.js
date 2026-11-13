@@ -17,8 +17,8 @@ const clean = t => String(t).replace(/\p{Extended_Pictographic}/gu, "").replace(
 function textFor(q, state) {
   if (q.n) {
     const n = Number(q.n); const r = DATA.SMORFIA[n - 1]; if (!r) return null;
-    let t = `${n}! ... ${clean(r[1])}. ${clean(r[2])}.`;
-    if (q.s === "1") t += " " + clean(r[4]);
+    let t = `${DATA.numNap(n)}! ... ${n}. ${clean(r[1])}. ${clean(r[2])}.`;
+    if (q.s === "1") t += " " + clean(DATA.RIME[n - 1]);
     return t;
   }
   if (q.k && FIXED[q.k]) return FIXED[q.k];

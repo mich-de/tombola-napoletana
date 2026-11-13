@@ -108,8 +108,10 @@
       const sm = smorfia(n);
       $("#bb").textContent = n; $("#bb").classList.remove("anim"); void $("#bb").offsetWidth; $("#bb").classList.add("anim");
       $("#fig").innerHTML = T.fig(sm.e); $("#nap").textContent = sm.nap; $("#it").textContent = sm.it;
-      $("#story").textContent = sm.story;
+      $("#napnum").textContent = "« " + D.numNap(n) + " »";
+      $("#story").innerHTML = `<span class="rima">${esc(D.RIME[n - 1])}</span>${esc(sm.story)}`;
     } else {
+      $("#napnum").textContent = "";
       $("#bb").textContent = "–"; $("#fig").textContent = "🧺"; $("#nap").textContent = st && st.phase === "lobby" ? "Si comincia tra poco" : "Pronti?"; $("#it").textContent = "";
       $("#story").textContent = "Ognuno apra il link sul telefono, scriva il nome e scelga il suo personaggio della smorfia.";
     }
@@ -152,7 +154,7 @@
   $("#autoBtn").onclick = () => { auto = !auto; if (auto) lastDrawLocal = 0; renderAuto(); };
   $("#startBtn").onclick = async () => { await host("start"); T.confetti(120); T.announce("k=start", "Si comincia! Buona fortuna a tutti quanti!"); await refresh(); };
   $("#voiceBtn").onclick = () => { voice = !voice; $("#voiceBtn").textContent = "🔊 Voce: " + (voice ? "sì" : "no"); if (!voice) speechSynthesis.cancel(); };
-  $("#storyBtn").onclick = () => { story = !story; $("#storyBtn").textContent = "📜 Storiella: " + (story ? "sì" : "no"); };
+  $("#storyBtn").onclick = () => { story = !story; $("#storyBtn").textContent = "📜 Filastrocca: " + (story ? "sì" : "no"); };
   $("#bancoBtn").onclick = async () => { await host("config", { config: { bancoPlays: !st.bancoPlays } }); await refresh(); };
   $("#voiceSel").onchange = () => T.setVoice($("#voiceSel").value);
   $("#voiceTest").onclick = () => { speechSynthesis.cancel(); T.callNumber(33, false); };
