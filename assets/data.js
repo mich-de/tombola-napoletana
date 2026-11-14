@@ -340,3 +340,10 @@
     return base + (u === 3 ? "tré" : U[u]);
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);
+
+/* Figure illustrate (statuine generate con Google Flow): numeri disponibili in assets/fig/NN.webp */
+(function (root) {
+  const D = (typeof module !== "undefined" && module.exports) ? module.exports : root.TOMBOLA_DATA;
+  D.FIGS = new Set([/*FIGS*/1, 2, 3, 4, 5, 6, 7, 8, 9/*/FIGS*/]);
+  D.figURL = n => (D.FIGS.has(n) ? `/assets/fig/${String(n).padStart(2, "0")}.webp` : null);
+})(typeof globalThis !== "undefined" ? globalThis : this);

@@ -193,6 +193,7 @@
     const big = !!opts.big;
     const run = () => new Promise(reveal => {
       const sm = smorfia(n);
+      let figImg = null; const fu = D.figURL && D.figURL(n); if (fu) { figImg = new Image(); figImg.src = fu; }
       const cv = document.createElement("canvas");
       cv.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;z-index:66;pointer-events:none";
       document.body.appendChild(cv);
@@ -325,7 +326,11 @@
         if (revealed) {
           const p = clamp((t - T0.flip - .1) / .45), pe = back(p);
           ctx.save(); ctx.translate(tokX + tokR * .95, tokY - tokR * .9); ctx.scale(pe, pe);
-          if (sm.e === "🇮🇹") { const fw = tokR * .9, fh = tokR * .6; ["#009246", "#ffffff", "#ce2b37"].forEach((c, k) => { ctx.fillStyle = c; ctx.fillRect(-fw / 2 + k * fw / 3, -fh / 2, fw / 3 + 1, fh); }); ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.strokeRect(-fw / 2, -fh / 2, fw, fh); }
+          if (figImg && figImg.complete && figImg.naturalWidth) {
+            const fs = tokR * 1.25; ctx.save(); ctx.beginPath(); ctx.roundRect(-fs / 2, -fs / 2, fs, fs, fs * .14); ctx.closePath();
+            ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = 18; ctx.fillStyle = "#e9b949"; ctx.fill(); ctx.shadowBlur = 0; ctx.clip();
+            ctx.drawImage(figImg, -fs / 2 + 4, -fs / 2 + 4, fs - 8, fs - 8); ctx.restore();
+          } else if (sm.e === "🇮🇹") { const fw = tokR * .9, fh = tokR * .6; ["#009246", "#ffffff", "#ce2b37"].forEach((c, k) => { ctx.fillStyle = c; ctx.fillRect(-fw / 2 + k * fw / 3, -fh / 2, fw / 3 + 1, fh); }); ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.strokeRect(-fw / 2, -fh / 2, fw, fh); }
           else { ctx.font = `${tokR * .95}px serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(sm.e, 0, 0); }
           ctx.restore();
           // esclamazione

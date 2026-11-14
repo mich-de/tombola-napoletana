@@ -27,6 +27,7 @@
   // la bandiera italiana come emoji non si vede su Windows: la disegniamo noi
   const FLAG = '<span class="flag-it"><i></i><i></i><i></i></span>';
   const fig = e => (e === "🇮🇹" ? FLAG : e);
+  const figBig = n => { const u = D.figURL(n); return u ? `<img class="figimg" src="${u}" alt="">` : fig(smorfia(n).e); };
   // i numeri con cui si è vinto (il numero decisivo in oro)
   function numsHTML(nums, key, max = 6) {
     if (!nums || !nums.length) return "";
@@ -53,8 +54,10 @@
     const photo = who && who.ph && pid;
     if (photo || (who && who.photoURL)) {
       const src = who.photoURL || `/api/t?a=photo&id=${encodeURIComponent(pid)}&v=${who.ph}`;
-      return `<div class="av ${size} photo" style="--c:${a.color}" title="${esc(a.name)}"><img src="${src}" alt="" loading="lazy"><span class="badge">${fig(a.e)}</span>${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
+      return `<div class="av ${size} photo" style="--c:${a.color}" title="${esc(a.name)}"><img src="${src}" alt="" loading="lazy"><span class="badge">${a.num && D.figURL(a.num) ? `<img src="${D.figURL(a.num)}" alt="">` : fig(a.e)}</span>${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
     }
+    const fu = a.num && D.figURL(a.num);
+    if (fu) return `<div class="av ${size} figav" style="--c:${a.color}" title="${esc(a.name)}"><img src="${fu}" alt="" loading="lazy"><span class="num">${a.num}</span></div>`;
     return `<div class="av ${size}" style="--c:${a.color}" title="${esc(a.name)}">${fig(a.e)}${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
   }
 
@@ -600,5 +603,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, figBig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

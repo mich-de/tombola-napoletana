@@ -36,7 +36,8 @@
       html += `<div class="page">`;
       for (let r = 0; r < 9; r++) for (let c = 0; c < 5; c++) {
         const n = r * 10 + half * 5 + c + 1, sm = smorfia(n);
-        html += `<div class="cell" data-n="${n}" title="${n} · ${esc(sm.nap)} (${esc(sm.it)})"><span class="nn">${n}</span><span class="ee">${T.fig(sm.e)}</span><span class="lb"><i>${esc(sm.nap)}</i><b>${esc(sm.it)}</b></span><span class="fg"></span></div>`;
+        const fu = D.figURL(n);
+        html += `<div class="cell ${fu ? "img" : ""}" data-n="${n}" title="${n} · ${esc(sm.nap)} (${esc(sm.it)})"${fu ? ` style="background-image:url(${fu})"` : ""}><span class="nn">${n}</span><span class="ee">${fu ? "" : T.fig(sm.e)}</span><span class="lb"><i>${esc(sm.nap)}</i><b>${esc(sm.it)}</b></span><span class="fg"></span></div>`;
       }
       html += [0, 1, 2].map(k => `<span class="ctag" style="top:calc(${k} * (100% / 3) + ${k * 2}px)">CARTELLA ${k * 2 + half + 1}</span>`).join("");
       html += `</div>`;
@@ -121,11 +122,11 @@
   }
 
   function showNumber(n, d) {
-    document.querySelectorAll("#tab90 .cell").forEach(el => { const k = +el.dataset.n; el.className = "cell" + (d.includes(k) ? (k === n ? " last" : " on") : ""); });
+    document.querySelectorAll("#tab90 .cell").forEach(el => { const k = +el.dataset.n; el.className = "cell" + (D.figURL(k) ? " img" : "") + (d.includes(k) ? (k === n ? " last" : " on") : ""); });
     if (n) {
       const sm = smorfia(n);
       $("#bb").textContent = n; $("#bb").classList.remove("anim"); void $("#bb").offsetWidth; $("#bb").classList.add("anim");
-      $("#fig").innerHTML = T.fig(sm.e); $("#nap").textContent = sm.nap; $("#it").textContent = sm.it;
+      $("#fig").innerHTML = D.figURL(n) ? `<img src="${D.figURL(n)}" alt="" style="width:150px;height:150px;object-fit:cover;border-radius:18px;border:4px solid var(--gold);box-shadow:0 8px 20px rgba(0,0,0,.35)">` : T.fig(sm.e); $("#nap").textContent = sm.nap; $("#it").textContent = sm.it;
       $("#napnum").textContent = "« " + D.numNap(n) + " »";
       $("#story").innerHTML = `<b style="display:block;margin-bottom:4px">${esc(sm.story)}</b><span class="rima" style="margin:0">${esc(D.RIME[n - 1])}</span>`;
     } else {
