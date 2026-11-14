@@ -189,3 +189,16 @@ body .cell .fg{left:50%;top:52%;width:58%;transform:translate(-50%,-50%) scale(.
 body .cell.on .fg,body .cell.last .fg{transform:translate(-50%,-50%) scale(1);opacity:.82!important}
 body .cell.last .fg{background:var(--giallo)}
 body .lastbig .bb{border-radius:32px!important}
+/* homepage su schermi larghi (portatili 13-16", desktop): titolo su una riga, tutto dentro lo schermo */
+@media (min-aspect-ratio:1/1){
+  .sp-title{flex-direction:row;font-size:min(14.5vw,34vh);line-height:.85}
+  .sp-kicker{margin-bottom:2vh}
+  .sp-tag{font-size:min(3.4vw,6.5vh);margin-top:-1vh;padding:1.2vh 2vh}
+  .sp-sub{margin:3.2vh 0 2.6vh;font-size:min(1.7vw,3vh)}
+  .sp-sub br{display:none}
+  #splash #enter{font-size:min(2vw,3.4vh);padding:1.8vh 3.4vh}
+  .sp-stick{width:min(10.5vw,22vh);display:block!important}
+  .sp-stick.s1{left:2.5%;top:4%}.sp-stick.s2{right:2.5%;top:5%}.sp-stick.s3{left:4%;bottom:9%}.sp-stick.s4{right:4%;bottom:10%}
+  #splash .splash-credit{bottom:1.6vh}
+}
+@media (min-aspect-ratio:1/1) and (max-height:520px){.sp-stick.s3,.sp-stick.s4{display:none!important}}
