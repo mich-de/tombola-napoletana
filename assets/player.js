@@ -39,7 +39,7 @@
     $("#tables").classList.remove("hidden");
     $("#tableList").innerHTML = r.rooms.map(t => {
       const st2 = t.phase === "playing" || t.phase === "tombolino" ? `partita ${t.game} in corso · ${t.drawn}/90` : t.phase === "over" ? "partita finita" : "in attesa di iniziare";
-      return `<button class="tcard" data-code="${t.code}"><span class="ti">${t.main ? "🎄" : "🎲"}</span><span class="tt"><b>${esc(t.name)}</b><small>👥 ${t.count} giocatori · ${st2}</small></span><span class="go">Entra ›</span></button>`;
+      return `<button class="tcard" data-code="${t.code}"><span class="ti">${t.main ? "🌋" : "🎲"}</span><span class="tt"><b>${esc(t.name)}</b><small>👥 ${t.count} giocatori · ${st2}</small></span><span class="go">Entra ›</span></button>`;
     }).join("");
     $("#newTable").classList.toggle("hidden", !canOpen);
     $("#tableList").onclick = e => { const b = e.target.closest(".tcard"); if (!b) return; T.setRoom(b.dataset.code); enterRoom(); };
@@ -193,6 +193,20 @@
     $("#meSub").textContent = a ? (a.num ? `${a.num} · ${a.name}` : a.name) : "";
   }
   $("#changeBtn").onclick = openJoin;
+  // tocca un collega nella tavolata per fargli uno scherzo
+  $("#crowd").onclick = e => {
+    const pp = e.target.closest(".pp"); if (!pp || !me) return;
+    const to = pp.dataset.id, name = pp.dataset.name;
+    if (to === me.id || to === "banco") return;
+    if (st && st.scherzi === false) return T.toast("🚫 Il banco ha vietato gli scherzi");
+    const m = T.modal(`<h2 class="title-font">😜 Fai 'nu scherzo a ${esc(name)}</h2><p class="muted" style="margin-top:0">Ne hai 3 per partita. Lo vedono tutti, ma lo subisce solo ${esc(name)}!</p>
+      <div class="prankgrid">${Object.entries(D.PRANKS).map(([k, P]) => `<button data-k="${k}"><span>${P.e}</span><b>${P.name}</b><small>${P.desc}</small></button>`).join("")}</div>`);
+    m.querySelector(".prankgrid").onclick = async ev => {
+      const b = ev.target.closest("button"); if (!b) return;
+      try { const r = await api("prank", { id: me.id, tk: me.tk, to, kind: b.dataset.k }); T.toast(`😜 Scherzo fatto! Te ne restano ${r.left}`); } catch (er) { T.toast("⚠️ " + er.message, 3500); }
+      m.remove();
+    };
+  };
   $("#meAv").onclick = openJoin; $("#meAv").style.cursor = "pointer"; $("#meAv").title = "Tocca per cambiare foto o personaggio";
   $("#infoBtn").onclick = T.infoModal;
   $("#voiceBtn").onclick = () => { voice = !voice; $("#voiceBtn").textContent = voice ? "🔊" : "🔇"; T.toast(voice ? "Voce attiva: leggerò i numeri" : "Voce spenta"); if (voice) T.speak("Voce attiva"); };
@@ -232,6 +246,8 @@
       if (ev.type === "over") T.toast("🏁 Partita finita! Grazie a tutti");
       if (ev.type === "call") { T.toast(ev.join ? `🤝 Anche ${ev.name} chiama ${ev.label.toUpperCase()}!` : `📣 ${ev.name} chiama ${ev.label.toUpperCase()}!`, 3000); T.sounds.pop(); }
       if (ev.type === "late" && (!me || ev.name !== me.name)) { T.lateOverlay(ev); }
+      if (ev.type === "scherzo") setTimeout(() => T.showScherzo(ev, { me: me?.id, speak: false }), 6400);
+      if (ev.type === "prank") { const P = D.PRANKS[ev.kind]; if (me && ev.toId === me.id) { T.toast(`${P.e} ${ev.from} t'ha fatto 'o scherzo: ${P.name}!`, 4500); T.prankEffect(ev.kind); } else T.toast(`${P.e} ${ev.from} ha fatto 'o scherzo a ${ev.to}: ${P.name}`, 3000); }
       if (ev.type === "falsecall") { T.toast(`😂 ${ev.name} ha chiamato ${ev.label.toUpperCase()}… a vuoto!`, 3500); T.floater("🙈", ev.name); }
     }
     seenSeq = Math.max(seenSeq, s.seq || 0);
@@ -250,7 +266,7 @@
     const s = st;
     const ph = { lobby: ["In attesa", ""], playing: ["In gioco", "live"], tombolino: ["Tombolino!", "tl"], over: ["Finita", "over"] }[s.phase] || ["", ""];
     $("#phase").textContent = `P.${s.game} · ${ph[0]}`; $("#phase").className = "pill " + ph[1];
-    if (s.table) { $("#tablePill").textContent = s.table.code === "main" ? "🎄" : "🎲 " + s.table.name; $("#tablePill").title = s.table.name; }
+    if (s.table) { $("#tablePill").textContent = "🎲 " + s.table.name; $("#tablePill").classList.toggle("hidden", s.table.code === "main"); $("#tablePill").title = s.table.name; }
     const w = $("#waitMsg");
     if (s.phase === "lobby") { w.innerHTML = `⏳ La partita ${s.game} sta per iniziare<span class="dots"></span> · ${s.count} giocatori iscritti`; w.classList.remove("hidden"); }
     else if (s.phase === "over") { w.innerHTML = `🏁 Partita finita! Aspetta che il banco ne avvii un'altra<span class="dots"></span>`; w.classList.remove("hidden"); }
@@ -269,6 +285,7 @@
           const sm = smorfia(n);
           ball.textContent = n; ball.classList.remove("anim"); void ball.offsetWidth; ball.classList.add("anim");
           $("#meaning").innerHTML = `<b>${T.figBig(n)} ${esc(sm.nap)}</b><i>${esc(sm.it)} · ${d.length}° estratto · ne mancano ${90 - d.length}</i>`;
+          const dt = D.detto(st.game, d.length); $("#detto").innerHTML = `<b>«${esc(dt[0])}»</b><small>${esc(dt[1])}</small>`; $("#detto").classList.remove("hidden");
           $("#story").innerHTML = `<b style="color:var(--wine)">« ${esc(D.numNap(n))} »</b> <i style="font-weight:800;color:var(--red)">${esc(D.RIME[n - 1])}</i><br><span class="muted">${esc(sm.story)}</span>`; $("#story").classList.remove("hidden");
         } else {
           ball.textContent = "–";

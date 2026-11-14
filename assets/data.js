@@ -223,7 +223,7 @@
 
   const REACTIONS = ["😂", "😡", "😱", "👏", "🎉", "😭", "🍀", "💨"];
 
-  const CREDITS = { author: "Michele De Angelis", site: "mdeangelis.me", url: "https://mdeangelis.me", version: "1.0.0", year: 2026 };
+  const CREDITS = { author: "Michele De Angelis", site: "mdeangelis.me", url: "https://mdeangelis.me", version: "2.0.0", year: 2026 };
 
   const data = { SMORFIA, AVATARS, AVATAR_BY_ID, LEVELS, DEFAULT_PRIZES, REACTIONS, CREDITS };
   if (typeof module !== "undefined" && module.exports) module.exports = data;
@@ -346,4 +346,75 @@
   const D = (typeof module !== "undefined" && module.exports) ? module.exports : root.TOMBOLA_DATA;
   D.FIGS = new Set([/*FIGS*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90/*/FIGS*/]);
   D.figURL = n => (D.FIGS.has(n) ? `/assets/fig/${String(n).padStart(2, "0")}.webp` : null);
+})(typeof globalThis !== "undefined" ? globalThis : this);
+
+/* Detti napoletani (proverbi della tradizione) e scherzi */
+(function (root) {
+  const D = (typeof module !== "undefined" && module.exports) ? module.exports : root.TOMBOLA_DATA;
+  // [napoletano, traduzione]
+  D.DETTI = [
+    ["Ogne scarrafone è bello 'a mamma soja", "Ogni scarafaggio è bello per la sua mamma"],
+    ["Chi tene 'a mamma è ricco e nun 'o sape", "Chi ha la mamma è ricco e non lo sa"],
+    ["'A meglia parola è chella ca nun se dice", "La parola migliore è quella che non si dice"],
+    ["Ccà nisciuno è fesso", "Qua nessuno è fesso"],
+    ["'O pesce fete d' 'a capa", "Il pesce puzza dalla testa"],
+    ["Chi nasce tunno nun po' murì quadrato", "Chi nasce tondo non può morire quadrato"],
+    ["Ogne capa è 'nu tribunale", "Ogni testa è un tribunale"],
+    ["A lavà 'a capa 'o ciuccio se perde l'acqua e 'o sapone", "A lavare la testa all'asino si sprecano acqua e sapone"],
+    ["Fa' bene e scuordate, fa' male e pienzace", "Fai il bene e dimenticalo, fai il male e pensaci"],
+    ["'E denare fanno venì 'a vista 'e cecate", "I soldi fanno tornare la vista ai ciechi"],
+    ["Quanno 'o diavulo t'accarezza, vo' l'anema", "Quando il diavolo ti accarezza, vuole l'anima"],
+    ["Chi chiagne fotte a chi ride", "Chi piange frega chi ride"],
+    ["'O cane mozzeca 'o stracciato", "Il cane morde lo straccione"],
+    ["Tre songo 'e putiente: 'o Papa, 'o Rre e chi nun tene niente", "Tre sono i potenti: il Papa, il Re e chi non ha niente"],
+    ["Addò ce sta gusto nun ce sta perdenza", "Dove c'è gusto non c'è perdita"],
+    ["Chi pecora se fa, 'o lupo s' 'a magna", "Chi si fa pecora, il lupo se la mangia"],
+    ["Pure 'e pullece teneno 'a tosse", "Pure le pulci hanno la tosse"],
+    ["Aiutate ca Dio t'aiuta", "Aiutati che Dio ti aiuta"],
+    ["'A vita è 'n'affacciata 'e fenesta", "La vita è un'affacciata alla finestra"],
+    ["Mazza e panella fanno 'e figlie belle", "Bastone e pane fanno i figli belli"],
+    ["Nun sputà 'ncielo ca 'nfaccia te torna", "Non sputare in cielo che ti torna in faccia"],
+    ["'O purpo se coce cu ll'acqua soja", "Il polpo si cuoce nella sua acqua"],
+    ["Storta va, deritta vene", "Storta va, dritta viene"],
+    ["'A gatta, pe' gghì 'e pressa, facette 'e figlie cecate", "La gatta, per la fretta, fece i figli ciechi"],
+    ["Dicette 'o pappice vicino 'a noce: damme 'o tiempo ca te spertoso", "Disse il tarlo alla noce: dammi tempo che ti buco"],
+    ["Dio te guarde d' 'e ricche appezzentute e d' 'e pezziente arricchute", "Dio ti guardi dai ricchi impoveriti e dai poveri arricchiti"],
+    ["'A cera se struje e 'a prucessione nun cammina", "La cera si consuma e la processione non cammina"],
+    ["Chi troppo 'a tira, 'a spezza", "Chi troppo la tira, la spezza"],
+    ["'O sazio nun crede 'o diuno", "Il sazio non crede a chi digiuna"],
+    ["A chi troppo s'acala, 'o culo se vede", "A chi troppo si abbassa, si vede il sedere"],
+    ["Meglio 'nu ciuccio vivo ca 'nu duttore muorto", "Meglio un asino vivo che un dottore morto"],
+    ["'A carne se jetta e 'e cane s'arraggiano", "La carne si butta e i cani si arrabbiano"],
+    ["Chi tene 'a lengua va 'n Sardegna", "Chi ha la lingua arriva in Sardegna"],
+    ["'O peggio surdo è chillo ca nun vo' sèntere", "Il peggior sordo è chi non vuol sentire"],
+    ["Acqua ca nun cammina fa pantano e fete", "L'acqua che non scorre fa pantano e puzza"],
+    ["Ogne bella scarpa addeventa scarpone", "Ogni bella scarpa diventa scarpone"],
+    ["'A paura fa nuvanta", "La paura fa novanta"],
+    ["Chi nun tene curaggio nun se cocca cu 'e femmene belle", "Chi non ha coraggio non va a letto con le belle donne"],
+    ["Quanno 'a gatta nun ce sta, 'e surice abballano", "Quando la gatta non c'è, i topi ballano"],
+    ["'E pariente so' comm' 'e scarpe: cchiù so' stritte e cchiù fanno male", "I parenti sono come le scarpe: più sono stretti e più fanno male"]
+  ];
+  D.detto = (game, k) => D.DETTI[(game * 7 + k * 3) % D.DETTI.length];
+  // numeri "dispettosi": quando escono, 'o Munaciello fa uno scherzo a un giocatore a caso
+  D.SCHERZO_NUMS = [17, 22, 23, 47, 48, 71, 77, 90];
+  D.SCHERZI = [
+    "{N} adda fa' 'o verso d' 'o ciuccio! 🫏",
+    "{N} deve gridare «Uè uè, guagliù!» a tutta la sala 📣",
+    "{N} offre 'o ccafè al vicino di destra ☕",
+    "{N} deve fare le corna e dire «Sciò sciò, ciucciuvè!» 🤘",
+    "{N} deve dire tre numeri della smorfia a memoria 🔢",
+    "{N} gioca il prossimo numero in piedi 🧍",
+    "{N} deve mandare un bacio a tutta la tavolata 💋",
+    "{N} deve fare un complimento esagerato al banco 🧺",
+    "{N} deve imitare Pulcinella per cinque secondi 🎭",
+    "{N} deve cantare «tanti auguri» al collega più vicino 🎶",
+    "{N} deve fare l'occhiolino a tre persone diverse 😉",
+    "{N} deve dire il prossimo numero estratto in napoletano 🗣️"
+  ];
+  D.PRANKS = {
+    sotto: { e: "🙃", name: "Sott'e 'ncoppa", desc: "gli capovolge la cartella" },
+    munaciello: { e: "🧙", name: "'O Munaciello", desc: "gli nasconde i numeri" },
+    pernacchia: { e: "💨", name: "'A pernacchia", desc: "una bella pernacchia" },
+    corna: { e: "🤘", name: "Tiè!", desc: "le corna contro la sua fortuna" }
+  };
 })(typeof globalThis !== "undefined" ? globalThis : this);

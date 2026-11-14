@@ -1,0 +1,103 @@
+/* 'A Tombola d' 'o Munaciello – tema folk napoletano: maioliche, mare, limoni e corallo
+   Un'idea di Michele De Angelis · mdeangelis.me */
+:root{
+  --red:#d62839; --red2:#e63946; --wine:#0a2f5c; --gold:#f4b400; --gold2:#ffd84d;
+  --cream:#fdf0c9; --paper:#fffaf0; --ink:#1d2a44; --green:#1f8a4c; --green2:#2a9d5c;
+  --muted:#7a7462; --line:#ecd9a0; --shadow:0 10px 0 rgba(6,32,66,.28), 0 18px 34px rgba(4,20,45,.35);
+  --mare:#0b6fb5; --notte:#083056;
+  --tile:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' fill='%23fff6dc'/%3E%3Cpath d='M32 4 60 32 32 60 4 32Z' fill='none' stroke='%230b6fb5' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%23f4b400' stroke='%230b6fb5' stroke-width='3'/%3E%3Cpath d='M32 14c5 5 5 9 0 12-5-3-5-7 0-12zM32 50c-5-5-5-9 0-12 5 3 5 7 0 12zM14 32c5-5 9-5 12 0-3 5-7 5-12 0zM50 32c-5 5-9 5-12 0 3-5 7-5 12 0z' fill='%231f8a4c'/%3E%3Ccircle cx='0' cy='0' r='10' fill='%23e63946'/%3E%3Ccircle cx='64' cy='0' r='10' fill='%23e63946'/%3E%3Ccircle cx='0' cy='64' r='10' fill='%23e63946'/%3E%3Ccircle cx='64' cy='64' r='10' fill='%23e63946'/%3E%3C/svg%3E");
+}
+html,body{background:var(--notte)}
+body{background:
+  radial-gradient(900px 500px at 50% -10%,rgba(255,216,77,.35),transparent 60%),
+  linear-gradient(180deg,#1596d6 0%,#0b6fb5 38%,#083056 100%) fixed;font-family:"Nunito",system-ui,sans-serif}
+.title-font{font-family:"Lobster","Abril Fatface",Georgia,serif;letter-spacing:.3px}
+
+/* la fascia di riggiole (maioliche) in cima a ogni pagina */
+.riggiole{position:sticky;top:0;z-index:30;height:22px;background:var(--tile) center/22px 22px repeat-x;box-shadow:0 3px 0 var(--notte),0 6px 14px rgba(0,0,0,.3)}
+.wrap,.bwrap{padding-top:16px}
+
+/* cartoncini: bordo blu maiolica e angolo giallo limone */
+.card-box{border:3px solid var(--notte);border-radius:20px;background:
+  linear-gradient(var(--paper),var(--paper)) padding-box;position:relative}
+.card-box::before{content:"";position:absolute;left:14px;right:14px;top:-3px;height:6px;border-radius:0 0 6px 6px;
+  background:repeating-linear-gradient(90deg,var(--gold) 0 14px,var(--red2) 14px 28px,var(--green2) 28px 42px,var(--mare) 42px 56px)}
+.card-box h3{color:var(--mare);font-family:"Lobster",serif;text-transform:none;letter-spacing:.2px;font-size:21px;font-weight:400}
+.bhead h1{color:var(--gold2);text-shadow:0 3px 0 var(--notte),0 0 22px rgba(255,216,77,.35)}
+.btn{color:var(--notte);box-shadow:0 4px 0 #b78600,0 10px 20px rgba(0,0,0,.25);border:2px solid var(--notte)}
+.btn.green,.btn.red{border-color:var(--notte)}
+.btn.ghost{border-width:2px}
+.pill{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.35)}
+.stat{border:2px solid rgba(255,255,255,.3);background:rgba(8,48,86,.45)}
+.tab.on{background:var(--mare)}
+.avopt.sel{border-color:var(--mare)}
+.av{border-color:var(--gold);box-shadow:0 0 0 2px var(--notte),0 4px 8px rgba(0,0,0,.3)}
+
+/* splash: il golfo, il Vesuvio che fuma, le statuine */
+#splash{background:
+  radial-gradient(600px 360px at 50% 18%,rgba(255,216,77,.55),transparent 65%),
+  linear-gradient(180deg,#27a8e6 0%,#0b6fb5 55%,#083056 100%);overflow:hidden}
+#splash::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34px;background:var(--tile) center/34px 34px repeat-x;box-shadow:0 -3px 0 var(--notte)}
+#splash .lights i:nth-child(3n){color:#ffd84d;background:#ffd84d}
+#splash .lights i:nth-child(3n+1){color:#7be0a0;background:#7be0a0}
+#splash .lights i:nth-child(3n+2){color:#ff6b6b;background:#ff6b6b}
+.vesuvio{position:absolute;left:0;right:0;bottom:30px;width:100%;height:38vh;opacity:.9}
+.fumo{animation:fumo 5s ease-in-out infinite;transform-origin:300px 40px}
+.fumo.f2{animation-delay:.8s}.fumo.f3{animation-delay:1.6s}
+@keyframes fumo{0%{transform:translateY(8px) scale(.7);opacity:0}40%{opacity:.8}100%{transform:translateY(-34px) scale(1.5);opacity:0}}
+.splash-figs{display:flex;gap:10px;justify-content:center;margin-bottom:6px;position:relative;z-index:2}
+.splash-figs img{width:clamp(70px,20vw,120px);aspect-ratio:1;object-fit:cover;border-radius:50%;border:4px solid var(--gold2);box-shadow:0 0 0 3px var(--notte),0 10px 24px rgba(0,0,0,.4);animation:pop .8s cubic-bezier(.2,1.6,.4,1) both}
+.splash-figs img:nth-child(2){transform:translateY(-12px);animation-delay:.15s}.splash-figs img:nth-child(3){animation-delay:.3s}
+.splash-pre{position:relative;z-index:2;font-size:clamp(22px,6vw,40px);color:#fff;text-shadow:0 2px 0 var(--notte);animation:pop .8s .1s both}
+.splash-title{position:relative;z-index:2;color:var(--gold2);font-size:clamp(54px,15vw,120px);text-shadow:0 4px 0 var(--red),0 8px 0 var(--notte),0 14px 30px rgba(0,0,0,.45)}
+.splash-sub{position:relative;z-index:2;font-size:clamp(13px,3.6vw,20px);letter-spacing:5px;font-weight:900;background:var(--red2);padding:6px 16px;border-radius:999px;border:2px solid var(--notte);display:inline-block}
+#splash .balls,#splash .btn,#splash .splash-credit{position:relative;z-index:2}
+#splash .splash-credit{position:absolute;bottom:42px}
+.ball,.bigball,.lastbig .bb{color:var(--notte);background:radial-gradient(circle at 32% 28%,#fff 0 16%,#fff3c4 30%,var(--gold2) 72%,#c98f00 100%);border:3px solid var(--notte)}
+
+/* il detto del momento */
+.detto{margin-top:10px;background:#e9f5ff;border:2px dashed var(--mare);border-radius:14px;padding:10px 12px 10px 44px;position:relative;text-align:left}
+.detto::before{content:"🗣️";position:absolute;left:10px;top:8px;font-size:22px}
+.detto b{display:block;font-family:"Lobster",serif;font-weight:400;font-size:19px;color:var(--notte);line-height:1.2}
+.detto small{color:var(--muted);font-weight:700;font-style:italic}
+.story{border-left-color:var(--red2);background:var(--cream)}
+
+/* tabellone e cartelle in stile maiolica */
+.book{background:var(--tile) 0 0/28px 28px;padding:14px;border:3px solid var(--notte);border-radius:12px}
+.page{border-color:var(--notte);background:var(--notte)}
+.ctag{background:var(--notte);color:var(--gold2)}
+.cartella{border-color:var(--mare);border-width:4px;background:var(--cream)}
+.cartella .tag{background:var(--mare);font-family:"Lobster",serif;font-weight:400;font-size:14px}
+.cartella td.e{background:var(--tile) center/32px 32px;opacity:.55}
+.cartella td.hit .fg,.cell .fg{background:radial-gradient(circle at 35% 30%,rgba(255,150,150,.95),rgba(214,40,57,.92) 60%,rgba(140,10,25,.95))}
+.mini90 span.on{background:var(--red2)}
+.prz{border:1.5px solid var(--line)}.prz .lv{color:var(--mare);font-family:"Lobster",serif;font-weight:400;font-size:18px}
+.prz.done{background:#e6f6ec;border-color:#9fd3b3}
+.reactbar{background:linear-gradient(0deg,rgba(8,48,86,.97),rgba(8,48,86,.7) 70%,transparent)}
+.overlay{background:rgba(6,30,60,.8)}
+.winbox{border:5px solid var(--gold);box-shadow:0 0 0 4px var(--notte),0 30px 80px rgba(0,0,0,.5)}
+.winbox .lvl{color:var(--red2);text-shadow:0 3px 0 var(--gold2)}
+.winbox.scherzo{background:linear-gradient(#f3ecff,#fffaf0)}
+.callbar{border-color:var(--mare)}
+.modal{background:rgba(6,30,60,.75)}
+.sheet h2{color:var(--mare)}
+.credits{color:rgba(255,255,255,.85)}
+
+/* scherzi */
+.prankgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prankgrid button{background:var(--cream);border:3px solid var(--notte);border-radius:16px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 4px 0 var(--notte)}
+.prankgrid button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--notte)}
+.prankgrid span{font-size:38px}.prankgrid b{font-family:"Lobster",serif;font-weight:400;font-size:19px;color:var(--mare)}.prankgrid small{color:var(--muted);font-weight:700}
+.crowd .pp{cursor:pointer}
+.prankbig{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;font-size:42vmin;pointer-events:none;animation:prankpop 2.2s ease-out forwards}
+@keyframes prankpop{0%{transform:scale(.2) rotate(-20deg);opacity:0}20%{transform:scale(1.1) rotate(8deg);opacity:1}70%{transform:scale(1);opacity:1}100%{transform:scale(1.6);opacity:0}}
+body.prank-sotto #cartella{transform:rotate(180deg);transition:transform .8s cubic-bezier(.3,1.4,.5,1)}
+#cartella{transition:transform .8s cubic-bezier(.3,1.4,.5,1), filter .5s}
+body.prank-muna #cartella{filter:blur(9px) grayscale(.6)}
+body.prank-muna #cardBox::after{content:"🧙 'O Munaciello t'ha annascuso 'e nummere!";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Lobster",serif;font-size:20px;color:var(--notte);text-align:center;padding:20px}
+
+.vesuvio{height:24vh;bottom:34px;z-index:1;opacity:.85}
+.splash-sub{letter-spacing:2.5px;white-space:nowrap;font-size:clamp(11px,3.2vw,18px)}
+.topbar .who{min-width:90px}
+.topbar .who small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tcard .ti{font-size:30px}

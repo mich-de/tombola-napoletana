@@ -9,7 +9,9 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/app.css">
+<link rel="stylesheet" href="/assets/folk.css">
 <style>
   .bwrap{position:relative;z-index:1;padding:14px 18px 40px;max-width:1500px;margin:0 auto}
   .bhead{display:flex;align-items:center;gap:14px;color:#fff;flex-wrap:wrap}
@@ -115,6 +117,7 @@
 </style>
 </head>
 <body>
+<div class="riggiole"></div>
 <!-- Tombola Napoletana · Cartellone del banco · Un'idea di Michele De Angelis · https://mdeangelis.me -->
 <div id="pinBox" class="wrap">
   <div class="card-box center">
@@ -130,7 +133,7 @@
 
 <div class="bwrap hidden" id="banco">
   <div class="bhead">
-    <h1 class="title-font" id="tableTitle">🎄 Cartellone</h1>
+    <h1 class="title-font" id="tableTitle">🌋 Cartellone</h1>
     <span class="pill" id="phase"></span>
     <button class="bme" id="bancoMe" title="Il tuo profilo: nome, personaggio e foto"></button>
     <div class="sp"></div>
@@ -150,6 +153,7 @@
         <div class="it" id="it"></div>
         <div class="napnum" id="napnum"></div>
         <div class="story" id="story">Ognuno apra il link sul telefono, scriva il nome e scelga il suo personaggio della smorfia.</div>
+        <div class="detto" id="detto"></div>
       </div>
       <div class="card-box">
         <h3>📱 Entra in gioco</h3>
@@ -180,7 +184,7 @@
           <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="bancoBtn">🧺 Il banco gioca: sì</button>
         </div>
         <div class="row"><button class="btn red ptt" id="pttBtn">🎙️ Tieni premuto per parlare</button><span class="muted" id="pttStat" style="font-weight:800">oppure tieni premuta la barra spaziatrice</span></div>
-        <div class="row"><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="lateBtn">⏰ Ritardatari: entrano</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="talkBtn">🎤 I giocatori possono parlare: no</button></div>
+        <div class="row"><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="scherziBtn">😜 Scherzi: sì</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="lateBtn">⏰ Ritardatari: entrano</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="talkBtn">🎤 I giocatori possono parlare: no</button></div>
         <div class="row" id="modeRow">
           <span class="muted" style="font-weight:800">Vincite:</span>
           <select class="vsel" id="modeSel"><option value="auto">Automatiche</option><option value="chiamata">Da chiamare</option></select>

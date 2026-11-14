@@ -43,7 +43,7 @@
     const html = list.map(p => {
       const isNew = crowdInit && !crowdSeen.has(p.id); crowdSeen.add(p.id);
       const w = (p.wins || []).length;
-      return `<div class="pp ${p.id === myId ? "me" : ""} ${isNew ? "new" : ""}" title="${esc(p.name)}${p.banco ? " · il banco" : ""}"><div style="position:relative">${avatarHTML(p.av, "sm", p)}${w ? `<span class="tro">🏆${w > 1 ? w : ""}</span>` : ""}${p.banco ? `<span class="tro" style="left:auto;right:-8px;bottom:auto;top:-8px">🧺</span>` : ""}</div><span>${esc(p.name)}</span></div>`;
+      return `<div class="pp ${p.id === myId ? "me" : ""} ${isNew ? "new" : ""}" data-id="${esc(p.id)}" data-name="${esc(p.name)}" title="${esc(p.name)}${p.banco ? " · il banco" : ""}"><div style="position:relative">${avatarHTML(p.av, "sm", p)}${w ? `<span class="tro">🏆${w > 1 ? w : ""}</span>` : ""}${p.banco ? `<span class="tro" style="left:auto;right:-8px;bottom:auto;top:-8px">🧺</span>` : ""}</div><span>${esc(p.name)}</span></div>`;
     }).join("");
     crowdInit = true;
     return html || `<span class="muted">Ancora nessuno: aspettiamo i colleghi!</span>`;
@@ -525,6 +525,35 @@
 
   // ---- overlay vincita ----
   let overlayQueue = Promise.resolve();
+  // 'o Munaciello fa uno scherzo a un giocatore a caso (numeri dispettosi)
+  function showScherzo(ev, opts = {}) {
+    overlayQueue = overlayQueue.then(() => new Promise(done => {
+      const ov = document.createElement("div"); ov.className = "overlay";
+      ov.innerHTML = `<div class="winbox scherzo"><div style="font-size:50px">🧙‍♂️✨</div>
+        <h1 class="lvl title-font" style="font-size:clamp(30px,8vw,56px)">'O Munaciello!</h1>
+        <div class="muted" style="font-weight:800">È uscito il ${ev.n}, numero dispettoso: tocca a…</div>
+        <div class="wn"><div>${avatarHTML(ev.av, "lg", ev)}<span>${esc(ev.name)}</span></div></div>
+        <div class="prize">${esc(ev.text)}</div>
+        ${opts.me === ev.id ? `<div class="me">😜 Tocca proprio a te!</div>` : ""}
+        <div style="margin-top:14px"><button class="btn">Fatto!</button></div></div>`;
+      document.body.appendChild(ov);
+      [660, 880, 660, 990].forEach((f, i) => tone(f, i * .12, .15, "square", .07));
+      if (opts.speak) speak("'O Munaciello! " + ev.text);
+      const close = () => { ov.remove(); clearTimeout(tm); done(); };
+      ov.querySelector("button").onclick = close;
+      const tm = setTimeout(close, opts.stay ? 12000 : 8000);
+    }));
+  }
+  // scherzi tra giocatori: l'effetto lo subisce solo il bersaglio
+  function prankEffect(kind) {
+    const P = D.PRANKS[kind]; if (!P) return;
+    const big = document.createElement("div"); big.className = "prankbig"; big.textContent = P.e; document.body.appendChild(big); setTimeout(() => big.remove(), 2200);
+    if (kind === "pernacchia") { pernacchia(.4, 1.5); for (let i = 0; i < 10; i++) setTimeout(() => floater("💨"), i * 120); }
+    if (kind === "corna") [200, 180, 160].forEach((f, i) => tone(f, i * .15, .2, "sawtooth", .12));
+    const cls = kind === "sotto" ? "prank-sotto" : kind === "munaciello" ? "prank-muna" : null;
+    if (cls) { document.body.classList.add(cls); tone(300, 0, .4, "triangle", .1); setTimeout(() => document.body.classList.remove(cls), 9000); }
+    if (navigator.vibrate) navigator.vibrate([80, 60, 80]);
+  }
   function showWin(ev, opts = {}) {
     if (ev.cards) overlayQueue = overlayQueue.then(() => checkCard(ev, opts));
     overlayQueue = overlayQueue.then(() => new Promise(done => {
@@ -586,22 +615,22 @@
   }
 
   const C = D.CREDITS;
-  const creditsHTML = () => `Tombola Napoletana v${C.version} · Un'idea di <b>${C.author}</b> · <a href="${C.url}" target="_blank" rel="noopener">${C.site}</a><br>© ${C.year} ${C.author}`;
+  const creditsHTML = () => `'A Tombola d' 'o Munaciello v${C.version} · Un'idea di <b>${C.author}</b> · <a href="${C.url}" target="_blank" rel="noopener">${C.site}</a><br>© ${C.year} ${C.author}`;
   function infoModal() {
-    modal(`<h2 class="title-font">ℹ️ La Tombola Napoletana</h2>
-      <p><b>L'idea.</b> Questa tombola online è un'idea di <b>${C.author}</b> (<a href="${C.url}" target="_blank" rel="noopener">${C.site}</a>), per giocare tutti insieme alla festa di Natale dell'ufficio, ognuno dal suo telefono.</p>
-      <p><b>Un po' di storia.</b> La tombola nasce a Napoli nel 1734, da una disputa tra re Carlo di Borbone, che voleva rendere legale il gioco del Lotto, e il frate domenicano Gregorio Maria Rocco, secondo cui il gioco distraeva i fedeli dalla preghiera. Alla fine si arrivò a un compromesso: niente Lotto nei giorni di Natale. Così i napoletani si portarono i 90 numeri in casa, dentro un panariello di vimini, e nacque la tombola.</p>
-      <p><b>La smorfia.</b> A ogni numero da 1 a 90 corrisponde una figura: è il "libro dei sogni" napoletano, che secondo la tradizione prende il nome da Morfeo. Per questo, quando esce un numero, non si legge solo la cifra ma anche il suo significato: 33, gli anni di Cristo; 47, il morto; 90, la paura.</p>
-      <p><b>Come si vince.</b></p>
+    modal(`<h2 class="title-font">'A Tombola d' 'o Munaciello</h2>
+      <p><b>L'idea.</b> Un gioco di <b>${C.author}</b> (<a href="${C.url}" target="_blank" rel="noopener">${C.site}</a>): la tombola napoletana com'era al tavolo di casa, con la smorfia, i detti e gli scherzi, ognuno dal suo telefono.</p>
+      <p><b>La tombola.</b> Nasce a Napoli nel 1734, dalla lite tra re Carlo di Borbone, che voleva il Lotto legale, e padre Gregorio Maria Rocco, che lo voleva vietato. Si accordarono: niente Lotto a Natale. E i napoletani si portarono i 90 numeri in casa, dentro un panariello.</p>
+      <p><b>La smorfia.</b> Ogni numero ha la sua figura, spesso a doppio senso: 16 'o culo, 29 'o pate d' 'e criature, 77 'e riavule, 90 'a paura. Quando esce un numero si leggono il nome in napoletano, il significato e la storiella.</p>
+      <p><b>I detti.</b> A ogni estrazione esce un proverbio napoletano con la traduzione: saggezza di vicolo, gratis.</p>
+      <p><b>Gli scherzi.</b></p>
       <ul>
-        <li><b>Ambo, terno, quaterna, cinquina:</b> 2, 3, 4 o 5 numeri usciti sulla <i>stessa riga</i> della cartella.</li>
-        <li><b>Tombola:</b> tutti i 15 numeri della cartella.</li>
-        <li><b>Tombolino:</b> dopo la tombola si continua a estrarre, e il prossimo che completa la cartella fa tombolino. Poi la partita finisce.</li>
-        <li>Ogni premio si assegna una volta sola, a chi ci arriva per primo. Se ci arrivano in più persone con lo stesso numero, decide <b>il Tribunale della Smorfia</b>: i premi in euro si dividono, gli altri li assegna la ruota, e chi non lo vince riceve un "risarcimento" simpatico.</li>
+        <li><b>'O Munaciello:</b> quando esce un numero dispettoso (17, 22, 23, 47, 48, 71, 77, 90) lo spiritello sceglie un giocatore a caso e gli dà una penitenza.</li>
+        <li><b>Scherzi tra colleghi:</b> tocca un avatar nella tavolata e scegli: gli capovolgi la cartella, gli nascondi i numeri, gli mandi una pernacchia o le corna. Ne hai 3 per partita.</li>
+        <li>Il banco può vietare gli scherzi quando vuole.</li>
       </ul>
-      <p><b>Le reazioni.</b> Con le emoji in basso puoi festeggiare, arrabbiarti o disperarti in diretta: le vedono tutti.</p>
+      <p><b>Come si vince.</b> Ambo, terno, quaterna e cinquina sulla stessa riga; tombola con tutti i 15 numeri; poi si continua fino al tombolino. Se vincono in più persone decide il Tribunale della Smorfia.</p>
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, figBig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, showScherzo, prankEffect, figBig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

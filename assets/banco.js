@@ -69,6 +69,8 @@
       if (ev.type === "over") { auto = false; renderAuto(); T.toast("🏁 Partita finita!"); }
       if (ev.type === "call") { T.toast(ev.join ? `🤝 Anche ${ev.name} chiama ${ev.label.toUpperCase()}!` : `📣 ${ev.name} chiama ${ev.label.toUpperCase()}!`, 3000); T.sounds.pop(); if (voice) T.speak(`${ev.name} chiama ${ev.label}!`); }
       if (ev.type === "late") { T.lateOverlay(ev, { banco: true, send: d => host("say", d) }); overlayUntil = Math.max(overlayUntil, Date.now() + 20000); }
+      if (ev.type === "scherzo") { overlayUntil = Math.max(overlayUntil, Date.now() + 19000); setTimeout(() => T.showScherzo(ev, { speak: voice, stay: true }), 6600); }
+      if (ev.type === "prank") { const P = D.PRANKS[ev.kind]; T.toast(`${P.e} ${ev.from} ha fatto 'o scherzo a ${ev.to}: ${P.name}`, 3500); T.floater(P.e, ev.to); }
       if (ev.type === "falsecall") { T.toast(`😂 ${ev.name} ha chiamato ${ev.label.toUpperCase()}… a vuoto!`, 3500); T.floater("🙈", ev.name); if (voice) T.speak(`${ev.name} ha chiamato ${ev.label} a vuoto! Nun è overo!`); }
     }
     seenSeq = Math.max(seenSeq, s.seq || 0);
@@ -86,12 +88,14 @@
     const s = st, d = s.drawn || [];
     paintMe();
     if (!profileAsked && s.banco && s.banco.name === "Il Banco") { profileAsked = true; setTimeout(openProfile, 600); }
-    if (s.table) $("#tableTitle").textContent = s.table.code === "main" ? "🎄 Cartellone" : "🎲 " + s.table.name;
+    if (s.table) $("#tableTitle").textContent = s.table.code === "main" ? "🌋 Cartellone" : "🎲 " + s.table.name;
     const ph = { lobby: ["Iscrizioni aperte", ""], playing: ["In gioco", "live"], tombolino: ["Caccia al tombolino", "tl"], over: ["Partita finita", "over"] }[s.phase];
     $("#phase").textContent = ph[0]; $("#phase").className = "pill " + ph[1];
     $("#sGame").textContent = s.game; $("#sCount").textContent = s.count; $("#sDrawn").textContent = d.length + "/90";
     $("#startBtn").classList.toggle("hidden", s.phase !== "lobby");
     $("#bancoBtn").textContent = "🧺 Il banco gioca: " + (s.bancoPlays ? "sì" : "no");
+    $("#scherziBtn").textContent = "😜 Scherzi: " + (s.scherzi ? "sì" : "no");
+    const dt = D.detto(s.game, d.length); $("#detto").innerHTML = `<b>«${esc(dt[0])}»</b><small>${esc(dt[1])}</small>`;
     $("#lateBtn").textContent = "⏰ Ritardatari: " + (s.lateJoin ? "entrano (con messaggio del banco)" : "aspettano la prossima");
     $("#talkBtn").textContent = "🎤 I giocatori possono parlare: " + (s.playersTalk ? "sì" : "no");
     const live = s.phase === "playing" || s.phase === "tombolino";
@@ -230,6 +234,7 @@
   });
   document.addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat && !/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName) && !document.querySelector(".modal")) { e.preventDefault(); ptt.start(); } });
   document.addEventListener("keyup", e => { if (e.code === "Space") ptt.stop(); });
+  $("#scherziBtn").onclick = async () => { await host("config", { config: { scherzi: !(st && st.scherzi) } }); await refresh(); T.toast(st.scherzi ? "😜 Scherzi permessi: occhio al Munaciello!" : "🚫 Scherzi vietati"); };
   $("#lateBtn").onclick = async () => { await host("config", { config: { lateJoin: !(st && st.lateJoin) } }); await refresh(); };
   $("#talkBtn").onclick = async () => { await host("config", { config: { playersTalk: !(st && st.playersTalk) } }); await refresh(); T.toast(st.playersTalk ? "🎤 Ora i giocatori possono parlare" : "🔇 Parola tolta ai giocatori"); };
 
