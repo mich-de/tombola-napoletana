@@ -297,3 +297,11 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:75}
 .cartella td.img .cn{background:rgba(255,255,255,.9);border-radius:0 0 6px 0;padding:1px 3px 2px 2px;top:0;left:0}
 .cartella td.img .ct{background:rgba(255,255,255,.88)}
 .cartella td.img.hit{background-blend-mode:multiply;background-color:#f3b7b0}
+
+/* cartella proporzionata: leggibile su telefono, tablet e desktop */
+.cartella{container-type:inline-size}
+.cartella td{height:clamp(46px,10.6cqi,96px)}
+.cartella td .cn{font-size:clamp(12px,4.3cqi,26px)}
+.cartella td .ct{font-size:clamp(6px,1.45cqi,10px)}
+@container (max-width:520px){ .cartella td .ct{display:none} }
+@media(min-width:1000px){.cartella td{height:clamp(46px,10.6cqi,96px)}}

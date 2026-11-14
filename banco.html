@@ -104,6 +104,14 @@
   .cell.img .lb{right:3px}
   .cell.img.on{background-blend-mode:multiply;background-color:#f1b2aa}
   .cell.img.last{background-blend-mode:normal;box-shadow:inset 0 0 0 5px #ffd86b}
+  /* testi del tabellone proporzionati alla larghezza della pagina (desktop, tablet, telefono) */
+  .page{container-type:inline-size}
+  .cell .nn{font-size:clamp(11px,6.2cqi,34px);top:1px;left:3px;background:rgba(255,253,246,.85);border-radius:0 0 6px 0;padding:0 3px 1px 1px}
+  .cell .lb{left:2px;right:2px;bottom:2px}
+  .cell .lb i,.cell .lb b{font-size:clamp(6px,1.95cqi,11px);line-height:1.1;display:block;width:fit-content;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cell .lb b{font-size:clamp(5.5px,1.75cqi,10px);margin-top:1px}
+  @container (max-width:420px){ .cell .lb b{display:none} }
+  @container (max-width:300px){ .cell .lb{display:none} }
 </style>
 </head>
 <body>
