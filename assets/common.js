@@ -62,7 +62,8 @@
   }
 
   // ---- neve ----
-  function snow() {
+  function snow() { return; }
+  function snowOld() {
     const c = document.createElement("canvas"); c.id = "snow"; document.body.prepend(c);
     const x = c.getContext("2d"); let W, H, flakes = [];
     const rs = () => { W = c.width = innerWidth; H = c.height = innerHeight; };
@@ -604,6 +605,12 @@
     ov.querySelector(".rcount").innerHTML = Object.entries(counts).map(([e, n]) => `<span>${e} ${n}</span>`).join("");
   }
 
+  // la striscia dei detti che scorre in cima
+  (function () {
+    const mq = document.querySelector(".mq"); if (!mq) return;
+    const items = D.DETTI.slice().sort(() => Math.random() - .5).slice(0, 14).map(d => `<span>${esc(d[0])}</span><b>★</b>`).join("");
+    mq.innerHTML = items + items;
+  })();
   function toast(msg, ms = 2600) {
     const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
     document.body.appendChild(t); setTimeout(() => t.remove(), ms);

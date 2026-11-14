@@ -223,7 +223,7 @@
 
   const REACTIONS = ["😂", "😡", "😱", "👏", "🎉", "😭", "🍀", "💨"];
 
-  const CREDITS = { author: "Michele De Angelis", site: "mdeangelis.me", url: "https://mdeangelis.me", version: "2.0.0", year: 2026 };
+  const CREDITS = { author: "Michele De Angelis", site: "mdeangelis.me", url: "https://mdeangelis.me", version: "3.0.0", year: 2026 };
 
   const data = { SMORFIA, AVATARS, AVATAR_BY_ID, LEVELS, DEFAULT_PRIZES, REACTIONS, CREDITS };
   if (typeof module !== "undefined" && module.exports) module.exports = data;
