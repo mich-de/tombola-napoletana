@@ -5,7 +5,7 @@
   let animating = false, profileAsked = false;
   const PINKEY = T.getRoom() === "main" ? "tmb_pin" : "tmb_pin_" + T.getRoom();
   let pin = sessionStorage.getItem(PINKEY) || "";
-  let st = null, seenSeq = null, lastLen = -1, auto = false, busy = false, lastDrawLocal = 0, voice = true, story = localStorage.getItem("tmb_story") || "storiella", roster = [];
+  let st = null, seenSeq = null, lastLen = -1, auto = false, busy = false, lastDrawLocal = 0, voice = false, story = localStorage.getItem("tmb_story") || "storiella", roster = [];
   const seenReacts = new Set(); const loadTime = Date.now();
   let overlayUntil = 0;
 
@@ -45,7 +45,6 @@
     $("#tab90").innerHTML = html;
     // su schermi piccoli i nomi non entrano nella casella: toccandola si vedono
     $("#tab90").onclick = e => { const c = e.target.closest(".cell"); if (!c) return; const sm = smorfia(+c.dataset.n); T.toast(`${c.dataset.n} · ${sm.nap} — ${sm.it}`, 3000); };
-    fillVoices(); document.addEventListener("voices", fillVoices);
     prewarm();
     host("getconfig").then(r => { $("#interval").value = r.config.interval; $("#intervalV").textContent = r.config.interval + " s"; }).catch(() => {});
     poll(); setInterval(loadRoster, 5000); loadRoster(); setInterval(autoTick, 500);
@@ -114,8 +113,8 @@
       const n = d[d.length - 1];
       if (n && isNew) {
         animating = true;
-        if (voice) T.prepareNumber(n, story !== "niente");
-        T.panariello(n, { big: true }).then(() => { showNumber(n, d); animating = false; if (voice) { speechSynthesis.cancel(); T.callNumber(n, story); } });
+        T.prepareRec(n);
+        T.panariello(n, { big: true }).then(() => { showNumber(n, d); animating = false; { T.playRec(n); } });
       } else showNumber(n, d);
     }
     const pz = s.prizes || {}; const next = D.LEVELS.find(l => !pz[l.key]);
@@ -178,17 +177,10 @@
   $("#drawBtn").onclick = draw;
   $("#autoBtn").onclick = () => { auto = !auto; if (auto) lastDrawLocal = 0; renderAuto(); };
   $("#startBtn").onclick = async () => { await host("start"); T.confetti(120); T.announce("k=start", "Si comincia! Buona fortuna a tutti quanti!"); await refresh(); };
-  $("#voiceBtn").onclick = () => { voice = !voice; $("#voiceBtn").textContent = "🔊 Voce: " + (voice ? "sì" : "no"); if (!voice) speechSynthesis.cancel(); };
-  const STORY_LABEL = { storiella: "la storiella", filastrocca: "la filastrocca", tutte: "storiella + filastrocca", niente: "solo il numero" };
-  const paintStory = () => { $("#storyBtn").textContent = "📜 Dopo il numero: " + STORY_LABEL[story]; };
-  $("#storyBtn").onclick = () => { const k = Object.keys(STORY_LABEL); story = k[(k.indexOf(story) + 1) % k.length]; try { localStorage.setItem("tmb_story", story); } catch {} paintStory(); T.toast("📜 Dopo il numero il banco legge: " + STORY_LABEL[story]); };
-  paintStory();
   $("#bancoBtn").onclick = async () => { await host("config", { config: { bancoPlays: !st.bancoPlays } }); await refresh(); };
   $("#modeSel").onchange = async () => { await host("config", { config: { mode: $("#modeSel").value } }); T.toast($("#modeSel").value === "chiamata" ? "📣 Vincite da chiamare: ognuno deve accorgersene da solo!" : "🤖 Vincite automatiche"); await refresh(); };
   $("#tieSel").onchange = async () => { await host("config", { config: { tie: $("#tieSel").value } }); await refresh(); };
   $("#bancoCall").onclick = async () => { const level = $("#bancoCall").dataset.level; if (!level) return; const r = await host("call", { level }); T.toast((r.result === "won" ? "🏆 " : r.result === "false" ? "🙈 " : "⏳ ") + r.message, 3500); await refresh(); };
-  $("#voiceSel").onchange = () => T.setVoice($("#voiceSel").value);
-  $("#voiceTest").onclick = () => { speechSynthesis.cancel(); T.callNumber(33, story); };
   $("#interval").oninput = () => { $("#intervalV").textContent = $("#interval").value + " s"; };
   $("#interval").onchange = () => host("config", { config: { interval: +$("#interval").value } }).catch(() => {});
   $("#newBtn").onclick = async () => {
@@ -243,7 +235,7 @@
   function openRec(sel) {
     let cur = sel, rec = null, chunks = [], blob = null, mime = "", timer = null, t0 = 0;
     const m = T.modal(`<h2 class="title-font">🎙️ La voce del banco</h2>
-      <p class="muted">Scegli un numero, premi <b>Registra</b> e dillo come al tavolo: il numero in napoletano, la figura e, se vuoi, la filastrocca. Durante la partita si sentirà la tua voce; i numeri non registrati li dice la voce del browser.</p>
+      <p class="muted">Scegli un numero, premi <b>Registra</b> e dillo come al tavolo: il numero in napoletano, la figura e, se vuoi, la filastrocca. Durante la partita si sentirà la tua voce; i numeri non registrati restano in silenzio.</p>
       <div class="recgrid">${Array.from({ length: 90 }, (_, i) => `<button data-n="${i + 1}">${i + 1}</button>`).join("")}<button data-n="late" style="grid-column:span 10">⏰ Messaggio per i ritardatari</button></div>
       <div class="recpanel"><div class="big" id="rNum"></div><div class="script" id="rScript"></div>
         <div class="recctl"><button class="btn red" id="rRec">⏺ Registra</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="rPlay" disabled>▶ Ascolta</button>
@@ -293,7 +285,7 @@
       try { const r = await host("rec", { n: cur, mime: blob.type, b64 }); st.recs = r.recs; T.setRecs(r.recs); blob = null; $m("#rStat").textContent = cur === "late" ? "💾 Salvato! I ritardatari sono avvisati 😈" : `💾 Salvato! Il ${cur} ora ha la tua voce.`; paint(); }
       catch (e) { $m("#rStat").textContent = "⚠️ " + e.message; }
     };
-    $m("#rDemo").onclick = () => { m.remove(); T.prepareRec(cur); T.panariello(cur, { big: true }).then(() => T.callNumber(cur, story)); };
+    $m("#rDemo").onclick = () => { m.remove(); T.prepareRec(cur); T.panariello(cur, { big: true }).then(() => T.playRec(cur)); };
     $m("#rDel").onclick = async () => { const r = await host("recdel", { n: cur }); st.recs = r.recs; T.setRecs(r.recs); $m("#rStat").textContent = "🗑️ Registrazione cancellata"; paint(); };
     paint();
   }

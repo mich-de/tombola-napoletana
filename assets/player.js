@@ -209,7 +209,6 @@
   };
   $("#meAv").onclick = openJoin; $("#meAv").style.cursor = "pointer"; $("#meAv").title = "Tocca per cambiare foto o personaggio";
   $("#infoBtn").onclick = T.infoModal;
-  $("#voiceBtn").onclick = () => { voice = !voice; $("#voiceBtn").textContent = voice ? "🔊" : "🔇"; T.toast(voice ? "Voce attiva: leggerò i numeri" : "Voce spenta"); if (voice) T.speak("Voce attiva"); };
 
   $("#reactbar").innerHTML = D.REACTIONS.map(e => `<button data-e="${e}">${e}</button>`).join("");
   $("#reactbar").onclick = async ev => {
@@ -295,10 +294,10 @@
         renderCard();
       };
       if (n && isNew) {
-        if (voice) T.prepareNumber(n, false);
+        T.prepareRec(n);
         T.panariello(n).then(() => {
           show();
-          if (voice) T.callNumber(n, false);
+          T.playRec(n);
           if (me && me.card && me.card.flat().includes(n)) { T.confetti(25, .55); if (navigator.vibrate) navigator.vibrate(80); }
         });
       } else show();

@@ -297,6 +297,8 @@
     return new Promise((res, rej) => { const a = new Audio(url); a.onended = res; a.onerror = rej; a.play().catch(rej); });
   }
   const prepareRec = n => { recURL(n); };
+  // solo le registrazioni fatte da voi: nessuna voce sintetica
+  async function playRec(n) { try { const u = await recURL(n); if (u) await playURL(u); } catch {} }
   // messaggi vocali in arrivo: uno alla volta, nell'ordine
   let sayQueue = Promise.resolve(); const saySeen = new Set(); let sayInit = false;
   function handleSays(says, myId) {
@@ -632,5 +634,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, showScherzo, prankEffect, figBig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, showScherzo, prankEffect, figBig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, playRec, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
 })();

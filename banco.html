@@ -179,8 +179,6 @@
           <button class="btn green" id="startBtn">▶ Inizia la partita</button>
           <button class="btn" id="drawBtn">🎲 Estrai</button>
           <button class="btn" id="autoBtn">⏯ Automatico</button>
-          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="voiceBtn">🔊 Voce: sì</button>
-          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="storyBtn">📜 Dopo il numero: la storiella</button>
           <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="bancoBtn">🧺 Il banco gioca: sì</button>
         </div>
         <div class="row"><button class="btn red ptt" id="pttBtn">🎙️ Tieni premuto per parlare</button><span class="muted" id="pttStat" style="font-weight:800">oppure tieni premuta la barra spaziatrice</span></div>
@@ -192,8 +190,6 @@
           <select class="vsel" id="tieSel"><option value="primo">Vince il primo</option><option value="dividi">Si divide (8 secondi)</option></select>
         </div>
         <div class="row hidden" id="bancoCallRow"><button class="btn green" id="bancoCall">📣 Il banco chiama AMBO!</button><span class="muted" id="pendBanco" style="font-weight:800"></span></div>
-        <div class="row"><span class="muted" style="font-weight:800">Voce:</span><select class="vsel" id="voiceSel"></select><button class="btn ghost" style="color:var(--ink);border-color:var(--line);padding:8px 14px" id="voiceTest">▶ Prova</button></div>
-        <div class="muted" id="voiceTip" style="font-size:13px;margin-top:6px"></div>
         <div class="row">
           <span class="muted" style="font-weight:800">Intervallo automatico:</span>
           <input type="range" id="interval" min="5" max="40" step="1" value="12"><b id="intervalV">12 s</b>
