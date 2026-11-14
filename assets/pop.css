@@ -105,7 +105,8 @@ body .cartella{background:#fff;border:3px solid var(--ink);border-radius:16px;pa
 .cartella td.e{background:repeating-linear-gradient(45deg,#d9efff 0 6px,#fff 6px 12px);border-color:rgba(0,0,0,.25);opacity:1}
 .cartella td .cn{font-family:var(--display);font-weight:800}
 .cartella td.img .cn{background:var(--giallo);border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);border-radius:0 0 8px 0}
-.cartella td.hit .fg,.cell .fg{background:var(--rosso);border:3px solid var(--ink);opacity:.86!important;box-shadow:none}
+.cartella td.hit .fg,.cell.on .fg,.cell.last .fg{background:var(--rosso);border:3px solid var(--ink);opacity:.86!important;box-shadow:none}
+.cell .fg{background:var(--rosso);border:3px solid var(--ink);box-shadow:none}
 .hint{color:var(--ink);font-family:var(--display);background:var(--giallo);border-radius:10px;padding:6px 10px}
 .rowinfo{color:var(--muted)}
 .mini90 span{background:var(--bg);color:#b9ad8b;font-family:var(--display)}
@@ -202,3 +203,15 @@ body .lastbig .bb{border-radius:32px!important}
   #splash .splash-credit{bottom:1.6vh}
 }
 @media (min-aspect-ratio:1/1) and (max-height:520px){.sp-stick.s3,.sp-stick.s4{display:none!important}}
+/* banco: il cartellone al centro prende tutto lo spazio, le colonne laterali si stringono */
+@media (min-width:1101px){
+  body .bwrap{max-width:none;padding:10px clamp(10px,1.2vw,22px)}
+  body .grid3{grid-template-columns:clamp(200px,17vw,300px) minmax(0,1fr) clamp(220px,19vw,340px);gap:clamp(8px,.9vw,14px)}
+  body .grid3 .card-box{padding:clamp(8px,.9vw,16px)}
+  body .grid3>div:first-child .lastbig .bb{width:min(150px,11vw);height:min(150px,11vw);font-size:min(76px,5.6vw)}
+  body .grid3>div:first-child .lastbig .nap{font-size:clamp(18px,1.7vw,28px)}
+  body .grid3>div:first-child .story{font-size:clamp(12px,.95vw,15px)}
+  body .grid3>div:first-child .qr img{width:clamp(70px,6.5vw,110px);height:auto}
+  body .grid3>div:last-child .btn{padding:8px 10px;font-size:clamp(12px,.95vw,15px)}
+  body .grid3>div:last-child .row{gap:6px}
+}
