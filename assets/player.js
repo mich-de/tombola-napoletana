@@ -371,10 +371,17 @@
     document.querySelectorAll("#mini90 span").forEach(el => { const k = +el.dataset.n; el.className = set.has(k) ? (k === last ? "last" : "on") : ""; });
   }
 
+  // clic su un numero (cartella o tabellone piccolo): zoom con figura e storiella
+  T.zoomNum.isDrawn = k => !!(st && st.drawn && st.drawn.includes(k));
+  document.addEventListener("click", e => {
+    const c = e.target.closest("#cartella td[data-n], #mini90 span[data-n]"); if (!c) return;
+    const k = +c.dataset.n; if (k) T.zoomNum(k, T.zoomNum.isDrawn(k));
+  });
+
   function renderCard() {
     if (!me || !me.card) return;
     const set = new Set(st?.drawn || []);
-    $("#cartella").innerHTML = `<span class="tag">LA TUA CARTELLA</span><table>${me.card.map(r => `<tr>${r.map(n => { if (!n) return `<td class="e"></td>`; const sm = smorfia(n), fu = D.figURL(n); return `<td class="${set.has(n) ? "hit" : ""} ${fu ? "img" : ""}" title="${esc(sm.nap)} · ${esc(sm.it)}"${fu ? ` style="background-image:url(${fu})"` : ""}><span class="cn">${n}</span><span class="ce">${T.fig(sm.e)}</span><span class="ct">${esc(sm.it)}</span><span class="fg"></span></td>`; }).join("")}</tr>`).join("")}</table>`;
+    $("#cartella").innerHTML = `<span class="tag">LA TUA CARTELLA</span><table>${me.card.map(r => `<tr>${r.map(n => { if (!n) return `<td class="e"></td>`; const sm = smorfia(n), fu = D.figURL(n); return `<td data-n="${n}" class="${set.has(n) ? "hit" : ""} ${fu ? "img" : ""}" title="${esc(sm.nap)} · ${esc(sm.it)}"${fu ? ` style="background-image:url(${fu})"` : ""}><span class="cn">${n}</span><span class="ce">${T.fig(sm.e)}</span><span class="ct">${esc(sm.it)}</span><span class="fg"></span></td>`; }).join("")}</tr>`).join("")}</table>`;
     const rows = me.card.map(r => r.filter(n => n && set.has(n)).length);
     const tot = rows.reduce((a, b) => a + b, 0), best = Math.max(...rows);
     const pz = st?.prizes || {};

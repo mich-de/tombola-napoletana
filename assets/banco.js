@@ -44,7 +44,8 @@
     }
     $("#tab90").innerHTML = html;
     // su schermi piccoli i nomi non entrano nella casella: toccandola si vedono
-    $("#tab90").onclick = e => { const c = e.target.closest(".cell"); if (!c) return; const sm = smorfia(+c.dataset.n); T.toast(`${c.dataset.n} · ${sm.nap} — ${sm.it}`, 3000); };
+    T.zoomNum.isDrawn = k => !!(st && st.drawn && st.drawn.includes(k));
+    $("#tab90").onclick = e => { const c = e.target.closest(".cell"); if (!c) return; const k = +c.dataset.n; T.zoomNum(k, T.zoomNum.isDrawn(k)); };
     prewarm();
     host("getconfig").then(r => { $("#interval").value = r.config.interval; $("#intervalV").textContent = r.config.interval + " s"; }).catch(() => {});
     poll(); setInterval(loadRoster, 5000); loadRoster(); setInterval(autoTick, 500);

@@ -623,6 +623,26 @@
     document.body.appendChild(m); return m;
   }
 
+  // zoom di un numero della smorfia: figura grande, nome, storiella e filastrocca
+  function zoomNum(n, drawn) {
+    const sm = smorfia(n); if (!sm) return;
+    document.querySelectorAll(".modal.zoom").forEach(x => x.remove());
+    const fu = D.figURL(n), rima = D.RIME && D.RIME[n - 1];
+    const m = document.createElement("div"); m.className = "modal zoom";
+    m.innerHTML = `<div class="zcard"><button class="zx close" aria-label="Chiudi">✕</button>
+      <div class="zfig">${fu ? `<img src="${fu}" alt="">` : `<span class="zemo">${fig(sm.e)}</span>`}<span class="znum">${n}</span></div>
+      <div class="ztxt"><h2>${esc(sm.nap)}</h2><div class="zit">${esc(sm.it)}</div><div class="znap">« ${esc(D.numNap(n))} »</div>
+      ${drawn === undefined ? "" : `<span class="zst ${drawn ? "on" : ""}">${drawn ? "✔ già uscito" : "non ancora uscito"}</span>`}
+      <p class="zstory">${esc(sm.story)}</p>${rima ? `<p class="zrima">${esc(rima)}</p>` : ""}
+      <div class="znav"><button class="btn ghost" data-go="${n > 1 ? n - 1 : 90}">← ${n > 1 ? n - 1 : 90}</button><button class="btn ghost" data-go="${n < 90 ? n + 1 : 1}">${n < 90 ? n + 1 : 1} →</button></div></div></div>`;
+    const key = e => { if (e.key === "Escape") close(); else if (e.key === "ArrowLeft") go(n > 1 ? n - 1 : 90); else if (e.key === "ArrowRight") go(n < 90 ? n + 1 : 1); };
+    const close = () => { m.remove(); document.removeEventListener("keydown", key); };
+    const go = k => { close(); zoomNum(k, zoomNum.isDrawn ? zoomNum.isDrawn(k) : undefined); };
+    m.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) return go(+g.dataset.go); if (e.target === m || e.target.closest(".close")) close(); });
+    document.addEventListener("keydown", key);
+    document.body.appendChild(m); return m;
+  }
+
   const C = D.CREDITS;
   const creditsHTML = () => `'A Tombola d' 'o Munaciello v${C.version} · Un'idea di <b>${C.author}</b> · <a href="${C.url}" target="_blank" rel="noopener">${C.site}</a><br>© ${C.year} ${C.author}`;
   function infoModal() {
@@ -641,5 +661,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, showScherzo, prankEffect, figBig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, playRec, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, showScherzo, prankEffect, figBig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, playRec, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, zoomNum, infoModal, creditsHTML, wheel };
 })();
