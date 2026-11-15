@@ -489,3 +489,10 @@ details.more[open] summary::after{content:"–"}
 .px-film.shake img.on{animation:filmshake .14s linear infinite}
 @keyframes filmshake{0%,100%{transform:scale(1.08) translate(0,0) rotate(0)}25%{transform:scale(1.08) translate(-1.6%,-2.4%) rotate(-3deg)}50%{transform:scale(1.08) translate(1%,1.8%) rotate(2deg)}75%{transform:scale(1.08) translate(1.8%,-1.6%) rotate(3deg)}}
 @media (prefers-reduced-motion:reduce){.px-film.shake img.on{animation:none}}
+/* il numero estratto è scritto sulla pedina di legno: nella foto del palmo e sul gettone che viene avanti */
+.px-film{container-type:inline-size}
+.px-n{position:absolute;transform:translate(-50%,-52%) rotate(-4deg);font:700 calc(var(--d)*.56)/1 var(--display);letter-spacing:-.04em;color:#3a2110;opacity:0;transition:opacity .25s .12s;mix-blend-mode:multiply;text-shadow:0 1px 0 rgba(255,240,215,.5)}
+.px-film.num .px-n{opacity:.92}
+.px-back b{position:relative;z-index:1;font:700 calc(var(--tk)*.5)/1 var(--display);letter-spacing:-.04em;color:#3a2110;text-shadow:0 calc(var(--tk)*.008) 0 rgba(255,240,215,.65),0 calc(var(--tk)*-.006) 0 rgba(60,30,10,.35)}
+.px.flip .px-coin{transform:none;animation:pxstamp .5s cubic-bezier(.3,1.6,.4,1)}
+@keyframes pxstamp{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(-4deg)}100%{transform:none}}

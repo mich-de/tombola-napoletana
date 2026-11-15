@@ -351,7 +351,7 @@
     { src: "/assets/pana/2.webp", ms: 850, shake: true },
     { src: "/assets/pana/4.webp", ms: 380 },
     { src: "/assets/pana/5.webp", ms: 480, drop: true },
-    { src: "/assets/pana/6.webp", ms: 520 }] };
+    { src: "/assets/pana/6.webp", ms: 900 }] };
   D.PANA_CLIPS = [];
   D.figURL = n => (D.FIGS.has(n) ? `/assets/fig/${String(n).padStart(2, "0")}.webp` : null);
 })(typeof globalThis !== "undefined" ? globalThis : this);

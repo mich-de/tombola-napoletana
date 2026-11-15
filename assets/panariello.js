@@ -82,7 +82,7 @@
       if (fu) { const pre = new Image(); pre.src = fu; }
       const ov = document.createElement("div"); ov.className = "px" + (big ? " big" : "");
       ov.innerHTML = `<div class="px-stage">
-        <div class="px-token"><div class="px-coin"><span class="px-back"></span><span class="px-front">${n}</span></div></div>
+        <div class="px-token"><div class="px-coin"><span class="px-back"><b>${n}</b></span></div></div>
         <div class="px-card"><div class="px-fig">${fu ? `<img src="${fu}" alt="">` : `<span>${T.fig(sm.e)}</span>`}</div>
           <div class="px-txt"><small>Numero ${n}</small><b>${esc(sm.nap)}</b><i>${esc(sm.it)}</i><em>« ${esc(D.numNap(n))} »</em></div></div>
       </div><div class="px-skip">tocca per saltare</div>`;
@@ -97,7 +97,7 @@
         if (still) {
           // fotoromanzo del panariello: la mano tappa, scuote, inclina, il numero cade nel palmo e viene verso chi guarda
           const ph = document.createElement("div"); ph.className = "px-seq";
-          ph.innerHTML = `<div class="px-film">${SEQ.frames.map((f, i) => `<img src="${f.src}" alt="" class="${i ? "" : "on"}">`).join("")}</div>`;
+          ph.innerHTML = `<div class="px-film">${SEQ.frames.map((f, i) => `<img src="${f.src}" alt="" class="${i ? "" : "on"}">`).join("")}<span class="px-n" style="left:${SEQ.x * 100}%;top:${SEQ.y * 100}%;--d:${SEQ.r * 100}cqw">${n}</span></div>`;
           ov.appendChild(ph);
           const imgs = ph.querySelectorAll("img"), film = ph.firstChild;
           tock(.05, .35);
@@ -105,6 +105,7 @@
             const f = SEQ.frames[i];
             imgs.forEach((im, k) => im.classList.toggle("on", k === i));
             film.classList.toggle("shake", !!f.shake);
+            film.classList.toggle("num", i === SEQ.frames.length - 1);   // nell'ultima foto il numero è scritto sulla pedina
             if (f.shake) { tarantella(0, Math.round(f.ms / 135)); for (let k = 0; k < 24; k++) wood(Math.random() * f.ms / 1000, .1 + Math.random() * .2); }
             if (f.drop) { for (let k = 0; k < 5; k++) wood(k * .04, .16); tock(.3, .45); }
             await step(f.ms);
