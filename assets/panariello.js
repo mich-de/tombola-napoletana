@@ -54,9 +54,9 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const wait = ms => new Promise(r => setTimeout(r, ms));
   let busy = Promise.resolve();
-  // foto del panariello (mani vere): x,y = centro della bocca, r = larghezza del gettone dentro, in frazione del lato
-  const STILL = D.PANA_STILL || null; let stillOK = false;
-  if (STILL) { const im = new Image(); im.onload = () => { stillOK = true; }; im.src = STILL.src; }
+  // fotoromanzo del panariello (mani vere): x,y = centro del gettone nell'ultima foto, r = sua larghezza, in frazione del lato
+  const SEQ = D.PANA_SEQ || null; let seqOK = false;
+  if (SEQ) { let n = 0; SEQ.frames.forEach(f => { const im = new Image(); im.onload = () => { if (++n === SEQ.frames.length) seqOK = true; }; im.src = f.src; }); }
 
   // filmato delle mani: una clip a caso tra quelle disponibili; se non parte entro 1,2 s si salta
   function playClip(box, skip) {
@@ -93,20 +93,31 @@
       const step = ms => skipped ? Promise.resolve() : Promise.race([wait(ms), skip]);
       (async () => {
         const hadClip = await playClip(ov, skip);
-        const still = !hadClip && !skipped && STILL && stillOK;
+        const still = !hadClip && !skipped && SEQ && seqOK;
         if (still) {
-          // foto vera del panariello: le mani lo scuotono, poi il gettone esce dalla bocca verso chi guarda
-          const ph = document.createElement("div"); ph.className = "px-pana"; ph.style.backgroundImage = `url(${STILL.src})`; ov.appendChild(ph);
-          tarantella(.15, 8); for (let i = 0; i < 26; i++) wood(.15 + Math.random() * 1.05, .1 + Math.random() * .2);
-          await step(1250);
+          // fotoromanzo del panariello: la mano tappa, scuote, inclina, il numero cade nel palmo e viene verso chi guarda
+          const ph = document.createElement("div"); ph.className = "px-seq";
+          ph.innerHTML = `<div class="px-film">${SEQ.frames.map((f, i) => `<img src="${f.src}" alt="" class="${i ? "" : "on"}">`).join("")}</div>`;
+          ov.appendChild(ph);
+          const imgs = ph.querySelectorAll("img"), film = ph.firstChild;
+          tock(.05, .35);
+          for (let i = 0; i < SEQ.frames.length && !skipped; i++) {
+            const f = SEQ.frames[i];
+            imgs.forEach((im, k) => im.classList.toggle("on", k === i));
+            film.classList.toggle("shake", !!f.shake);
+            if (f.shake) { tarantella(0, Math.round(f.ms / 135)); for (let k = 0; k < 24; k++) wood(Math.random() * f.ms / 1000, .1 + Math.random() * .2); }
+            if (f.drop) { for (let k = 0; k < 5; k++) wood(k * .04, .16); tock(.3, .45); }
+            await step(f.ms);
+          }
+          film.classList.remove("shake");
           const tk = ov.querySelector(".px-token");
           ov.classList.add("rise");   // il gettone va al suo posto (senza trasformazioni) prima di misurare
-          const a = { left: ph.offsetLeft, top: ph.offsetTop, width: ph.offsetWidth, height: ph.offsetHeight }, b = tk.getBoundingClientRect();
-          const dx = a.left + a.width * STILL.x - (b.left + b.width / 2), dy = a.top + a.height * STILL.y - (b.top + b.height / 2), k = a.width * STILL.r / b.width;
+          const a = film.getBoundingClientRect(), b = tk.getBoundingClientRect();
+          const dx = a.left + a.width * SEQ.x - (b.left + b.width / 2), dy = a.top + a.height * SEQ.y - (b.top + b.height / 2), k = a.width * SEQ.r / b.width;
           ph.classList.add("out");
           if (!skipped) {
             whoosh(0, .5); tock(.62, .55);
-            tk.animate([{ transform: `translate(${dx}px,${dy}px) scale(${k}) rotate(-140deg)`, opacity: .2 }, { transform: `translate(${dx * .5}px,${dy * .5 - b.height * .25}px) scale(${(1 + k) / 2}) rotate(-40deg)`, opacity: 1, offset: .5 }, { transform: "scale(1.08) rotate(6deg)", offset: .82 }, { transform: "none", opacity: 1 }], { duration: 800, easing: "cubic-bezier(.3,.7,.3,1)" });
+            tk.animate([{ transform: `translate(${dx}px,${dy}px) scale(${k})`, opacity: 1 }, { transform: `translate(${dx * .45}px,${dy * .45 - b.height * .18}px) scale(${(1 + k) / 2}) rotate(-14deg)`, offset: .5 }, { transform: "scale(1.08) rotate(5deg)", offset: .82 }, { transform: "none", opacity: 1 }], { duration: 800, easing: "cubic-bezier(.3,.7,.3,1)" });
           }
           await step(880); setTimeout(() => ph.remove(), 600);
         } else {
