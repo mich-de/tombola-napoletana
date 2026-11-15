@@ -6,12 +6,9 @@
 <title>Cartellone · Tombola Napoletana</title>
 <meta name="author" content="Michele De Angelis · mdeangelis.me">
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Instrument+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
 <link rel="stylesheet" href="/assets/app.css">
-<link rel="stylesheet" href="/assets/pop.css">
+<link rel="stylesheet" href="/assets/nap.css">
 <style>
   .bwrap{position:relative;z-index:1;padding:14px 18px 40px;max-width:1500px;margin:0 auto}
   .bhead{display:flex;align-items:center;gap:14px;color:#fff;flex-wrap:wrap}
@@ -85,7 +82,7 @@
   .recgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:8px 0 14px}
   .recgrid button{background:var(--cream);border:2px solid var(--line);border-radius:8px;font-weight:900;padding:6px 0;font-size:13px;position:relative}
   .recgrid button.has{background:#e3f4e8;border-color:#2e7d4f;color:#1e5b3a}
-  .recgrid button.has::after{content:"🎙️";position:absolute;top:-7px;right:-5px;font-size:10px}
+  .recgrid button.has::after{content:"";position:absolute;top:-7px;right:-5px;font-size:10px}
   .recgrid button.sel{outline:3px solid var(--red)}
   .recpanel{background:#fff7e0;border:2px dashed var(--gold);border-radius:14px;padding:14px;text-align:center}
   .recpanel .big{font-size:54px;font-weight:900;color:var(--red);line-height:1}
@@ -121,7 +118,7 @@
 <!-- Tombola Napoletana · Cartellone del banco · Un'idea di Michele De Angelis · https://mdeangelis.me -->
 <div id="pinBox" class="wrap">
   <div class="card-box center">
-    <div style="font-size:54px">🎲</div>
+    <div style="font-size:54px"></div>
     <h2 class="title-font" style="color:var(--red);margin:4px 0">Il Banco</h2>
     <p class="muted">Inserisci il PIN di chi tiene il cartellone</p>
     <input class="txt" id="pin" type="password" inputmode="numeric" placeholder="PIN" style="text-align:center">
@@ -133,14 +130,14 @@
 
 <div class="bwrap hidden" id="banco">
   <div class="bhead">
-    <h1 class="title-font" id="tableTitle">🌋 Cartellone</h1>
+    <span class="mark90">90</span><h1 class="title-font" id="tableTitle">Cartellone</h1>
     <span class="pill" id="phase"></span>
     <button class="bme" id="bancoMe" title="Il tuo profilo: nome, personaggio e foto"></button>
     <div class="sp"></div>
     <div class="stat"><small>Partita</small><b id="sGame">1</b></div>
     <div class="stat"><small>Giocatori</small><b id="sCount">0</b></div>
     <div class="stat"><small>Estratti</small><b id="sDrawn">0</b></div>
-    <button class="iconbtn" id="infoBtn">ℹ️</button>
+    <button class="iconbtn" id="infoBtn">ℹ</button>
   </div>
 
   <div class="grid3">
@@ -148,7 +145,7 @@
       <div class="card-box lastbig">
         <h3>Ultimo estratto</h3>
         <div class="bb" id="bb">–</div>
-        <div class="fig" id="fig">🎄</div>
+        <div class="fig" id="fig"></div>
         <h2 class="nap title-font" id="nap">Si comincia tra poco</h2>
         <div class="it" id="it"></div>
         <div class="napnum" id="napnum"></div>
@@ -156,11 +153,11 @@
         <div class="detto" id="detto"></div>
       </div>
       <div class="card-box">
-        <h3>📱 Entra in gioco</h3>
+        <h3>Entra in gioco</h3>
         <div class="qr"><img id="qr" alt="QR code per entrare"><div><div class="muted">Apri dal telefono:</div><div class="url" id="url"></div></div></div>
       </div>
       <div class="card-box">
-        <h3>👥 Al tavolo <span id="crowdN"></span></h3>
+        <h3>Al tavolo <span id="crowdN"></span></h3>
         <div class="crowd" id="crowd"></div>
       </div>
     </div>
@@ -176,39 +173,35 @@
       <div class="card-box">
         <h3>Comandi del banco</h3>
         <div class="ctrls">
-          <button class="btn green" id="startBtn">▶ Inizia la partita</button>
-          <button class="btn" id="drawBtn">🎲 Estrai</button>
-          <button class="btn" id="autoBtn">⏯ Automatico</button>
-          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="bancoBtn">🧺 Il banco gioca: sì</button>
+          <button class="btn green" id="startBtn">Inizia la partita</button>
+          <button class="btn" id="drawBtn">Estrai</button>
+          <button class="btn" id="autoBtn">Automatico</button>
         </div>
-        <div class="row"><button class="btn red ptt" id="pttBtn">🎙️ Tieni premuto per parlare</button><span class="muted" id="pttStat" style="font-weight:800">oppure tieni premuta la barra spaziatrice</span></div>
-        <div class="row"><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="scherziBtn">😜 Scherzi: sì</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="lateBtn">⏰ Ritardatari: entrano</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="talkBtn">🎤 I giocatori possono parlare: no</button></div>
+        <div class="row hidden" id="bancoCallRow"><button class="btn green" id="bancoCall">Il banco chiama AMBO!</button><span class="muted" id="pendBanco" style="font-weight:800"></span></div>
+        <div class="row"><button class="btn red ptt" id="pttBtn">Tieni premuto per parlare</button><span class="muted" id="pttStat" style="font-weight:800">oppure tieni premuta la barra spaziatrice</span></div>
+        <div class="row"><button class="btn ghost" id="newBtn">Nuova partita</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="prizesBtn">Premi</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="playersBtn">Giocatori</button></div>
+        <details class="more"><summary>Impostazioni della partita</summary>
+        <div class="row"><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="bancoBtn">Il banco gioca: sì</button></div>
+        <div class="row"><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="scherziBtn">Scherzi: sì</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="lateBtn">Ritardatari: entrano</button><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="talkBtn">I giocatori possono parlare: no</button></div>
         <div class="row" id="modeRow">
           <span class="muted" style="font-weight:800">Vincite:</span>
           <select class="vsel" id="modeSel"><option value="auto">Automatiche</option><option value="chiamata">Da chiamare</option></select>
           <span class="muted" style="font-weight:800">Se chiamano in più:</span>
           <select class="vsel" id="tieSel"><option value="primo">Vince il primo</option><option value="dividi">Si divide (8 secondi)</option></select>
         </div>
-        <div class="row hidden" id="bancoCallRow"><button class="btn green" id="bancoCall">📣 Il banco chiama AMBO!</button><span class="muted" id="pendBanco" style="font-weight:800"></span></div>
         <div class="row">
           <span class="muted" style="font-weight:800">Intervallo automatico:</span>
           <input type="range" id="interval" min="5" max="40" step="1" value="12"><b id="intervalV">12 s</b>
         </div>
-        <div class="row">
-          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="prizesBtn">🎁 Premi</button>
-          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="playersBtn">👥 Giocatori</button>
-          <button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="recBtn">🎙️ Registra la voce</button>
-          <button class="btn red" id="newBtn">🔄 Nuova partita</button>
-          <button class="btn ghost" style="color:var(--red2);border-color:var(--line)" id="resetBtn">🧹 Azzera serata</button>
-          <button class="btn ghost hidden" style="color:var(--red2);border-color:var(--line)" id="closeBtn">🚪 Chiudi tavolo</button>
-        </div>
+        <div class="row"><button class="btn ghost" style="color:var(--ink);border-color:var(--line)" id="recBtn">Registra la voce</button><button class="btn ghost" style="color:var(--red2);border-color:var(--line)" id="resetBtn">Azzera serata</button><button class="btn ghost hidden" style="color:var(--red2);border-color:var(--line)" id="closeBtn">Chiudi tavolo</button></div>
+        </details>
       </div>
       <div class="card-box">
         <h3>Premi della partita</h3>
         <div class="prizes" id="prizes"></div>
       </div>
       <div class="card-box">
-        <h3>🏆 Classifica della serata</h3>
+        <h3>Classifica della serata</h3>
         <div class="board" id="board"><span class="muted">Ancora nessun vincitore</span></div>
       </div>
     </div>

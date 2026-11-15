@@ -7,35 +7,37 @@
 <meta name="description" content="Tombola napoletana online con la smorfia. Un'idea di Michele De Angelis · mdeangelis.me">
 <meta name="author" content="Michele De Angelis · mdeangelis.me">
 <meta name="theme-color" content="#ffd60a">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎄</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Instrument+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
 <link rel="stylesheet" href="/assets/app.css">
-<link rel="stylesheet" href="/assets/pop.css">
+<link rel="stylesheet" href="/assets/nap.css">
 </head>
 <body>
 <div class="marquee" aria-hidden="true"><div class="mq"></div></div>
 <!-- Tombola Napoletana · Un'idea di Michele De Angelis · https://mdeangelis.me -->
 <div id="splash">
-  <div class="sp-stick s1"><img src="/assets/fig/75.webp" alt=""></div>
-  <div class="sp-stick s2"><img src="/assets/fig/16.webp" alt=""></div>
-  <div class="sp-stick s3"><img src="/assets/fig/90.webp" alt=""></div>
-  <div class="sp-stick s4"><img src="/assets/fig/29.webp" alt=""></div>
-  <div class="sp-kicker">Napoli · dal 1734</div>
-  <h1 class="sp-title"><span>TOM</span><span>BO</span><span>LA<i>!</i></span></h1>
-  <div class="sp-tag">d' 'o Munaciello</div>
-  <p class="sp-sub">Smorfia, detti e scherzi. <br>Come a casa della nonna, ma dal telefono.</p>
-  <button class="btn big" id="enter">Jamme, entra →</button>
-  <div class="splash-credit">Un'idea di <b>Michele De Angelis</b> · <a href="https://mdeangelis.me" target="_blank" rel="noopener">mdeangelis.me</a> · v3.0</div>
+  <div class="hp-top"><span class="hp-mark">90</span><span>Tombola d' 'o Munaciello</span><span class="sp"></span><span class="h">Smorfia · Detti · Scherzi</span><span class="r h">Natale 2026</span></div>
+  <div class="hp-main">
+    <div>
+      <div class="hp-k">Napoli, dal 1734</div>
+      <h1 class="hp-title">Tombola<em>d' 'o Munaciello</em></h1>
+      <p class="hp-p">Novanta numeri, novanta storie. Si gioca come a casa della nonna, ognuno dal suo telefono: il banco estrae, la smorfia racconta.</p>
+      <button class="btn big" id="enter">Jamme, entra <i>→</i></button>
+    </div>
+    <div class="hp-cards">
+      <div class="hp-c c1"><img src="/assets/fig/23.webp" alt=""><b>'o Scemo <span>23</span></b><small>Lo scemo</small></div>
+      <div class="hp-c c2"><img src="/assets/fig/01.webp" alt=""><b>L'Italia <span>1</span></b><small>L'Italia</small></div>
+      <div class="hp-c c3"><img src="/assets/fig/75.webp" alt=""><b>Pullecenella <span>75</span></b><small>Pulcinella</small></div>
+    </div>
+  </div>
+  <div class="hp-foot"><span>Un'idea di <b>Michele De Angelis</b> · <a href="https://mdeangelis.me" target="_blank" rel="noopener">mdeangelis.me</a></span><span>Versione 4.0</span></div>
 </div>
 
 <div class="wrap">
   <!-- scelta del tavolo -->
   <section id="tables" class="hidden">
-    <div class="card-box"><h3>🎲 Scegli il tuo tavolo</h3><div id="tableList" class="tablelist"></div></div>
+    <div class="card-box"><h3>Scegli il tuo tavolo</h3><div id="tableList" class="tablelist"></div></div>
     <div class="card-box hidden" id="newTable">
-      <h3>➕ Apri un nuovo tavolo</h3>
+      <h3>Apri un nuovo tavolo</h3>
       <p class="muted" style="margin-top:0">Diventi tu il banco: avrai il cartellone e i comandi. I colleghi entrano con il link del tuo tavolo.</p>
       <input class="txt" id="ntName" maxlength="30" placeholder="Nome del tavolo (es. Tavolo Amministrazione)">
       <input class="txt" id="ntPin" maxlength="8" inputmode="numeric" placeholder="Un PIN per il banco (almeno 4 cifre)" style="margin-top:8px">
@@ -54,25 +56,25 @@
     <div class="card-box">
       <h3>2 · Scegli il tuo personaggio</h3>
       <div class="tabs" id="tabs"></div>
-      <input class="txt" id="search" placeholder="🔎 Cerca un numero o un nome…" style="font-size:15px;padding:10px 14px;margin:8px 0">
+      <input class="txt" id="search" placeholder="Cerca un numero o un nome…" style="font-size:15px;padding:10px 14px;margin:8px 0">
       <div class="avgrid" id="avgrid"></div>
     </div>
     <div class="card-box">
       <h3>3 · La tua foto <span class="muted" style="text-transform:none;letter-spacing:0">(facoltativa)</span></h3>
       <div class="photobox">
-        <div class="prev" id="phPrev">📷</div>
+        <div class="prev" id="phPrev"></div>
         <div>
           <div class="btns">
-            <button class="btn" id="phCam">📸 Webcam</button>
-            <label class="btn ghost" style="color:var(--ink);border-color:var(--line);cursor:pointer">🖼️ Scegli foto<input type="file" accept="image/*" capture="user" id="phFile" hidden></label>
-            <button class="btn ghost hidden" style="color:var(--red2);border-color:var(--line)" id="phDel">✖ Togli</button>
+            <button class="btn" id="phCam">Webcam</button>
+            <label class="btn ghost" style="color:var(--ink);border-color:var(--line);cursor:pointer">Scegli foto<input type="file" accept="image/*" capture="user" id="phFile" hidden></label>
+            <button class="btn ghost hidden" style="color:var(--red2);border-color:var(--line)" id="phDel">Togli</button>
           </div>
           <div class="muted" style="font-size:12.5px;margin-top:6px">La tua faccia diventa l'avatar, con il personaggio della smorfia come spilla. La vedono solo i colleghi in gioco e si cancella quando il banco azzera la serata.</div>
         </div>
       </div>
     </div>
     <div class="err" id="joinErr"></div>
-    <div class="center"><button class="btn big" id="joinBtn">🎟️ Prendi la cartella</button></div>
+    <div class="center"><button class="btn big" id="joinBtn">Prendi la cartella</button></div>
   </section>
 
   <!-- gioco -->
@@ -82,7 +84,7 @@
       <div class="who"><b id="meName"></b><small id="meSub"></small></div>
       <span class="pill" id="tablePill" style="background:#5c0f14"></span>
       <span class="pill" id="phase"></span>
-      <button class="iconbtn" id="infoBtn" title="Info">ℹ️</button>
+      <button class="iconbtn" id="infoBtn" title="Info">ℹ</button>
     </div>
     <div class="wait hidden" id="waitMsg"></div>
 
@@ -99,18 +101,18 @@
     </div>
 
     <div class="card-box hidden" id="specBox">
-      <h3>👀 Partita in corso</h3>
+      <h3>Partita in corso</h3>
       <p style="margin:0 0 6px">La partita è già cominciata, quindi per adesso la guardi da spettatore. <b>Giocherai dalla prossima partita</b>: la tua cartella arriverà da sola quando il banco ne avvia una nuova.</p>
       <div class="muted" id="specInfo"></div>
     </div>
 
     <div class="callbar hidden" id="talkBar" style="border-color:#2e7d4f">
-      <button class="btn green big ptt" id="talkBtn" style="width:100%">🎤 Tieni premuto per parlare</button>
+      <button class="btn green big ptt" id="talkBtn" style="width:100%">Tieni premuto per parlare</button>
       <div class="muted callhint" id="talkStat">Il banco ti ha dato la parola: tieni premuto, parla e lascia per inviare a tutti.</div>
     </div>
     <div class="callbar hidden" id="callBar">
       <div class="pendmsg hidden" id="pendMsg"></div>
-      <button class="btn big callbtn" id="callBtn">📣 AMBO!</button>
+      <button class="btn big callbtn" id="callBtn">AMBO!</button>
       <div class="muted callhint">Modalità "da chiamare": se fai il premio devi chiamarlo tu, prima degli altri!</div>
     </div>
     <div class="card-box" id="cardBox">
@@ -129,13 +131,13 @@
       <div class="prizes" id="prizes"></div>
     </div>
     <div class="card-box">
-      <h3>👥 Al tavolo <span id="crowdN"></span></h3>
-      <div class="muted" style="font-size:12.5px;margin:-4px 0 6px">😜 Tocca un collega per fargli uno scherzo (3 per partita)</div>
+      <h3>Al tavolo <span id="crowdN"></span></h3>
+      <div class="muted" style="font-size:12.5px;margin:-4px 0 6px">Tocca un collega per fargli uno scherzo (3 per partita)</div>
       <div class="crowd" id="crowd"></div>
     </div>
 
     </div></div>
-    <div class="center" style="margin-top:6px"><button class="btn ghost" id="changeBtn">✏️ Cambia nome o personaggio</button></div>
+    <div class="center" style="margin-top:6px"><button class="btn ghost" id="changeBtn">Cambia nome o personaggio</button></div>
     <div class="credits" id="credits"></div>
   </section>
 </div>

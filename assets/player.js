@@ -334,7 +334,7 @@
     if (!on) return;
     const lvlKey = st.pending ? st.pending.level : st.next;
     const lvl = T.LEVEL[lvlKey];
-    $("#callBtn").textContent = lvl ? `📣 ${st.pending ? "Anche io: " : ""}${lvl.label.toUpperCase()}!` : "📣";
+    $("#callBtn").textContent = lvl ? `${st.pending ? "Anche io: " : ""}${lvl.label.toUpperCase()}!` : "…";
     $("#callBtn").dataset.level = lvlKey || "";
     const pm = $("#pendMsg");
     if (st.pending) {

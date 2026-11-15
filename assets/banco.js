@@ -88,24 +88,24 @@
     const s = st, d = s.drawn || [];
     paintMe();
     if (!profileAsked && s.banco && s.banco.name === "Il Banco") { profileAsked = true; setTimeout(openProfile, 600); }
-    if (s.table) $("#tableTitle").textContent = s.table.code === "main" ? "🌋 Cartellone" : "🎲 " + s.table.name;
+    if (s.table) $("#tableTitle").textContent = s.table.code === "main" ? "Cartellone" : "" + s.table.name;
     const ph = { lobby: ["Iscrizioni aperte", ""], playing: ["In gioco", "live"], tombolino: ["Caccia al tombolino", "tl"], over: ["Partita finita", "over"] }[s.phase];
     $("#phase").textContent = ph[0]; $("#phase").className = "pill " + ph[1];
     $("#sGame").textContent = s.game; $("#sCount").textContent = s.count; $("#sDrawn").textContent = d.length + "/90";
     $("#startBtn").classList.toggle("hidden", s.phase !== "lobby");
-    $("#bancoBtn").textContent = "🧺 Il banco gioca: " + (s.bancoPlays ? "sì" : "no");
-    $("#scherziBtn").textContent = "😜 Scherzi: " + (s.scherzi ? "sì" : "no");
+    $("#bancoBtn").textContent = "Il banco gioca: " + (s.bancoPlays ? "sì" : "no");
+    $("#scherziBtn").textContent = "Scherzi: " + (s.scherzi ? "sì" : "no");
     const dt = D.detto(s.game, d.length); $("#detto").innerHTML = `<b>«${esc(dt[0])}»</b><small>${esc(dt[1])}</small>`;
-    $("#lateBtn").textContent = "⏰ Ritardatari: " + (s.lateJoin ? "entrano (con messaggio del banco)" : "aspettano la prossima");
-    $("#talkBtn").textContent = "🎤 I giocatori possono parlare: " + (s.playersTalk ? "sì" : "no");
+    $("#lateBtn").textContent = "Ritardatari: " + (s.lateJoin ? "entrano (con messaggio del banco)" : "aspettano la prossima");
+    $("#talkBtn").textContent = "I giocatori possono parlare: " + (s.playersTalk ? "sì" : "no");
     const live = s.phase === "playing" || s.phase === "tombolino";
     $("#modeSel").value = s.mode; $("#tieSel").value = s.tie; $("#modeSel").disabled = $("#tieSel").disabled = live;
     $("#tieSel").parentElement.querySelectorAll("span")[1].style.opacity = $("#tieSel").style.opacity = s.mode === "chiamata" ? 1 : .4;
     const showCall = s.mode === "chiamata" && live && s.bancoPlays;
     $("#bancoCallRow").classList.toggle("hidden", !(s.mode === "chiamata" && live));
     $("#bancoCall").classList.toggle("hidden", !showCall);
-    const lk = s.pending ? s.pending.level : s.next; $("#bancoCall").dataset.level = lk || ""; $("#bancoCall").textContent = `📣 Il banco chiama ${(T.LEVEL[lk] || { label: "" }).label.toUpperCase()}!`;
-    $("#pendBanco").textContent = s.pending ? `⏳ ${s.pending.label} chiamato da ${s.pending.names.join(", ")} · ${Math.max(0, Math.ceil((s.pending.until - s.now) / 1000))}s` : "";
+    const lk = s.pending ? s.pending.level : s.next; $("#bancoCall").dataset.level = lk || ""; $("#bancoCall").textContent = `Il banco chiama ${(T.LEVEL[lk] || { label: "" }).label.toUpperCase()}!`;
+    $("#pendBanco").textContent = s.pending ? `${s.pending.label} chiamato da ${s.pending.names.join(", ")} · ${Math.max(0, Math.ceil((s.pending.until - s.now) / 1000))}s` : "";
     const playing = s.phase === "playing" || s.phase === "tombolino";
     $("#drawBtn").disabled = !playing || busy; $("#autoBtn").disabled = !playing;
 
@@ -174,7 +174,7 @@
     const iv = (+$("#interval").value || 12) * 1000;
     if (Date.now() - lastDrawLocal >= iv) draw();
   }
-  function renderAuto() { $("#autoBtn").textContent = auto ? "⏸ Pausa" : "⏯ Automatico"; $("#autoBtn").classList.toggle("auto-on", auto); }
+  function renderAuto() { $("#autoBtn").textContent = auto ? "Pausa" : "Automatico"; $("#autoBtn").classList.toggle("auto-on", auto); }
   $("#drawBtn").onclick = draw;
   $("#autoBtn").onclick = () => { auto = !auto; if (auto) lastDrawLocal = 0; renderAuto(); };
   $("#startBtn").onclick = async () => { await host("start"); T.confetti(120); T.announce("k=start", "Si comincia! Buona fortuna a tutti quanti!"); await refresh(); };
