@@ -249,3 +249,8 @@ body .lastbig .bb{border-radius:32px!important}
   .zfig{padding:84px 20px 24px}
   .zfig img{width:min(230px,70%);max-height:none}
 }
+@media (max-width:700px),(max-aspect-ratio:1/1){
+  .zcard{grid-template-columns:1fr}
+  .zfig{padding:78px 20px 22px}
+  .zfig img{width:min(220px,62%)}
+}
