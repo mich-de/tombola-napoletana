@@ -54,6 +54,9 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const wait = ms => new Promise(r => setTimeout(r, ms));
   let busy = Promise.resolve();
+  // foto del panariello (mani vere): x,y = centro della bocca, r = larghezza del gettone dentro, in frazione del lato
+  const STILL = D.PANA_STILL || null; let stillOK = false;
+  if (STILL) { const im = new Image(); im.onload = () => { stillOK = true; }; im.src = STILL.src; }
 
   // filmato delle mani: una clip a caso tra quelle disponibili; se non parte entro 1,2 s si salta
   function playClip(box, skip) {
@@ -90,10 +93,28 @@
       const step = ms => skipped ? Promise.resolve() : Promise.race([wait(ms), skip]);
       (async () => {
         const hadClip = await playClip(ov, skip);
-        // il gettone cade e balla
-        ov.classList.add("drop");
-        if (!skipped) { whoosh(0, .35); tock(.38, .5); if (!hadClip) { tarantella(.45, 6); for (let i = 0; i < 10; i++) wood(.45 + Math.random() * .7, .1 + Math.random() * .18); } }
-        await step(hadClip ? 650 : 1250);
+        const still = !hadClip && !skipped && STILL && stillOK;
+        if (still) {
+          // foto vera del panariello: le mani lo scuotono, poi il gettone esce dalla bocca verso chi guarda
+          const ph = document.createElement("div"); ph.className = "px-pana"; ph.style.backgroundImage = `url(${STILL.src})`; ov.appendChild(ph);
+          tarantella(.15, 8); for (let i = 0; i < 26; i++) wood(.15 + Math.random() * 1.05, .1 + Math.random() * .2);
+          await step(1250);
+          const tk = ov.querySelector(".px-token");
+          ov.classList.add("rise");   // il gettone va al suo posto (senza trasformazioni) prima di misurare
+          const a = { left: ph.offsetLeft, top: ph.offsetTop, width: ph.offsetWidth, height: ph.offsetHeight }, b = tk.getBoundingClientRect();
+          const dx = a.left + a.width * STILL.x - (b.left + b.width / 2), dy = a.top + a.height * STILL.y - (b.top + b.height / 2), k = a.width * STILL.r / b.width;
+          ph.classList.add("out");
+          if (!skipped) {
+            whoosh(0, .5); tock(.62, .55);
+            tk.animate([{ transform: `translate(${dx}px,${dy}px) scale(${k}) rotate(-140deg)`, opacity: .2 }, { transform: `translate(${dx * .5}px,${dy * .5 - b.height * .25}px) scale(${(1 + k) / 2}) rotate(-40deg)`, opacity: 1, offset: .5 }, { transform: "scale(1.08) rotate(6deg)", offset: .82 }, { transform: "none", opacity: 1 }], { duration: 800, easing: "cubic-bezier(.3,.7,.3,1)" });
+          }
+          await step(880); setTimeout(() => ph.remove(), 600);
+        } else {
+          // senza foto né video: il gettone cade e balla
+          ov.classList.add("drop");
+          if (!skipped) { whoosh(0, .35); tock(.38, .5); if (!hadClip) { tarantella(.45, 6); for (let i = 0; i < 10; i++) wood(.45 + Math.random() * .7, .1 + Math.random() * .18); } }
+          await step(hadClip ? 650 : 1250);
+        }
         // si gira: ecco il numero
         ov.classList.add("flip");
         if (!skipped) { tock(.12, .6); fanfare(.2); }

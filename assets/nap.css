@@ -471,3 +471,11 @@ details.more[open] summary::after{content:"–"}
 .px-txt em{font:500 italic clamp(17px,2.2vw,30px)/1.1 var(--display);color:var(--rosso)}
 .px-skip{position:absolute;left:0;right:0;bottom:18px;text-align:center;font:600 10px/1 var(--text);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);opacity:.7}
 @media (prefers-reduced-motion:reduce){.px.drop .px-token{animation:none}.px-coin{transition:none}}
+/* estrazione con la foto vera del panariello */
+.px-pana{position:absolute;left:50%;top:50%;width:min(96vw,88vh,820px);aspect-ratio:1;margin:calc(min(96vw,88vh,820px)/-2) 0 0 calc(min(96vw,88vh,820px)/-2);background:center/cover no-repeat;-webkit-mask:radial-gradient(closest-side,#000 58%,transparent 98%);mask:radial-gradient(closest-side,#000 58%,transparent 98%);animation:panain .22s ease-out both,panashake .13s .2s 8 linear;transform-origin:50% 62%;transition:opacity .6s .3s,transform .9s cubic-bezier(.3,.8,.3,1);z-index:1}
+.px-pana.out{animation:none;opacity:0;transform:scale(.86) translateY(4%)}
+@keyframes panain{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@keyframes panashake{0%,100%{transform:translate(0,0) rotate(0)}20%{transform:translate(-1.2%,-2.2%) rotate(-3.5deg)}50%{transform:translate(.8%,1.6%) rotate(2.5deg)}80%{transform:translate(1.4%,-1.8%) rotate(3.5deg)}}
+.px-stage{position:relative;z-index:3}
+.px.rise .px-token{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.px-pana{animation:panain .22s both}}
