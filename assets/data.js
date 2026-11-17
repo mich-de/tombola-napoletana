@@ -560,7 +560,7 @@
   UFFICIO.forEach(([n, name, sub, e]) => { const a = { id: "u" + n, cat: "ufficio", num: n, name, sub, e, color: "#1F4A44" }; D.AVATARS.push(a); D.AVATAR_BY_ID[a.id] = a; });
   D.UFFICIO = UFFICIO;
   // figure dell'ufficio già pronte in /assets/figu/NN.webp (si aggiorna quando arrivano i fogli)
-  D.FIGS_U = new Set([/*FIGS_U*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 68, 69, 70, 71, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90]);
+  D.FIGS_U = new Set([/*FIGS_U*/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 68, 69, 70, 71, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90]);
   D.EDITIONS = {
     napoli: { code: "napoli", room: "main", title: "Tombola", sub: "d' 'o Munaciello", name: "Tombola tradizionale napoletana", board: "Cartellone" },
     ufficio: { code: "ufficio", room: "ufficio", title: "Tombola", sub: "dell'ufficio", name: "Tombola dell'ufficio", board: "Cartellone dell'ufficio" },
