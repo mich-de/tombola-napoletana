@@ -223,7 +223,7 @@
 
   const REACTIONS = ["😂", "😡", "😱", "👏", "🎉", "😭", "🍀", "💨"];
 
-  const CREDITS = { author: "Michele De Angelis", site: "mdeangelis.me", url: "https://mdeangelis.me", version: "4.0.0", year: 2026 };
+  const CREDITS = { author: "Michele De Angelis", site: "mdeangelis.me", url: "https://mdeangelis.me", version: "4.1.0", year: 2026 };
 
   const data = { SMORFIA, AVATARS, AVATAR_BY_ID, LEVELS, DEFAULT_PRIZES, REACTIONS, CREDITS };
   if (typeof module !== "undefined" && module.exports) module.exports = data;
@@ -424,5 +424,155 @@
     munaciello: { e: "🧙", name: "'O Munaciello", desc: "gli nasconde i numeri" },
     pernacchia: { e: "💨", name: "'A pernacchia", desc: "una bella pernacchia" },
     corna: { e: "🤘", name: "Tiè!", desc: "le corna contro la sua fortuna" }
+  };
+})(typeof globalThis !== "undefined" ? globalThis : this);
+
+/* ===== Tombola dell'ufficio =====
+   La smorfia riletta in chiave ufficio italiano: ogni numero tiene il suo significato tradizionale
+   e gli trova il sosia tra scrivanie, macchinette e riunioni.
+   [numero, personaggio, riferimento alla smorfia, emoji, storiella] */
+(function (root) {
+  const D = (typeof module !== "undefined" && module.exports) ? module.exports : root.TOMBOLA_DATA;
+  const UFFICIO = [
+    [1, "L'Azienda", "nella smorfia: l'Italia", "🏢", "Una e indivisibile, almeno fino alla prossima riorganizzazione."],
+    [2, "La Stagista", "nella smorfia: 'a criatura", "🎒", "È arrivata lunedì e sa già usare la stampante meglio di tutti."],
+    [3, "Il Gatto in videochiamata", "nella smorfia: 'a jatta", "🐈", "Passa sulla tastiera e manda la mail prima che tu l'abbia riletta."],
+    [4, "La Tazza sporca nel lavandino", "nella smorfia: 'o puorco", "☕", "Non è di nessuno. Sta lì da marzo. Ormai ha un nome."],
+    [5, "La Stretta di mano", "nella smorfia: 'a mano", "🤝", "Quella dell'accordo fatto: poi arriva la mail che dice il contrario."],
+    [6, "Quello che guarda a terra", "nella smorfia: chella ca guarda 'nterra", "🙈", "Il capo chiede «chi se ne occupa?» e tutti scoprono quant'è bello il pavimento."],
+    [7, "La Tazza personale", "nella smorfia: 'o vasetto", "🍵", "Con la scritta spiritosa. Guai a chi la tocca."],
+    [8, "La Segretaria storica", "nella smorfia: 'a Maronna", "👩‍💼", "Sa tutto, vede tutto, e a lei ci si raccomanda per ogni grazia."],
+    [9, "Il Team", "nella smorfia: 'a figliata", "👨‍👩‍👧‍👦", "Tanti figli, un solo progetto, nessuno che ricorda chi doveva fare cosa."],
+    [10, "La Mensa", "nella smorfia: 'e fasule", "🍲", "Oggi pasta e fagioli. Anche ieri. Anche domani."],
+    [11, "I Mouse", "nella smorfia: 'e surice", "🖱️", "Spariscono dalle scrivanie di notte: qualcuno li alleva."],
+    [12, "La Vigilanza", "nella smorfia: 'e surdate", "💂", "Alla reception, in divisa: senza badge non passa nemmeno il direttore."],
+    [13, "La Tredicesima", "nella smorfia: Sant'Antonio", "🎁", "Il santo a cui tutti si votano a dicembre. Fa il miracolo e sparisce a gennaio."],
+    [14, "La Cena aziendale", "nella smorfia: 'o mbriaco", "🥂", "Al terzo brindisi il collega serio dell'amministrazione canta al karaoke."],
+    [15, "Il Ragazzo dell'informatica", "nella smorfia: 'o guaglione", "🧑‍💻", "«Ha provato a spegnere e riaccendere?» E funziona, ogni volta."],
+    [16, "Il Posto fisso", "nella smorfia: 'o culo", "🪑", "Questione di fortuna: chi ce l'ha, non si alza più dalla sedia."],
+    [17, "Il Lunedì", "nella smorfia: 'a disgrazia", "😩", "Arriva ogni settimana, puntuale come una cartella esattoriale."],
+    [18, "Lo Straordinario", "nella smorfia: 'o sanghe", "🩸", "Sudore e sangue. Pagato? Ne riparliamo a fine anno."],
+    [19, "La Risata in open space", "nella smorfia: 'a resata", "😂", "Parte da una scrivania e in tre minuti non lavora più nessuno."],
+    [20, "La Festa di pensionamento", "nella smorfia: 'a festa", "🎉", "Pasticcini, spumante tiepido e l'orologio regalato con la colletta."],
+    [21, "La Trasparenza", "nella smorfia: 'a femmena annura", "🔍", "Niente da nascondere, dice l'azienda. Poi la busta paga del collega resta un mistero."],
+    [22, "Il Project manager", "nella smorfia: 'o pazzo", "🤪", "Vuole tutto per ieri, con metà budget e il doppio delle riunioni."],
+    [23, "Rispondi a tutti", "nella smorfia: 'o scemo", "📧", "Scrive «grazie!» a quattrocento persone. Poi qualcuno risponde «prego»."],
+    [24, "L'Ispezione", "nella smorfia: 'e gguardie", "🕵️", "Arrivano i revisori: all'improvviso le scrivanie sono in ordine."],
+    [25, "Il Panettone aziendale", "nella smorfia: Natale", "🎄", "Con il biglietto del presidente. Uguale a quello dell'anno scorso, forse lo stesso."],
+    [26, "Annarella dell'amministrazione", "nella smorfia: Nanninella", "🧾", "Senza la sua firma non si muove un euro. Portatele i cioccolatini."],
+    [27, "Lo Stipendio", "nella smorfia: 'o cantero", "💶", "Arriva il ventisette e il ventotto è già un ricordo."],
+    [28, "I Benefit", "nella smorfia: 'e zzizze", "🍼", "Mamma azienda nutre i suoi figli: buoni, convenzioni e la palestra che nessuno usa."],
+    [29, "Il Capo dei capi", "nella smorfia: 'o pate d''e criature", "👔", "Il padre di tutte le creature: nessuno l'ha mai visto, ma firma tutto."],
+    [30, "Le Slide del consulente", "nella smorfia: 'e palle d''o tenente", "📊", "Centoventi pagine per dire quello che sapevate già. E pesano."],
+    [31, "L'Amministratore delegato", "nella smorfia: 'o patrone 'e casa", "🏠", "Il padrone di casa: quando passa lui, si spengono i telefoni e si accendono i sorrisi."],
+    [32, "Il Collega che sguscia", "nella smorfia: 'o capitone", "🐍", "Lo cerchi per un lavoro urgente: scivola via come un capitone la vigilia."],
+    [33, "L'Anzianità di servizio", "nella smorfia: ll'anne 'e Cristo", "🎖️", "Trentatré anni nella stessa stanza: ha visto passare sette direttori e undici loghi."],
+    [34, "La Capa", "nella smorfia: 'a capa", "👩‍⚖️", "Ha sempre ragione. Anche quando ha torto, soprattutto allora."],
+    [35, "La Chat dell'ufficio", "nella smorfia: l'aucelluzz", "🐦", "Cinguetta tutto il giorno: tre messaggi di lavoro e novanta faccine."],
+    [36, "Il Timbro", "nella smorfia: 'e ccastagnelle", "📮", "Tac, tac, tac: senza quel rumore la pratica non esiste."],
+    [37, "Il Sistemista", "nella smorfia: 'o monaco", "🧙", "Vive in clausura nella sala server e parla una lingua che nessuno capisce."],
+    [38, "La Valutazione annuale", "nella smorfia: 'e mmazzate", "🥊", "La chiamano colloquio di crescita. Si esce con i lividi."],
+    [39, "La Cravatta", "nella smorfia: 'a funa 'nganna", "👔", "La corda al collo: si mette per il cliente e si allenta al primo caffè."],
+    [40, "La Riunione infinita", "nella smorfia: 'a paposcia", "🥱", "Due ore per decidere quando fare la prossima riunione."],
+    [41, "Il Taglio del budget", "nella smorfia: 'o curtiello", "✂️", "Affilato e silenzioso: lo scopri quando chiedi la penna nuova."],
+    [42, "Il Caffè alla macchinetta", "nella smorfia: 'o ccafè", "☕", "Il vero ufficio è lì davanti: si decide più in tre minuti che in tre riunioni."],
+    [43, "Radio Corridoio", "nella smorfia: 'a donna 'o barcone", "📻", "Affacciata alla porta, sa chi entra, chi esce e chi sta per essere promosso."],
+    [44, "Il Tornello", "nella smorfia: 'e ccancelle", "🚧", "Entri alle nove e sei dentro. Per uscire serve il badge, che è rimasto a casa."],
+    [45, "L'Aperitivo dopo il lavoro", "nella smorfia: 'o vino", "🍷", "«Solo uno e vado.» Alle undici stanno ancora parlando male del capo."],
+    [46, "Il Rimborso spese", "nella smorfia: 'e denare", "🧾", "I soldi ci sono. Basta compilare sette moduli e aspettare la primavera."],
+    [47, "Il Computer morto", "nella smorfia: 'o muorto", "💀", "Schermo nero, un minuto di silenzio. Non avevi salvato."],
+    [48, "Il Microfono spento", "nella smorfia: 'o muorto che parla", "🔇", "Parla da dieci minuti e muove pure le mani. «Sei in muto!»"],
+    [49, "La Schiscetta", "nella smorfia: 'o piezzo 'e carne", "🍱", "La cotoletta della sera prima: il profumo arriva fino al terzo piano."],
+    [50, "Il Buono pasto", "nella smorfia: 'o ppane", "🥖", "Il pane quotidiano. Vale otto euro, il panino ne costa nove."],
+    [51, "La Pianta dell'ufficio", "nella smorfia: 'o ciardino", "🪴", "Un ficus solo, in un angolo: lo innaffiano in sei, sta morendo lo stesso."],
+    [52, "La Collega mamma di tutti", "nella smorfia: 'a mamma", "🤱", "In borsa ha cerotti, caramelle, il caricatore e una parola buona per chiunque."],
+    [53, "Il Veterano", "nella smorfia: 'o viecchio", "👴", "Gli mancano tre anni alla pensione e li conta in giorni, ad alta voce."],
+    [54, "Il Capoufficio", "nella smorfia: 'o cappiello", "🎩", "Tanto di cappello: ha fatto carriera senza che nessuno abbia capito come."],
+    [55, "La Musichetta d'attesa", "nella smorfia: 'a museca", "🎶", "«La preghiamo di attendere.» Dopo venti minuti la canti sotto la doccia."],
+    [56, "Il Server è caduto", "nella smorfia: 'a caruta", "📉", "Non si lavora. Tutti alla macchinetta, con la coscienza a posto."],
+    [57, "La Postura da scrivania", "nella smorfia: 'o scartellato", "🦐", "Otto ore piegato sul monitor: il gobbo porta fortuna, ma non alla schiena."],
+    [58, "Il Pacco in portineria", "nella smorfia: 'o paccotto", "📦", "È arrivato un pacco per te. Sono le scarpe, e adesso lo sa tutto il piano."],
+    [59, "Le Pile del telecomando", "nella smorfia: 'e pile", "🔋", "Il proiettore non parte: mancano le pile. Mancano da sempre."],
+    [60, "Il Lamentoso", "nella smorfia: se lamenta", "😮‍💨", "L'aria condizionata è troppo fredda. Poi troppo calda. Poi fa rumore."],
+    [61, "Il Cacciatore di teste", "nella smorfia: 'o cacciatore", "🎯", "Ti scrive: «Ho un'opportunità perfetta per il tuo profilo». È il tuo lavoro di adesso."],
+    [62, "Il Progetto cancellato", "nella smorfia: 'o muorto acciso", "⚰️", "Sei mesi di lavoro, ammazzati in una riunione di dieci minuti."],
+    [63, "La Neoassunta", "nella smorfia: 'a sposa", "💍", "Giorno della firma: tutti sorridono, promesse eterne. Poi comincia la convivenza."],
+    [64, "La Giacca sulla sedia", "nella smorfia: 'a sciammeria", "🧥", "Sta lì dalle nove a far presenza. Il proprietario è al bar."],
+    [65, "Il Pianto in bagno", "nella smorfia: 'o chianto", "😭", "Cinque minuti, una sciacquata alla faccia e si torna alla scrivania."],
+    [66, "Le Due inseparabili", "nella smorfia: 'e ddoje zetelle", "👯", "Caffè insieme, pranzo insieme, ferie insieme. E commentano tutti, insieme."],
+    [67, "I Cavi sotto la scrivania", "nella smorfia: 'o totaro int''a chitarra", "🔌", "Un groviglio che nessuno osa toccare: se ne stacchi uno, si spegne il piano."],
+    [68, "La Coda al microonde", "nella smorfia: 'a zuppa cotta", "♨️", "Dodici persone, un microonde, e quello davanti scalda la lasagna da sei minuti."],
+    [69, "La Riorganizzazione", "nella smorfia: sott'e 'ncoppa", "🔄", "Tutto sottosopra: cambiano i nomi degli uffici, restano gli stessi problemi."],
+    [70, "La Sede", "nella smorfia: 'o palazzo", "🏛️", "Sette piani, tre ascensori: ne funziona uno, ed è sempre al settimo."],
+    [71, "Quello che si prende i meriti", "nella smorfia: l'ommo 'e merda", "🦚", "Il lavoro l'hai fatto tu. Alla presentazione dice «abbiamo fatto», e parla lui."],
+    [72, "L'Aumento", "nella smorfia: 'a meraviglia", "😲", "Se ne sente parlare, come dei miracoli. Chi l'ha visto giura che esiste."],
+    [73, "Il Certificato medico", "nella smorfia: 'o spitale", "🤒", "Febbre il venerdì, guarigione miracolosa il lunedì."],
+    [74, "La Sala riunioni", "nella smorfia: 'a rotta", "🕳️", "Una grotta senza finestre: si entra alle due, si esce che è buio."],
+    [75, "Il Simpatico dell'ufficio", "nella smorfia: Pullecenella", "🤡", "Ha la battuta per tutto. Anche per il funerale del toner."],
+    [76, "Il Boccione dell'acqua", "nella smorfia: 'a funtana", "🚰", "La fontana del villaggio: ci si va per bere e si torna con tre notizie."],
+    [77, "Le Scadenze", "nella smorfia: 'e riavule", "😈", "Diavoli che corrono: più le rimandi, più ti inseguono."],
+    [78, "La Bella figura", "nella smorfia: 'a bella figliola", "✨", "La presentazione è andata bene: per un giorno ti guardano tutti."],
+    [79, "Il Ladro di yogurt", "nella smorfia: 'o mariuolo", "🥛", "C'era il tuo nome sopra, in stampatello. Non è bastato."],
+    [80, "Il Pettegolezzo", "nella smorfia: 'a vocca", "👄", "«Non dirlo a nessuno.» Entro pranzo lo sa anche il magazzino."],
+    [81, "La Colletta per il regalo", "nella smorfia: 'e sciure", "💐", "Cinque euro a testa per i fiori. Gira la busta, torna con dodici euro e un bottone."],
+    [82, "Il Pranzo di Natale", "nella smorfia: 'a tavula 'mbandita", "🍽️", "Tavolata da quaranta, e ti siedi proprio accanto al direttore."],
+    [83, "Lo Sciopero dei treni", "nella smorfia: 'o maletiempo", "🌧️", "Sempre di venerdì, sempre con la pioggia."],
+    [84, "La Riunione plenaria", "nella smorfia: 'a chiesa", "⛪", "Tutti seduti, uno solo che parla, e alla fine «andate in pace»."],
+    [85, "I Precari", "nella smorfia: ll'aneme 'o priatorio", "🕯️", "Anime in attesa del rinnovo: pregate per loro, soprattutto a dicembre."],
+    [86, "Il Bar sotto l'ufficio", "nella smorfia: 'a puteca", "🏪", "Sa come prendi il caffè, a che ora scendi e con chi."],
+    [87, "Il Perùcchiuso", "nella smorfia: 'e perucchie", "👛", "Alla macchinetta ha solo la banconota da cinquanta. Alla colletta dice «passo dopo». Non è mai passato."],
+    [88, "I Due monitor", "nella smorfia: 'e casecavalle", "🖥️", "Appesi a coppia sulla scrivania: su uno il lavoro, sull'altro le offerte dei voli."],
+    [89, "La Fotocopiatrice", "nella smorfia: 'a vecchia", "🖨️", "Anziana, lenta, si inceppa: ma senza di lei si ferma tutto."],
+    [90, "La Mail delle risorse umane", "nella smorfia: 'a paura", "😱", "Venerdì, 18:59. Oggetto: «Possiamo parlare lunedì?»"],
+  ];
+  const DETTI_UFFICIO = [
+    ["Questa riunione poteva essere una mail", "E quella mail poteva essere un caffè"],
+    ["Ci aggiorniamo", "Non ci aggiorneremo mai"],
+    ["Facciamo un punto veloce", "Prendete da mangiare"],
+    ["Te lo giro subito", "Arriverà giovedì"],
+    ["Come da accordi telefonici", "Così resta scritto che l'avevi detto"],
+    ["È una priorità", "Come le altre quattordici"],
+    ["Chi fa da sé fa per tre", "E infatti gli danno il lavoro di tre"],
+    ["Ti rubo solo un minuto", "Mettiti comodo"],
+    ["Lo vediamo dopo le ferie", "Cioè a settembre, qualunque mese sia"],
+    ["In copia il mio responsabile", "Adesso si fa sul serio"],
+    ["Buon lavoro a tutti", "Io stacco"],
+    ["Venerdì pomeriggio non si rilascia niente", "Chi tocca il venerdì, lavora il sabato"],
+    ["Il caffè lo offre chi arriva ultimo", "E il lunedì sei sempre tu"],
+    ["A pensar male del capo si fa peccato", "Ma spesso ci si azzecca"],
+    ["Chi timbra per primo, parcheggia meglio", "Antico proverbio del piano terra"],
+    ["Mal comune, pausa caffè", "Il mezzo gaudio è alla macchinetta"],
+    ["'O perùcchiuso tene 'o portafoglio int' 'a machina", "Il tirchio ha sempre il portafoglio in macchina"],
+  ];
+  const SCHERZI_UFFICIO = [
+    "{N} offre il caffè alla macchinetta a chi gli sta a destra ☕",
+    "{N} deve dire «ci aggiorniamo» con la faccia più seria che ha 🗓️",
+    "{N} imita il capo quando entra in riunione 👔",
+    "{N} deve rispondere «come da accordi» alla prossima domanda che gli fanno 📎",
+    "{N} fa l'annuncio dell'altoparlante: «il proprietario dell'auto in doppia fila…» 📣",
+    "{N} deve confessare cosa c'è davvero nel suo secondo monitor 🖥️",
+    "{N} mima la lotta con la stampante inceppata 🖨️",
+    "{N} brinda al collega che stima di più (e lo dice ad alta voce) 🥂",
+    "{N} oggi non fa 'o perùcchiuso: il prossimo caffè lo offre a tutto il tavolo 👛",
+  ];
+  D.SCHERZI_UFFICIO = SCHERZI_UFFICIO;
+  const NAPOLI = D.SMORFIA.map(r => r.slice()), DETTI_NAPOLI = D.DETTI, RIME_NAPOLI = D.RIME, figNapoli = D.figURL;
+  UFFICIO.forEach(([n, name, sub, e]) => { const a = { id: "u" + n, cat: "ufficio", num: n, name, sub, e, color: "#1F4A44" }; D.AVATARS.push(a); D.AVATAR_BY_ID[a.id] = a; });
+  D.UFFICIO = UFFICIO;
+  // figure dell'ufficio già pronte in /assets/figu/NN.webp (si aggiorna quando arrivano i fogli)
+  D.FIGS_U = new Set([/*FIGS_U*/]);
+  D.EDITIONS = {
+    napoli: { code: "napoli", room: "main", title: "Tombola", sub: "d' 'o Munaciello", name: "Tombola tradizionale napoletana", board: "Cartellone" },
+    ufficio: { code: "ufficio", room: "ufficio", title: "Tombola", sub: "dell'ufficio", name: "Tombola dell'ufficio", board: "Cartellone dell'ufficio" },
+  };
+  D.edition = "napoli";
+  // cambia edizione: i 90 numeri prendono i personaggi, i detti e le figure di quella scelta
+  D.setEdition = code => {
+    const uf = code === "ufficio"; D.edition = uf ? "ufficio" : "napoli";
+    D.SMORFIA.splice(0, D.SMORFIA.length, ...(uf ? UFFICIO : NAPOLI).map(r => r.slice()));
+    D.DETTI = uf ? DETTI_UFFICIO : DETTI_NAPOLI;
+    D.RIME = uf ? UFFICIO.map(() => "") : RIME_NAPOLI;
+    D.figURL = uf ? (n => (D.FIGS_U.has(n) ? `/assets/figu/${String(n).padStart(2, "0")}.webp` : null)) : figNapoli;
+    return D.EDITIONS[D.edition];
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

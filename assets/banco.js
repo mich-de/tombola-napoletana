@@ -21,12 +21,15 @@
   }
   $("#pinBtn").onclick = () => { T.audio(); tryPin($("#pin").value.trim()); };
   $("#pin").onkeydown = e => { if (e.key === "Enter") $("#pinBtn").click(); };
+  document.querySelectorAll("#edsw a").forEach(x => x.classList.toggle("on", x.dataset.ed === T.edition().code));
   if (pin) tryPin(pin);
 
   function boot() {
     $("#pinBox").classList.add("hidden"); $("#banco").classList.remove("hidden");
     const url = location.origin + "/" + T.roomQS();
-    if (T.getRoom() !== "main") $("#closeBtn").classList.remove("hidden");
+    if (T.getRoom() !== "main" && T.getRoom() !== "ufficio") $("#closeBtn").classList.remove("hidden");
+    document.title = T.edition().board + " · il banco";
+    if (T.edition().code === "ufficio") $("#tabTitle").textContent = "Tabellone dell'ufficio";
     $("#url").textContent = url.replace(/^https?:\/\//, "");
     $("#qr").src = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=" + encodeURIComponent(url);
     $("#qr").onerror = () => $("#qr").remove();
@@ -88,7 +91,7 @@
     const s = st, d = s.drawn || [];
     paintMe();
     if (!profileAsked && s.banco && s.banco.name === "Il Banco") { profileAsked = true; setTimeout(openProfile, 600); }
-    if (s.table) $("#tableTitle").textContent = s.table.code === "main" ? "Cartellone" : "" + s.table.name;
+    if (s.table) $("#tableTitle").textContent = (s.table.code === "main" || s.table.code === "ufficio") ? T.edition().board : "" + s.table.name;
     const ph = { lobby: ["Iscrizioni aperte", ""], playing: ["In gioco", "live"], tombolino: ["Caccia al tombolino", "tl"], over: ["Partita finita", "over"] }[s.phase];
     $("#phase").textContent = ph[0]; $("#phase").className = "pill " + ph[1];
     $("#sGame").textContent = s.game; $("#sCount").textContent = s.count; $("#sDrawn").textContent = d.length + "/90";

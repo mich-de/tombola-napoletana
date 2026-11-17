@@ -9,8 +9,12 @@
 
   // il tavolo: ?t=CODICE nell'indirizzo (senza codice = tavolo principale)
   let room = (new URLSearchParams(location.search).get("t") || "main").toLowerCase().replace(/[^a-z0-9]/g, "") || "main";
+  // l'edizione segue il tavolo: "ufficio" = tombola dell'ufficio, tutto il resto = tradizionale napoletana
+  let onEdition = null;
+  const applyEdition = () => { const ed = D.setEdition(room === "ufficio" ? "ufficio" : "napoli"); document.documentElement.dataset.ed = ed.code; if (onEdition) onEdition(); return ed; };
+  applyEdition();
   const setRoom = code => {
-    room = code || "main";
+    room = code || "main"; applyEdition();
     const u = new URL(location.href); if (room === "main") u.searchParams.delete("t"); else u.searchParams.set("t", room);
     history.replaceState(null, "", u);
   };
@@ -606,11 +610,12 @@
   }
 
   // la striscia dei detti che scorre in cima
-  (function () {
+  function fillMarquee() {
     const mq = document.querySelector(".mq"); if (!mq) return;
     const items = D.DETTI.slice().sort(() => Math.random() - .5).slice(0, 14).map(d => `<span>${esc(d[0])}</span><b>★</b>`).join("");
     mq.innerHTML = items + items;
-  })();
+  }
+  fillMarquee(); onEdition = fillMarquee;
   function toast(msg, ms = 2600) {
     const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
     document.body.appendChild(t); setTimeout(() => t.remove(), ms);
@@ -661,5 +666,5 @@
       <p class="credits">${creditsHTML()}</p>`);
   }
 
-  window.T = { D, $, esc, smorfia, fig, showScherzo, prankEffect, figBig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, playRec, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, zoomNum, infoModal, creditsHTML, wheel };
+  window.T = { D, $, esc, smorfia, fig, showScherzo, prankEffect, figBig, crowdHTML, setRoom, getRoom, roomQS, pernacchia, lateOverlay, numsHTML, setRecs, recURL, playURL, prepareRec, handleSays, recordPTT, playRec, releaseMic, LEVEL, api, avatarHTML, snow, confetti, fireworks, sounds, speak, callNumber, prepareNumber, announce, itVoices, bestVoice, setVoice, panariello, audio, floater, showWin, updateReactCounts, toast, modal, zoomNum, infoModal, edition: () => D.EDITIONS[D.edition], creditsHTML, wheel };
 })();

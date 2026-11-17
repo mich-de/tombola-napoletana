@@ -12,15 +12,37 @@
   $("#credits").innerHTML = T.creditsHTML();
 
   // ---------- splash ----------
-  $("#enter").onclick = async () => {
+  // in home si sceglie la tombola: tradizionale napoletana oppure dell'ufficio (sono i due tavoli)
+  document.querySelector(".hp-choices").onclick = e => {
+    const b = e.target.closest(".hp-ch"); if (!b) return;
+    T.setRoom(b.dataset.room);
     T.audio(); T.sounds.draw();
     try { const a = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="); a.play().catch(() => {}); } catch {}
     $("#splash").style.transition = "opacity .5s, transform .5s";
     $("#splash").style.opacity = 0; $("#splash").style.transform = "scale(1.1)";
     setTimeout(() => $("#splash").remove(), 500);
-    if (!new URLSearchParams(location.search).get("t")) { const shown = await showTables(); if (shown) return; }
-    enterRoom();
+    applyEditionUI(); enterRoom();
   };
+  // chi arriva dal QR di un tavolo (?t=...) vede solo quella tombola; gli altri scelgono
+  (function () {
+    const pre = new URLSearchParams(location.search).get("t"), chs = [...document.querySelectorAll(".hp-ch")];
+    if (pre) chs.forEach(b => { const mine = (b.dataset.room === "ufficio") === (T.getRoom() === "ufficio"); b.classList.toggle("hidden", !mine); if (mine) b.dataset.room = T.getRoom(); });
+    api("rooms").then(r => r.rooms.forEach(t => {
+      const b = chs.find(x => x.dataset.room === t.code); if (!b) return;
+      const playing = t.phase === "playing" || t.phase === "tombolino";
+      const em = document.createElement("em"); em.className = "hp-st" + (playing ? " live" : "");
+      em.textContent = `${t.count} ${t.count === 1 ? "giocatore" : "giocatori"} · ${playing ? `partita in corso, ${t.drawn}/90` : t.phase === "over" ? "partita finita" : "si aspetta il banco"}`;
+      b.appendChild(em);
+    })).catch(() => {});
+  })();
+  function applyEditionUI() {
+    const ed = T.edition(), uf = ed.code === "ufficio";
+    document.title = ed.name;
+    cat = uf ? "ufficio" : "smorfia";
+    const CATS = (uf ? [["ufficio", "Ufficio (90)"]] : []).concat([["smorfia", "Smorfia (90)"], ["presepe", "Presepe e folklore"], ["moderni", "Pastori moderni"], ["natale", "Natale"]]);
+    $("#tabs").innerHTML = CATS.map(([k, l]) => `<button class="tab" data-k="${k}">${l}</button>`).join("");
+    document.querySelectorAll("[data-edname]").forEach(el => { el.textContent = ed.name; });
+  }
   async function enterRoom() {
     $("#tables").classList.add("hidden");
     const saved = JSON.parse(localStorage.getItem(lsKey()) || "null");
@@ -57,8 +79,6 @@
   function setupError(e) { document.querySelector(".wrap").innerHTML = `<div class="card-box"><h3>Quasi pronti!</h3><p>${esc(e.message)}</p></div>`; }
 
   // ---------- iscrizione ----------
-  const CATS = [["smorfia", "🔢 Smorfia (90)"], ["presepe", "🌟 Presepe e folklore"], ["moderni", "🤳 Pastori moderni"], ["natale", "🎅 Natale"]];
-  $("#tabs").innerHTML = CATS.map(([k, l]) => `<button class="tab" data-k="${k}">${l}</button>`).join("");
   $("#tabs").onclick = e => { const b = e.target.closest(".tab"); if (!b) return; cat = b.dataset.k; $("#search").value = ""; renderGrid(); };
   $("#search").oninput = renderGrid;
 
@@ -265,7 +285,7 @@
     const s = st;
     const ph = { lobby: ["In attesa", ""], playing: ["In gioco", "live"], tombolino: ["Tombolino!", "tl"], over: ["Finita", "over"] }[s.phase] || ["", ""];
     $("#phase").textContent = `P.${s.game} · ${ph[0]}`; $("#phase").className = "pill " + ph[1];
-    if (s.table) { $("#tablePill").textContent = "🎲 " + s.table.name; $("#tablePill").classList.toggle("hidden", s.table.code === "main"); $("#tablePill").title = s.table.name; }
+    if (s.table) { $("#tablePill").textContent = s.table.code === "ufficio" ? "Ufficio" : s.table.name; $("#tablePill").classList.toggle("hidden", s.table.code === "main"); $("#tablePill").title = s.table.name; }
     const w = $("#waitMsg");
     if (s.phase === "lobby") { w.innerHTML = `⏳ La partita ${s.game} sta per iniziare<span class="dots"></span> · ${s.count} giocatori iscritti`; w.classList.remove("hidden"); }
     else if (s.phase === "over") { w.innerHTML = `🏁 Partita finita! Aspetta che il banco ne avvii un'altra<span class="dots"></span>`; w.classList.remove("hidden"); }
