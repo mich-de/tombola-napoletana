@@ -58,9 +58,9 @@
     const photo = who && who.ph && pid;
     if (photo || (who && who.photoURL)) {
       const src = who.photoURL || `/api/t?a=photo&id=${encodeURIComponent(pid)}&v=${who.ph}`;
-      return `<div class="av ${size} photo" style="--c:${a.color}" title="${esc(a.name)}"><img src="${src}" alt="" loading="lazy"><span class="badge">${a.num && D.figURL(a.num) ? `<img src="${D.figURL(a.num)}" alt="">` : fig(a.e)}</span>${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
+      return `<div class="av ${size} photo" style="--c:${a.color}" title="${esc(a.name)}"><img src="${src}" alt="" loading="lazy"><span class="badge">${D.avatarFig(a) ? `<img src="${D.avatarFig(a)}" alt="">` : fig(a.e)}</span>${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
     }
-    const fu = a.num && D.figURL(a.num);
+    const fu = D.avatarFig(a);
     if (fu) return `<div class="av ${size} figav" style="--c:${a.color}" title="${esc(a.name)}"><img src="${fu}" alt="" loading="lazy"><span class="num">${a.num}</span></div>`;
     return `<div class="av ${size}" style="--c:${a.color}" title="${esc(a.name)}">${fig(a.e)}${a.num ? `<span class="num">${a.num}</span>` : ""}</div>`;
   }

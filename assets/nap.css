@@ -544,3 +544,11 @@ html[data-ed="ufficio"] .modal{background:rgba(31,74,68,.55)}
 .hp-st::before{content:"";width:7px;height:7px;border-radius:50%;background:#b9b2a3;flex:none}
 .hp-st.live{color:#2F7D5B}.hp-st.live::before{background:#2F7D5B;box-shadow:0 0 0 3px rgba(47,125,91,.2)}
 .hp-choices:has(.hp-ch.hidden){grid-template-columns:minmax(0,340px)}
+/* figure dell'ufficio: sono in formato 4:3, dove c'è spazio si vedono intere */
+html[data-ed="ufficio"] .zfig img{aspect-ratio:4/3;width:min(340px,100%)}
+html[data-ed="ufficio"] .px-fig{width:min(62vw,34vh,320px)}
+html[data-ed="ufficio"] .px.big .px-fig{width:min(28vw,52vh,380px)}
+html[data-ed="ufficio"] .px-fig img{aspect-ratio:4/3}
+html[data-ed="ufficio"] #fig img{width:200px!important;height:150px!important;border-radius:2px!important}
+.hp-c.uf img{background:#EEF1EA}
+@media (max-width:700px),(max-aspect-ratio:1/1){html[data-ed="ufficio"] .zfig img{width:min(300px,80%)}}
